@@ -40,11 +40,4 @@ Streaming app that allows members to watch movies, series, tv shows and its a su
 
 ## Screenshots
 
-<img src="repository_assets/screenshots/1.jpg" alt="1" height="300"/>
-<img src="repository_assets/screenshots/2.jpg" alt="2" height="300"/>
-<img src="repository_assets/screenshots/3.jpg" alt="3" height="300"/>
-<img src="repository_assets/screenshots/4.jpg" alt="4" height="300"/>
-<img src="repository_assets/screenshots/5.jpg" alt="5" height="300"/>
-<img src="repository_assets/screenshots/6.jpg" alt="6" height="300"/>
-<img src="repository_assets/screenshots/7.jpg" alt="7" height="300"/>
-<img src="repository_assets/screenshots/8.jpg" alt="8" height="300"/>
+<img src="repository_assets/screenshots/1.jpg" alt="1" height="600"/><img src="repository_assets/screenshots/2.jpg" alt="2" height="600"/><img src="repository_assets/screenshots/3.jpg" alt="3" height="600"/><img src="repository_assets/screenshots/4.jpg" alt="4" height="600"/><img src="repository_assets/screenshots/5.jpg" alt="5" height="600"/><img src="repository_assets/screenshots/6.jpg" alt="6" height="600"/><img src="repository_assets/screenshots/7.jpg" alt="7" height="600"/><img src="repository_assets/screenshots/8.jpg" alt="8" height="600"/>
