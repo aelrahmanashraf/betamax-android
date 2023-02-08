@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?color_light_separate"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?color_light_separate"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".2"
+                android:background="@color/color_theme_dark">
+
+                <TextView
+                    android:id="@id/branding_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:alpha=".8"
+                    android:fontFamily="@font/branding_font"
+                    android:text="@string/app_name"
+                    android:textColor="?color_dark"
+                    android:textSize="18sp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".8"
+                android:background="@color/color_theme"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:paddingEnd="10dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".2"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="?color_background"
+                    android:orientation="vertical"
+                    android:paddingTop="20dp"
+                    android:paddingBottom="20dp">
+
+                    <LinearLayout
+                        android:id="@id/my_movies"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="7dp"
+                        android:background="@drawable/item_television_genre_selectable"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingStart="30dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="30dp"
+                        android:paddingBottom="5dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:alpha=".8"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="@string/my_movies"
+                            android:textColor="?color_dark"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@id/my_tvchannels"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/item_television_genre_selectable"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:paddingStart="30dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="30dp"
+                        android:paddingBottom="5dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:alpha=".8"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="@string/my_tvchannels"
+                            android:textColor="?color_dark"
+                            android:textSize="15sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="0dp"
+                android:layout_weight=".8"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingTop="35dp">
+
+                    <TextView
+                        android:id="@id/mylist_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:alpha=".8"
+                        android:fontFamily="@font/poppins_regular"
+                        android:paddingStart="35dp"
+                        android:paddingEnd="35dp"
+                        android:text="@string/my_movies"
+                        android:textColor="?color_dark"
+                        android:textSize="26sp" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:paddingStart="23dp"
+                        android:paddingEnd="23dp">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@id/recycler_movies"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent" />
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@id/recycler_tv"
+                                android:layout_width="500dp"
+                                android:layout_height="match_parent" />
+
+                        </RelativeLayout>
+
+                        <ProgressBar
+                            android:id="@id/mylist_progressbar"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginTop="35dp"
+                            android:indeterminateTint="?color_dark"
+                            android:visibility="gone" />
+
+                        <include
+                            android:id="@id/internet_connection"
+                            layout="@layout/include_internet_connection"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true" />
+
+                        <LinearLayout
+                            android:id="@id/no_items"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="20dp"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:visibility="gone"
+                            android:layout_marginBottom="15dp">
+
+                            <ImageView
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:src="@drawable/icon_folder_empty"
+                                app:tint="?color_dark"
+                                android:layout_marginBottom="15dp"
+                                tools:ignore="ContentDescription" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="center"
+                                android:text="@string/your_list_is_empty"
+                                android:fontFamily="@font/poppins_medium"
+                                android:textColor="?color_dark"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="center"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/start_adding_content_to_your_list"
+                                android:textColor="?color_dark" />
+
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    xmlns:fresco="http://schemas.android.com/tools"
+    android:layout_marginEnd="25dp">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@id/actor_thumbnail"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        fresco:actualImageScaleType="centerCrop"
+        app:roundAsCircle="true"
+        app:placeholderImageScaleType="centerCrop"
+        fresco:placeholderImage="@color/color_grey" />
+
+    <TextView
+        android:id="@id/actor_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:layout_marginTop="7dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textSize="14sp"
+        android:textColor="?color_dark"
+        fresco:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@id/actor_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Role"
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="13sp"
+        android:alpha=".8"
+        android:textColor="?color_dark"
+        fresco:ignore="HardcodedText" />
+
+</LinearLayout>

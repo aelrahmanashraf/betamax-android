@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/input_rectangle_background"
+    android:gravity="center"
+    android:padding="15dp">
+
+    <TextView
+        android:id="@id/season_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Season Title"
+        android:textColor="?color_dark"
+        android:textStyle="bold"
+        android:textSize="13sp"
+        tools:ignore="HardcodedText" />
+
+</RelativeLayout>

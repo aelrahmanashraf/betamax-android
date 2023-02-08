@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.picassos.betamax.android.presentation.app.auth.verify_code.VerifyCodeViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?color_background">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="150dp"
+                android:layout_marginEnd="150dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="30dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="1dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="@string/we_sent_email"
+                    android:textColor="?color_dark"
+                    android:textSize="26sp"
+                    tools:ignore="RelativeOverlap" />
+
+                <TextView
+                    android:id="@id/email_verification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="25dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/please_enter_the_6_digit_code_sent_to_you_at"
+                    android:textAlignment="center"
+                    android:textColor="?color_dark"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@id/verification_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:afterTextChanged="@{(text) -> viewModel.onVerificationCodeChange(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:hint="@string/verification_code"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:layoutDirection="ltr"
+                    android:maxLines="1"
+                    android:nextFocusDown="@id/verify"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.verifyCodeFormState.verificationCode}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size_tv" />
+
+                <Button
+                    android:id="@id/verify"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:layout_marginTop="15dp"
+                    android:background="@drawable/button_primary"
+                    android:focusable="true"
+                    android:nextFocusUp="@id/verification_code"
+                    android:onClick="@{() -> viewModel.onSubmit()}"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:text="@string/verify"
+                    android:textAllCaps="false"
+                    android:textColor="@color/color_white"
+                    android:textSize="@dimen/input_text_size_tv"
+                    app:enabled="@{viewModel.verifyCodeFormState.verificationCodeError}"
+                    tools:ignore="PrivateResource" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@id/resend_again_timer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:text="@string/resend_code_in"
+                        android:textColor="?color_dark"
+                        android:textSize="@dimen/link_text_size_tv" />
+
+                    <TextView
+                        android:id="@id/resend_again"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="@string/resend"
+                        android:textColor="@color/color_theme"
+                        android:textSize="@dimen/link_text_size_tv"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </RelativeLayout>
+
+</layout>

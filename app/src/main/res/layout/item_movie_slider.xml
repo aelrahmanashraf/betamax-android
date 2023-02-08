@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/tools">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@id/movie_thumbnail_container"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        app:overlayImage="@drawable/slider_overlay"
+        app:roundedCornerRadius="15dp"
+        fresco:actualImageScaleType="centerCrop"
+        app:placeholderImageScaleType="centerCrop"
+        fresco:placeholderImage="?color_light_separate" />
+
+</RelativeLayout>

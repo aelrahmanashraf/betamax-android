@@ -1,0 +1,101 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/color_white</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="color_light">@color/color_white</item>
+        <item name="color_background">@color/color_background</item>
+        <item name="color_background_alternative">@color/color_background</item>
+        <item name="color_lighter">@color/color_light_white</item>
+        <item name="color_dark">@color/color_dark</item>
+        <item name="color_grey">@color/color_grey</item>
+        <item name="color_grey_sheet">@color/color_grey</item>
+        <item name="color_light_separate">@color/color_white</item>
+        <item name="color_transparent">@color/color_white_alpha70</item>
+        <item name="color_transparent_dark">@color/color_white_alpha90</item>
+        <item name="color_dark_separate">@color/reverse_dark</item>
+        <item name="divider_inline">@drawable/divider_inline_light</item>
+        <item name="color_icon">@color/color_grey_lighter</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="android:listDivider">@color/color_background</item>
+        <item name="android:textColorSecondary">@color/color_dark</item>
+        <item name="android:navigationBarColor">@color/color_background</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+    <style name="DarkTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/color_dark</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="color_light">@color/color_dark</item>
+        <item name="color_background">@color/color_dark</item>
+        <item name="color_background_alternative">@color/color_darker</item>
+        <item name="color_lighter">@color/color_darker</item>
+        <item name="color_dark">@color/color_white</item>
+        <item name="color_grey">@color/reverse_dark</item>
+        <item name="color_grey_sheet">@color/color_dark</item>
+        <item name="color_light_separate">@color/reverse_dark</item>
+        <item name="color_transparent">@color/color_dark_alpha50</item>
+        <item name="color_transparent_dark">@color/color_dark_alpha90</item>
+        <item name="color_dark_separate">@color/color_white</item>
+        <item name="divider_inline">@drawable/divider_inline_dark</item>
+        <item name="color_icon">@color/reverse_dark</item>
+        <item name="color_text_helper">@color/color_grey</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="android:listDivider">@color/color_dark</item>
+        <item name="android:navigationBarColor">@color/color_dark</item>
+        <item name="android:textColorSecondary">@color/color_white</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+    </style>
+
+    <style name="ChipTheme" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/chip_background_color</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:textColor">@color/chip_text_color</item>
+        <item name="chipStartPadding">25dp</item>
+        <item name="chipEndPadding">25dp</item>
+        <item name="chipMinHeight">37dp</item>
+        <item name="chipSpacing">15dp</item>
+        <item name="android:textAppearance">@style/ChipTextAppearance</item>
+    </style>
+
+    <style name="ChipTextAppearance">
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TvChipTheme" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/tv_chip_background_color</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:textColor">@color/tv_chip_text_color</item>
+        <item name="chipStartPadding">25dp</item>
+        <item name="android:focusable">true</item>
+        <item name="chipEndPadding">25dp</item>
+        <item name="chipMinHeight">45dp</item>
+        <item name="chipSpacing">30dp</item>
+        <item name="android:textAppearance">@style/TvChipTextAppearance</item>
+    </style>
+
+    <style name="TvChipTextAppearance">
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="PlayerTheme" parent="Theme.AppCompat.Light.NoActionBar" />
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:navigationBarColor">@color/color_dark</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/rounded_modal_shape</item>
+    </style>
+    
+    <style name="DialogStyle">
+        <item name="android:navigationBarColor">@color/color_dark</item>
+    </style>
+</resources>

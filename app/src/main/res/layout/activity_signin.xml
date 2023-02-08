@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="com.picassos.betamax.android.presentation.app.auth.signin.SigninViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?color_background"
+        android:fillViewport="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="40dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="@string/signin"
+                    android:textColor="?color_dark"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="25dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/sign_into_your_mynta_account_to_continue"
+                    android:textAlignment="center"
+                    android:textColor="?color_dark"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height"
+                    android:afterTextChanged="@{(text) -> viewModel.onEmailChange(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:gravity="center_vertical"
+                    android:hint="@string/email_address"
+                    android:importantForAutofill="no"
+                    android:inputType="textEmailAddress"
+                    android:layoutDirection="ltr"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.signinFormState.email}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size"
+                    app:layout_error="@{viewModel.signinFormState.emailError}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.signinFormState.emailError}" />
+
+                <EditText
+                    android:id="@id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height"
+                    android:layout_marginTop="12dp"
+                    android:afterTextChanged="@{(text) -> viewModel.onPasswordChange(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:gravity="center_vertical"
+                    android:hint="@string/password"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:layoutDirection="ltr"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.signinFormState.password}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size"
+                    app:layout_error="@{viewModel.signinFormState.passwordError}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.signinFormState.passwordError}" />
+
+                <TextView
+                    android:id="@id/reset_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="@string/forgot_password"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="end"
+                    android:paddingBottom="10dp"
+                    android:textColor="?color_dark"
+                    android:textSize="@dimen/link_text_size" />
+
+                <Button
+                    android:id="@id/signin"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/button_primary"
+                    android:onClick="@{() -> viewModel.onSubmit()}"
+                    android:text="@string/signin"
+                    android:textAllCaps="false"
+                    android:textColor="?color_dark"
+                    android:textSize="@dimen/input_text_size" />
+
+                <TextView
+                    android:id="@id/signin_response"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="@string/don_t_have_an_account"
+                        android:paddingBottom="10dp"
+                        android:textColor="?color_dark"
+                        android:textSize="@dimen/link_text_size" />
+
+                    <TextView
+                        android:id="@id/register"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="@string/signup"
+                        android:layout_marginStart="5dp"
+                        android:paddingBottom="10dp"
+                        android:textColor="@color/link_color"
+                        android:textSize="@dimen/link_text_size" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.picassos.betamax.android.presentation.app.auth.register.RegisterViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?color_background"
+        android:fillViewport="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <LinearLayout
+                android:id="@id/register_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="150dp"
+                android:layout_marginEnd="150dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="@string/signup"
+                    android:textColor="?color_dark"
+                    android:textSize="26sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="25dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/create_a_new_account_to_continue"
+                    android:textAlignment="center"
+                    android:textColor="?color_dark"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:afterTextChanged="@{(text) -> viewModel.onUsernameChanged(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:hint="@string/username"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:layoutDirection="ltr"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:focusable="true"
+                    android:nextFocusDown="@id/email"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.registrationFormState.username}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size_tv"
+                    app:layout_error="@{viewModel.registrationFormState.usernameError}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size_tv"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.registrationFormState.usernameError}" />
+
+                <EditText
+                    android:id="@id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:layout_marginTop="15dp"
+                    android:afterTextChanged="@{(text) -> viewModel.onEmailChanged(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:hint="@string/email_address"
+                    android:importantForAutofill="no"
+                    android:inputType="textEmailAddress"
+                    android:layoutDirection="ltr"
+                    android:focusable="true"
+                    android:nextFocusDown="@id/password"
+                    android:nextFocusUp="@id/username"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.registrationFormState.email}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size_tv"
+                    app:layout_error="@{viewModel.registrationFormState.emailError}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size_tv"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.registrationFormState.emailError}" />
+
+                <EditText
+                    android:id="@id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:layout_marginTop="15dp"
+                    android:afterTextChanged="@{(text) -> viewModel.onPasswordChanged(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:hint="@string/password"
+                    android:importantForAutofill="no"
+                    android:focusable="true"
+                    android:nextFocusDown="@id/confirm_password"
+                    android:nextFocusUp="@id/email"
+                    android:inputType="textPassword"
+                    android:layoutDirection="ltr"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.registrationFormState.password}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size_tv"
+                    app:layout_error="@{viewModel.registrationFormState.passwordError}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size_tv"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.registrationFormState.passwordError}" />
+
+                <EditText
+                    android:id="@id/confirm_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:layout_marginTop="15dp"
+                    android:afterTextChanged="@{(text) -> viewModel.onConfirmPasswordChanged(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:hint="@string/confirm_password"
+                    android:focusable="true"
+                    android:nextFocusDown="@id/register"
+                    android:nextFocusUp="@id/password"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:layoutDirection="ltr"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.registrationFormState.confirmPassword}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textSize="@dimen/input_text_size_tv"
+                    app:layout_error="@{viewModel.registrationFormState.confirmPasswordError}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size_tv"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.registrationFormState.confirmPasswordError}" />
+
+                <Button
+                    android:id="@id/register"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:layout_marginTop="15dp"
+                    android:focusable="true"
+                    android:nextFocusUp="@id/confirm_password"
+                    android:background="@drawable/button_primary"
+                    android:onClick="@{() -> viewModel.onSubmit()}"
+                    android:text="@string/signup"
+                    android:textAllCaps="false"
+                    android:textColor="?color_dark"
+                    android:textSize="@dimen/input_text_size_tv" />
+
+                <TextView
+                    android:id="@id/register_response"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/link_text_size_tv"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@id/agreement_notice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/agreement_notice"
+                    android:textColor="?color_text_helper"
+                    android:textColorLink="?color_dark"
+                    android:textSize="@dimen/link_text_size_tv" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

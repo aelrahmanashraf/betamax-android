@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginBottom="20dp"
+    android:background="@drawable/item_television_movie_selectable"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@id/movie_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="245dp"
+        app:placeholderImageScaleType="centerCrop"
+        app:overlayImage="@drawable/television_movie_overlay"
+        app:roundedCornerRadius="10dp"
+        fresco:actualImageScaleType="centerCrop"
+        fresco:placeholderImage="?color_light_separate" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@id/movie_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins_medium"
+            android:maxLines="1"
+            android:textColor="?color_dark"
+            android:textColorHint="?color_dark"
+            android:textSize="15sp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@id/movie_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha=".7"
+            android:fontFamily="@font/poppins_regular"
+            android:hint="Movie Date"
+            android:textColor="?color_dark"
+            android:textColorHint="?color_dark"
+            android:textSize="14sp"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+</LinearLayout>

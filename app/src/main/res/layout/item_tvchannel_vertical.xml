@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_marginStart="7dp"
+    android:layout_marginEnd="7dp"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:layout_marginBottom="15dp">
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@id/tvchannel_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        fresco:actualImageScaleType="centerCrop"
+        app:roundedCornerRadius="10dp"
+        app:placeholderImageScaleType="centerCrop"
+        fresco:placeholderImage="?color_light_separate" />
+
+    <TextView
+        android:id="@id/tvchannel_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_medium"
+        android:maxLines="2"
+        android:text="@string/tv"
+        android:textColor="?color_dark"
+        android:textSize="14sp" />
+
+</LinearLayout>

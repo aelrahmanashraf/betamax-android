@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <declare-styleable name="ThemeAdapter">
+        <attr name="color_light" format="color" />
+        <attr name="color_light_separate" format="color" />
+        <attr name="color_dark_separate" format="color" />
+        <attr name="color_lighter" format="color" />
+        <attr name="color_dark" format="color" />
+        <attr name="color_darker" format="color" />
+        <attr name="color_background" format="color" />
+        <attr name="color_background_alternative" format="color" />
+        <attr name="color_grey" format="color" />
+        <attr name="color_transparent" format="color" />
+        <attr name="color_transparent_dark" format="color" />
+        <attr name="color_grey_sheet" format="color" />
+        <attr name="color_icon" format="color" />
+        <attr name="color_text_helper" format="color" />
+        <attr name="divider_inline" format="reference" />
+        <attr name="color_active" format="color" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:layout_margin="20dp"
+    android:alpha=".5"
+    android:background="@drawable/player_header"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="15dp">
+
+    <com.google.android.exoplayer2.ui.DefaultTimeBar
+        android:id="@id/exo_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="8.5"
+        app:bar_height="2dp"
+        app:buffered_color="#80FFFFFF"
+        app:played_color="@color/color_white"
+        app:scrubber_color="@color/color_white"
+        app:scrubber_disabled_size="5dp"
+        app:scrubber_enabled_size="10dp"
+        app:unplayed_color="#80FFFFFF" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@id/exo_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/duration_hint"
+            android:textColor="@color/color_white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:text=":"
+            android:textColor="@color/color_white"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@id/exo_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/duration_hint"
+            android:textColor="@color/color_white"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

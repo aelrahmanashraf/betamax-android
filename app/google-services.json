@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "843854543349",
+    "project_id": "betamax-e1dc6",
+    "storage_bucket": "betamax-e1dc6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:843854543349:android:8bd5e0499ca1fb2d4d08bc",
+        "android_client_info": {
+          "package_name": "app.betamax.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "843854543349-5asaal6rnrs4p2b4tv4jjmbm5g1thc9t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.betamax.android.demo",
+            "certificate_hash": "cda10f3cbcad0c9519c84deecdd9c37c4c2662d7"
+          }
+        },
+        {
+          "client_id": "843854543349-r8r5pmkdvok3hgra7g2scqikrvgaqo7u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiCdDEx0D9dcj646UN1SWpedDCaR-1qCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "843854543349-r8r5pmkdvok3hgra7g2scqikrvgaqo7u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

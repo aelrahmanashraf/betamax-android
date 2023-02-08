@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.picassos.betamax.android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+
+    <application
+        android:name="com.picassos.betamax.android.presentation.app.App"
+        android:allowBackup="false"
+        android:banner="@drawable/banner"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/DarkTheme"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="m">
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.launch.LaunchActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="betamax"
+                    android:pathPrefix="/subscription"
+                    android:scheme="app" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.launch.TelevisionLaunchActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.main.TelevisionMainActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.tvchannel.tvchannel_player.TelevisionTvChannelPlayerActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.mylist.TelevisionMyListActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.movie.view_movie.TelevisionViewMovieActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.tvchannel.tvchannels.TelevisionTvChannelsActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.info.about.AboutActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.television.auth.account_settings.TelevisionAccountSettingsActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.auth.reset_password.ResetPasswordActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.auth.verify_code.VerifyCodeActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.auth.register.RegisterActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.movie.movie_player.MoviePlayerActivity"
+            android:configChanges="orientation|keyboard|layoutDirection|screenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.genre.genre_movies.GenreMoviesActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel.ViewTvChannelActivity"
+            android:configChanges="orientation|keyboard|layoutDirection|screenSize"
+            android:screenOrientation="fullSensor" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.profile.ProfileActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.subscription.manage_subscription.ManageSubscriptionActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.genre.genre_featured_movies.GenreFeaturedMoviesActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.restrict.vpn_restriction.VpnRestrictedActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.auth.profile_info.ProfileInfoActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.auth.change_password.ChangePasswordActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.genre.genres.GenresActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.auth.signin.SigninActivity"
+            android:launchMode="singleTop"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.main.MainActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.tvchannel.tvchannel_player.TvChannelPlayerActivity"
+            android:configChanges="orientation|keyboard|layoutDirection|screenSize"
+            android:exported="true"
+            android:screenOrientation="fullSensor"
+            android:launchMode="singleTask" />
+    </application>
+
+</manifest>

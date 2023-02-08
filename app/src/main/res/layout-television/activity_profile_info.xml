@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.picassos.betamax.android.presentation.app.auth.profile_info.ProfileInfoViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?color_background"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="150dp"
+            android:layout_marginEnd="150dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@id/go_back"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/icon_arrow_left_outline"
+                android:visibility="gone"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="25dp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/edit_profile_info"
+                android:textColor="?color_dark"
+                android:textSize="26sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="15dp">
+
+                <EditText
+                    android:id="@id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:background="@drawable/input_rectangle_background"
+                    android:enabled="false"
+                    android:hint="@string/email_address"
+                    android:importantForAutofill="no"
+                    android:inputType="textEmailAddress"
+                    android:paddingStart="20dp"
+                    android:visibility="gone"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:textColor="@color/color_grey_dark"
+                    android:textColorHint="@color/color_grey_dark"
+                    android:textDirection="locale"
+                    android:textSize="@dimen/input_text_size_tv" />
+
+                <EditText
+                    android:id="@id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:afterTextChanged="@{(text) -> viewModel.onUsernameChange(text)}"
+                    android:background="@drawable/input_rectangle_background"
+                    android:focusable="true"
+                    android:hint="@string/username"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:nextFocusDown="@id/update_profile_info"
+                    android:paddingStart="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="10dp"
+                    android:text="@{viewModel.profileInfoFormState.username}"
+                    android:textColor="?color_dark"
+                    android:textColorHint="?color_dark"
+                    android:textDirection="locale"
+                    android:textSize="@dimen/input_text_size_tv" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="17dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="17dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/color_red"
+                    android:textSize="@dimen/response_text_size_tv"
+                    android:visibility="gone"
+                    app:text_error="@{viewModel.profileInfoFormState.usernameError}" />
+
+                <Button
+                    android:id="@id/update_profile_info"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/input_height_tv"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="15dp"
+                    android:background="@drawable/button_primary"
+                    android:focusable="true"
+                    android:nextFocusUp="@id/username"
+                    android:onClick="@{() -> viewModel.onSubmit()}"
+                    android:text="@string/save"
+                    android:textAllCaps="false"
+                    android:textColor="@color/color_white"
+                    android:textSize="@dimen/input_text_size_tv" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</layout>

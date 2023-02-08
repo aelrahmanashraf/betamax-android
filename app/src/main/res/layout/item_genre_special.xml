@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    xmlns:fresco="http://schemas.android.com/tools"
+    android:layout_marginEnd="15dp">
+
+    <TextView
+        android:id="@id/genre_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Netflix"
+        android:paddingStart="22dp"
+        android:paddingBottom="6dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="22dp"
+        android:background="@drawable/badge_rounded"
+        android:fontFamily="@font/poppins_medium"
+        android:textSize="14sp"
+        android:textColor="?color_dark"
+        fresco:ignore="HardcodedText" />
+
+</LinearLayout>

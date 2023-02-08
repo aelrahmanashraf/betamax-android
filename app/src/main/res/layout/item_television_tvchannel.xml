@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/tvchannel_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/item_television_tvchannel_selectable"
+    android:focusable="true"
+    android:orientation="horizontal"
+    android:paddingStart="10dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="0dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@id/tvchannel_order"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:alpha=".9"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        android:maxLines="1"
+        android:text="1"
+        android:textColor="?color_dark"
+        android:textSize="14sp"
+        tools:ignore="HardcodedText" />
+
+
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@id/tvchannel_thumbnail"
+        android:layout_width="55dp"
+        android:layout_height="30dp"
+        app:placeholderImageScaleType="centerCrop"
+        fresco:actualImageScaleType="centerCrop"
+        app:roundedCornerRadius="5dp"
+        fresco:placeholderImage="?color_dark" />
+
+    <TextView
+        android:id="@id/tvchannel_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:alpha=".9"
+        android:ellipsize="end"
+        android:fontFamily="@font/poppins_regular"
+        android:maxLines="1"
+        android:text="@string/tv"
+        android:textColor="?color_dark"
+        android:textSize="16sp" />
+
+</LinearLayout>
