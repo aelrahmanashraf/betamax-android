@@ -1,9 +1,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="#">
-    <img src="repository_assets/repository_logo.png" alt="Logo" width="300" height="300">
-  </a>
+  <img src="repository_assets/repository_logo.png" alt="Logo" width="300" height="300">
   <h3 align="center">Betamax</h3>
   <p align="center">
     Streaming app that allows members to watch movies, series, tv shows and its a subscription-based app.
@@ -14,12 +12,12 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+Betamax is a Spanish subscription-based streaming app written in Kotlin and developed with the latest technologies in android and designed with an artistic & clean user interface and a friendly user experience for both mobile and smart tv.
 
-Streaming app that allows members to watch movies, series, tv shows and its a subscription-based app.
+Crafted with :heart: by Egyptain hands.
 
 <!-- TECHNOLOGIES USED -->
 ## Technologies Used
-
 * MVVM & Clean Architecture
 * [Dagger-Hilt](https://dagger.dev/hilt/)
 * [Kotlin Coroutines](https://developer.android.com/kotlin/coroutines)
@@ -39,5 +37,4 @@ Streaming app that allows members to watch movies, series, tv shows and its a su
 * [Crashlytics](https://firebase.google.com/products/crashlytics)
 
 ## Screenshots
-
-<img src="repository_assets/screenshots/1.jpg" alt="1" width="270" height="585"/><img src="repository_assets/screenshots/2.jpg" alt="2" width="270" height="585"/><img src="repository_assets/screenshots/3.jpg" alt="3" width="270" height="585"/>
+<img src="repository_assets/screenshots/1.jpg" alt="1" width="270" height="585"/><img src="repository_assets/screenshots/2.jpg" alt="2" width="270" height="585"/><img src="repository_assets/screenshots/3.jpg" alt="3" width="270" height="585"/><img src="repository_assets/screenshots/4.jpg" alt="4" width="270" height="585"/><img src="repository_assets/screenshots/5.jpg" alt="5" width="270" height="585"/><img src="repository_assets/screenshots/6.jpg" alt="6" width="270" height="585"/><img src="repository_assets/screenshots/7.jpg" alt="7" width="270" height="585"/><img src="repository_assets/screenshots/8.jpg" alt="8" width="270" height="585"/><img src="repository_assets/screenshots/9.jpg" alt="9" width="270" height="585"/><img src="repository_assets/screenshots/10.jpg" alt="10" width="270" height="585"/><img src="repository_assets/screenshots/11.jpg" alt="11" width="270" height="585"/><img src="repository_assets/screenshots/12.jpg" alt="12" width="270" height="585"/>
