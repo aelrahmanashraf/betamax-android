@@ -1,8 +1,10 @@
 package com.picassos.betamax.android.presentation.app.subscription.subscribe
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +27,7 @@ class SubscribeActivity : AppCompatActivity() {
 
     private var selectedPackage = 1
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val entryPoint = EntryPointAccessors.fromApplication(this@SubscribeActivity, AppEntryPoint::class.java)
@@ -47,23 +50,23 @@ class SubscribeActivity : AppCompatActivity() {
                         silverPackagePrice.text = "$${configuration.silverPackagePrice}"
                         silverPackage.setOnClickListener {
                             selectedPackage = 1
-                            silverPackage.background = getDrawable(R.drawable.pricing_background_selected)
-                            goldPackage.background = getDrawable(R.drawable.pricing_background)
-                            diamondPackage.background = getDrawable(R.drawable.pricing_background)
+                            silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
+                            goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                            diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
                         }
                         goldPackagePrice.text = "$${configuration.goldPackagePrice}"
                         goldPackage.setOnClickListener {
                             selectedPackage = 2
-                            silverPackage.background = getDrawable(R.drawable.pricing_background)
-                            goldPackage.background = getDrawable(R.drawable.pricing_background_selected)
-                            diamondPackage.background = getDrawable(R.drawable.pricing_background)
+                            silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                            goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
+                            diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
                         }
                         diamondPackagePrice.text = "$${configuration.diamondPackagePrice}"
                         diamondPackage.setOnClickListener {
                             selectedPackage = 3
-                            silverPackage.background = getDrawable(R.drawable.pricing_background)
-                            goldPackage.background = getDrawable(R.drawable.pricing_background)
-                            diamondPackage.background = getDrawable(R.drawable.pricing_background_selected)
+                            silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                            goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                            diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
                         }
                         subscribe.setOnClickListener {
 
