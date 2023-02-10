@@ -3,7 +3,6 @@ package com.picassos.betamax.android.presentation.app.tvchannel.tvchannel_player
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,22 +10,19 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
 import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.picassos.betamax.android.R
@@ -48,15 +44,13 @@ class TvChannelPlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setTheme(R.style.PlayerTheme)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_tvchannel_player)
-
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
         window.apply {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -75,6 +69,12 @@ class TvChannelPlayerActivity : AppCompatActivity() {
             this@TvChannelPlayerActivity.playerContent = playerContent
         }
 
+        val loadControl: LoadControl = DefaultLoadControl.Builder()
+            .setAllocator(DefaultAllocator(true, 16))
+            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setTargetBufferBytes(-1)
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
         val trackSelector = DefaultTrackSelector(this@TvChannelPlayerActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@TvChannelPlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -84,6 +84,7 @@ class TvChannelPlayerActivity : AppCompatActivity() {
 
         exoPlayer = SimpleExoPlayer.Builder(this@TvChannelPlayerActivity, renderersFactory)
             .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource)
@@ -106,9 +107,9 @@ class TvChannelPlayerActivity : AppCompatActivity() {
 
         layout.play.setOnClickListener {
             exoPlayer.apply {
-                when (isPlaying) {
-                    true -> pause()
-                    else -> play()
+                playWhenReady = when (isPlaying) {
+                    true -> false
+                    else -> true
                 }
             }
         }
@@ -132,24 +133,6 @@ class TvChannelPlayerActivity : AppCompatActivity() {
         })
     }
 
-    override fun onConfigurationChanged(config: Configuration) {
-        super.onConfigurationChanged(config)
-
-        when (config.orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> {
-                Toast.makeText(this@TvChannelPlayerActivity, "Portrait", Toast.LENGTH_LONG).show()
-                Intent().also { intent ->
-                    intent.putExtra("currentPosition", exoPlayer.currentPosition.toInt())
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
-                }
-            }
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                Toast.makeText(this@TvChannelPlayerActivity, "Landscape", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
     private var playerListener = object: Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
@@ -157,7 +140,7 @@ class TvChannelPlayerActivity : AppCompatActivity() {
                 exoPlayer.playWhenReady = true
                 layout.playIcon.setImageResource(R.drawable.icon_pause_filled)
             } else {
-                exoPlayer.playWhenReady
+                exoPlayer.playWhenReady = false
                 layout.playIcon.setImageResource(R.drawable.icon_play_filled)
             }
         }
@@ -189,22 +172,24 @@ class TvChannelPlayerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
         exoPlayer.apply {
             playWhenReady = true
-            play()
         }
         Helper.restrictVpn(this@TvChannelPlayerActivity)
     }
 
     override fun onPause() {
         super.onPause()
-        exoPlayer.pause()
+        exoPlayer.apply {
+            playWhenReady = false
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        exoPlayer.pause()
+        exoPlayer.apply {
+            playWhenReady = false
+        }
     }
 
     override fun onDestroy() {

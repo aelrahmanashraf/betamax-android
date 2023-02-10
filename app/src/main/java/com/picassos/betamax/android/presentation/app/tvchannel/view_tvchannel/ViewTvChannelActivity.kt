@@ -1,13 +1,13 @@
 package com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel
 
+import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -20,8 +20,8 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.picassos.betamax.android.core.utilities.Helper
 import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.chip.Chip
@@ -30,6 +30,7 @@ import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
+import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.databinding.ActivityViewTvchannelBinding
@@ -80,13 +81,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
         collectLatestOnLifecycleStarted(viewTvChannelViewModel.viewTvChannel) { state ->
             if (state.isLoading) {
-                exoPlayer.apply {
-                    this?.let { player ->
-                        player.stop()
-                        player.clearMediaItems()
-                    }
+                exoPlayer?.apply {
+                    pausePlayer()
+                    clearMediaItems()
                 }
-
                 layout.apply {
                     recyclerRelatedTv.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
@@ -174,16 +172,24 @@ class ViewTvChannelActivity : AppCompatActivity() {
                 exoPlayer?.apply {
                     releasePlayer()
                     when (quality) {
-                        1 -> initializePlayer(url = tvChannel.sdUrl, position = currentPosition)
-                        2 -> initializePlayer(url = tvChannel.hdUrl, position = currentPosition)
-                        3 -> initializePlayer(url = tvChannel.fhdUrl, position = currentPosition)
+                        1 -> initializePlayer(url = tvChannel.sdUrl)
+                        2 -> initializePlayer(url = tvChannel.hdUrl)
+                        3 -> initializePlayer(url = tvChannel.fhdUrl)
                     }
                 }
             }
         }
     }
 
-    private fun initializePlayer(url: String, position: Long = 0) {
+    private fun initializePlayer(url: String) {
+        selectedUrl = url
+
+        val loadControl: LoadControl = DefaultLoadControl.Builder()
+            .setAllocator(DefaultAllocator(true, 16))
+            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setTargetBufferBytes(-1)
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
         val trackSelector = DefaultTrackSelector(this@ViewTvChannelActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@ViewTvChannelActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -191,10 +197,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
         val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@ViewTvChannelActivity, Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
         val mediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
-        selectedUrl = url
-
         exoPlayer = SimpleExoPlayer.Builder(this@ViewTvChannelActivity, renderersFactory)
             .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource)
@@ -212,15 +217,14 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
 
         exoPlayer?.apply {
-            seekTo(position)
-            play()
+            playPlayer()
         }
 
         layout.play.setOnClickListener {
             exoPlayer?.apply {
                 when (isPlaying) {
-                    true -> pause()
-                    else -> play()
+                    true -> pausePlayer()
+                    else -> playPlayer()
                 }
             }
         }
@@ -245,15 +249,15 @@ class ViewTvChannelActivity : AppCompatActivity() {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                exoPlayer?.apply { playWhenReady = true }
                 layout.play.setImageResource(R.drawable.icon_pause_filled)
             } else {
-                exoPlayer?.apply { playWhenReady = false }
                 layout.play.setImageResource(R.drawable.icon_play_filled)
             }
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
             super.onPlaybackStateChanged(playbackState)
+
+            // TODO: Show progressbar when playback state change to buffering and hide it when playing
             if (playbackState == Player.STATE_BUFFERING) {
                 layout.apply {
                     playerProgressbar.visibility = View.VISIBLE
@@ -266,8 +270,36 @@ class ViewTvChannelActivity : AppCompatActivity() {
                 }
             }
         }
+
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
+            super.onPlayerErrorChanged(error)
+            
+            Toast.makeText(this@ViewTvChannelActivity, "Error: ${error.localizedMessage}")
+        }
     }
 
+    private fun playPlayer() {
+        exoPlayer?.apply {
+            playWhenReady = true
+            play()
+        }
+    }
+
+    private fun pausePlayer() {
+        exoPlayer?.apply {
+            playWhenReady = false
+            pause()
+        }
+    }
+
+    private fun releasePlayer() {
+        exoPlayer?.apply {
+            pausePlayer()
+            clearMediaItems()
+        }
+    }
+
+    @SuppressLint("InflateParams")
     private fun createGenreChip(genre: Genres.Genre): Chip {
         val chip = this@ViewTvChannelActivity.layoutInflater.inflate(R.layout.item_genre_selectable, null, false) as Chip
         return chip.apply {
@@ -282,18 +314,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
     }
 
-    private fun releasePlayer() {
-        exoPlayer?.apply {
-            stop()
-            clearMediaItems()
-        }
-    }
-
     private var startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
         if (result != null && result.resultCode == RESULT_OK) {
             result.data?.let { data ->
                 exoPlayer?.apply {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                     seekTo(data.getIntExtra("currentPosition", 0).toLong())
                 }
             }
@@ -302,21 +326,18 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
-        exoPlayer?.apply {
-            play()
-        }
+        playPlayer()
         Helper.restrictVpn(this@ViewTvChannelActivity)
     }
 
     override fun onPause() {
         super.onPause()
-        exoPlayer?.apply { pause() }
+        pausePlayer()
     }
 
     override fun onStop() {
         super.onStop()
-        exoPlayer?.apply { pause() }
+        pausePlayer()
     }
 
     override fun onDestroy() {
