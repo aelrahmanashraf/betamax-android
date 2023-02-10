@@ -23,8 +23,16 @@ def keystoreProperties = new Properties()
 try {
     def keystorePropertiesFile = rootProject.file("keystore.properties");
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-} catch(IOException ignored) {
+} catch (IOException ignored) {
     // ignore if keystore is missing
+}
+
+def localProperties = new Properties()
+try {
+    def localPropertiesFile = rootProject.file("local.properties");
+    localProperties.load(new FileInputStream(localPropertiesFile))
+} catch (IOException ignored) {
+    // ignore if local properties is missing
 }
 
 android {
@@ -39,12 +47,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file("local.properties").newDataInputStream())
-
-        buildConfigField "String", "SECRET_API_KEY", "\"${properties.getProperty("SECRET_API_KEY")}\""
-        buildConfigField "String", "BASE_URL", "\"${properties.getProperty("BASE_URL")}\""
-        buildConfigField "String", "ONESIGNAL_APP_ID", "\"${properties.getProperty("ONESIGNAL_APP_ID")}\""
+        buildConfigField "String", "SECRET_API_KEY", "\"${localProperties.getProperty("SECRET_API_KEY")}\""
+        buildConfigField "String", "BASE_URL", "\"${localProperties.getProperty("BASE_URL")}\""
+        buildConfigField "String", "ONESIGNAL_APP_ID", "\"${localProperties.getProperty("ONESIGNAL_APP_ID")}\""
     }
 
     signingConfigs {
