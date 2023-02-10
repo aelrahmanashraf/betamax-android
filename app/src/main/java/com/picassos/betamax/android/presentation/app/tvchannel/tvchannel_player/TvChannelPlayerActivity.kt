@@ -2,8 +2,8 @@ package com.picassos.betamax.android.presentation.app.tvchannel.tvchannel_player
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -46,7 +46,6 @@ class TvChannelPlayerActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
 
     private lateinit var exoPlayer: SimpleExoPlayer
-
     private lateinit var playerContent: TvChannelPlayerContent
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,9 +53,6 @@ class TvChannelPlayerActivity : AppCompatActivity() {
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setTheme(R.style.PlayerTheme)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_tvchannel_player)
 
@@ -180,12 +176,14 @@ class TvChannelPlayerActivity : AppCompatActivity() {
         }
 
         layout.exoPlayer.findViewById<ImageView>(R.id.minimized_mode).setOnClickListener {
-            Intent().also { intent ->
-                intent.putExtra("currentPosition", exoPlayer.currentPosition.toInt())
-                setResult(Activity.RESULT_OK, intent)
-                finish()
-            }
+            passDataBeforeFinish()
         }
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                passDataBeforeFinish()
+            }
+        })
     }
 
     private var playerListener = object: Player.Listener {
@@ -215,6 +213,21 @@ class TvChannelPlayerActivity : AppCompatActivity() {
             if (error != null) {
                 playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
             }
+        }
+    }
+
+    override fun onConfigurationChanged(configuration: Configuration) {
+        super.onConfigurationChanged(configuration)
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            passDataBeforeFinish()
+        }
+    }
+
+    private fun passDataBeforeFinish() {
+        Intent().also { intent ->
+            intent.putExtra("currentPosition", exoPlayer.currentPosition.toInt())
+            setResult(Activity.RESULT_OK, intent)
+            finish()
         }
     }
 

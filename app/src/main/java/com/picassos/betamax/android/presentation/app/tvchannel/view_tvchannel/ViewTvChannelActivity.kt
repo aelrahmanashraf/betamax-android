@@ -2,11 +2,13 @@ package com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -274,13 +276,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
 
         layout.exoPlayer.findViewById<ImageView>(R.id.fullscreen_mode).setOnClickListener {
-            Intent(this@ViewTvChannelActivity, TvChannelPlayerActivity::class.java).also { intent ->
-                intent.putExtra("playerContent", TvChannelPlayerContent(
-                    url = url,
-                    userAgent = tvChannel.userAgent,
-                    currentPosition = exoPlayer!!.currentPosition.toInt()))
-                startActivityForResult.launch(intent)
-            }
+            playInFullscreen()
         }
 
         layout.playerOptions.setOnClickListener {
@@ -319,6 +315,16 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
     }
 
+    private fun playInFullscreen() {
+        Intent(this@ViewTvChannelActivity, TvChannelPlayerActivity::class.java).also { intent ->
+            intent.putExtra("playerContent", TvChannelPlayerContent(
+                url = selectedUrl,
+                userAgent = tvChannel.userAgent,
+                currentPosition = exoPlayer!!.currentPosition.toInt()))
+            startActivityForResult.launch(intent)
+        }
+    }
+
     @SuppressLint("InflateParams")
     private fun createGenreChip(genre: Genres.Genre): Chip {
         val chip = this@ViewTvChannelActivity.layoutInflater.inflate(R.layout.item_genre_selectable, null, false) as Chip
@@ -334,11 +340,19 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
     }
 
+    override fun onConfigurationChanged(configuration: Configuration) {
+        super.onConfigurationChanged(configuration)
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            playInFullscreen()
+        }
+    }
+
     private var startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
         if (result != null && result.resultCode == RESULT_OK) {
             result.data?.let { data ->
                 exoPlayer?.apply {
                     seekTo(data.getIntExtra("currentPosition", 0).toLong())
+                    Toast.makeText(this@ViewTvChannelActivity, "Back", Toast.LENGTH_LONG).show()
                 }
             }
         }
