@@ -1,5 +1,7 @@
 package com.picassos.betamax.android.core.configuration
 
+import com.picassos.betamax.android.BuildConfig
+
 object Config {
 
     // configuration
@@ -17,6 +19,6 @@ object Config {
     const val MIN_PLAYBACK_RESUME_BUFFER = 2000
 
     // build preferences
-    const val DEVELOPMENT_BUILD = true
+    const val BUILD_TYPE = BuildConfig.BUILD_TYPE
     const val MOCK_TV = true
 }

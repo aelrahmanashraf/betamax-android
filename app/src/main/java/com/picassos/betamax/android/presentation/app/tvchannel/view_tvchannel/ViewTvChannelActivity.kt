@@ -73,7 +73,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
         window.apply {
             addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
-            if (!Config.DEVELOPMENT_BUILD) {
+            if (Config.BUILD_TYPE == "release") {
                 setFlags(LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SECURE)
             }
         }
@@ -378,7 +378,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
         playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
         window.apply {
             clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
-            if (!Config.DEVELOPMENT_BUILD) {
+            if (Config.BUILD_TYPE == "release") {
                 clearFlags(LayoutParams.FLAG_SECURE)
             }
         }

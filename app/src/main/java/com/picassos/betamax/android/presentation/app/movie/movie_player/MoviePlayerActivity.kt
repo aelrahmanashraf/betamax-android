@@ -62,7 +62,7 @@ class MoviePlayerActivity : AppCompatActivity() {
 
         window.apply {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            if (!Config.DEVELOPMENT_BUILD) {
+            if (Config.BUILD_TYPE == "release") {
                 setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
             }
         }
@@ -295,7 +295,7 @@ class MoviePlayerActivity : AppCompatActivity() {
         }
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            if (!Config.DEVELOPMENT_BUILD) {
+            if (Config.BUILD_TYPE == "release") {
                 clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
         }
