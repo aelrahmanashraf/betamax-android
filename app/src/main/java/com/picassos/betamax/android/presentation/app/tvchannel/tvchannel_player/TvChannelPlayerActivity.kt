@@ -2,7 +2,6 @@ package com.picassos.betamax.android.presentation.app.tvchannel.tvchannel_player
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +10,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,15 +27,19 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
+import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.databinding.ActivityTvchannelPlayerBinding
 import com.picassos.betamax.android.domain.model.TvChannelPlayerContent
+import com.picassos.betamax.android.presentation.app.player.PlayerStatus
+import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class TvChannelPlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTvchannelPlayerBinding
+    private val playerViewModel: PlayerViewModel by viewModels()
 
     private lateinit var exoPlayer: SimpleExoPlayer
 
@@ -69,6 +73,22 @@ class TvChannelPlayerActivity : AppCompatActivity() {
             this@TvChannelPlayerActivity.playerContent = playerContent
         }
 
+        initializePlayer(
+            url = playerContent.url,
+            userAgent = playerContent.userAgent)
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                Intent().also { intent ->
+                    intent.putExtra("currentPosition", exoPlayer.currentPosition.toInt())
+                    setResult(Activity.RESULT_OK, intent)
+                    finish()
+                }
+            }
+        })
+    }
+
+    private fun initializePlayer(url: String, userAgent: String) {
         val loadControl: LoadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
             .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
@@ -79,8 +99,8 @@ class TvChannelPlayerActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@TvChannelPlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@TvChannelPlayerActivity, Util.getUserAgent(this@TvChannelPlayerActivity, playerContent.userAgent))
-        val mediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(playerContent.url)))
+        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@TvChannelPlayerActivity, Util.getUserAgent(this@TvChannelPlayerActivity, userAgent))
+        val mediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
         exoPlayer = SimpleExoPlayer.Builder(this@TvChannelPlayerActivity, renderersFactory)
             .setTrackSelector(trackSelector)
@@ -88,8 +108,8 @@ class TvChannelPlayerActivity : AppCompatActivity() {
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource)
-                prepare()
             }
+        playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
         layout.exoPlayer.apply {
             player = exoPlayer
@@ -105,11 +125,42 @@ class TvChannelPlayerActivity : AppCompatActivity() {
             exoPlayer.seekTo(playerContent.currentPosition.toLong())
         }
 
-        layout.play.setOnClickListener {
-            exoPlayer.apply {
-                playWhenReady = when (isPlaying) {
-                    true -> false
-                    else -> true
+        collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
+            when (status) {
+                PlayerStatus.INITIALIZE -> {
+
+                }
+                PlayerStatus.PREPARE -> {
+                    exoPlayer.apply {
+                        prepare()
+                        layout.playerAction.setOnClickListener {
+                            when (isPlaying) {
+                                true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                                else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                            }
+                        }
+                    }
+                    playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                }
+                PlayerStatus.PLAY -> {
+                    exoPlayer.apply {
+                        playWhenReady = true
+                        play()
+                    }
+                }
+                PlayerStatus.PAUSE -> {
+                    exoPlayer.apply {
+                        playWhenReady = false
+                        pause()
+                    }
+                }
+                PlayerStatus.RETRY -> {
+                    layout.playIcon.apply {
+                        setImageResource(R.drawable.icon_retry)
+                        setOnClickListener {
+                            playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+                        }
+                    }
                 }
             }
         }
@@ -121,26 +172,14 @@ class TvChannelPlayerActivity : AppCompatActivity() {
                 finish()
             }
         }
-
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                Intent().also { intent ->
-                    intent.putExtra("currentPosition", exoPlayer.currentPosition.toInt())
-                    setResult(Activity.RESULT_OK, intent)
-                    finish()
-                }
-            }
-        })
     }
 
     private var playerListener = object: Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                exoPlayer.playWhenReady = true
                 layout.playIcon.setImageResource(R.drawable.icon_pause_filled)
             } else {
-                exoPlayer.playWhenReady = false
                 layout.playIcon.setImageResource(R.drawable.icon_play_filled)
             }
         }
@@ -161,35 +200,33 @@ class TvChannelPlayerActivity : AppCompatActivity() {
                 }
             }
         }
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
+            super.onPlayerErrorChanged(error)
+            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+        }
     }
 
     private fun releasePlayer() {
         exoPlayer.apply {
-            stop()
+            playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
             clearMediaItems()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        exoPlayer.apply {
-            playWhenReady = true
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
         Helper.restrictVpn(this@TvChannelPlayerActivity)
     }
 
     override fun onPause() {
         super.onPause()
-        exoPlayer.apply {
-            playWhenReady = false
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
     }
 
     override fun onStop() {
         super.onStop()
-        exoPlayer.apply {
-            playWhenReady = false
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
     }
 
     override fun onDestroy() {

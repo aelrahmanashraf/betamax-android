@@ -103,7 +103,7 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@id/play"
+                    android:id="@id/player_action"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     app:cardCornerRadius="50dp"

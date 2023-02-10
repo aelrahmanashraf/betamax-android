@@ -47,6 +47,7 @@
     <item name="movie_duration_container" type="id" />
     <item name="save_movie" type="id" />
     <item name="play" type="id" />
+    <item name="player_action" type="id" />
     <item name="replay" type="id" />
     <item name="save_movie_icon" type="id" />
     <item name="forward" type="id" />
