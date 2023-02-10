@@ -16,6 +16,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
@@ -35,6 +38,7 @@ import com.picassos.betamax.android.domain.model.TvChannelPlayerContent
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TvChannelPlayerActivity : AppCompatActivity() {
@@ -67,6 +71,12 @@ class TvChannelPlayerActivity : AppCompatActivity() {
         WindowInsetsControllerCompat(window, layout.root).let { controller ->
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@TvChannelPlayerActivity)
+            }
         }
 
         getSerializable(this@TvChannelPlayerActivity, "playerContent", TvChannelPlayerContent::class.java).also { playerContent ->
@@ -131,13 +141,11 @@ class TvChannelPlayerActivity : AppCompatActivity() {
 
                 }
                 PlayerStatus.PREPARE -> {
-                    exoPlayer.apply {
-                        prepare()
-                        layout.playerAction.setOnClickListener {
-                            when (isPlaying) {
-                                true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-                                else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-                            }
+                    exoPlayer.prepare()
+                    layout.playerAction.setOnClickListener {
+                        when (exoPlayer.isPlaying) {
+                            true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                            else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                         }
                     }
                     playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
@@ -155,11 +163,17 @@ class TvChannelPlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    layout.playIcon.apply {
+                    layout.playerAction.apply {
                         setImageResource(R.drawable.icon_retry)
                         setOnClickListener {
                             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                         }
+                    }
+                }
+                PlayerStatus.RELEASE -> {
+                    exoPlayer.apply {
+                        removeListener(playerListener)
+                        clearMediaItems()
                     }
                 }
             }
@@ -177,10 +191,9 @@ class TvChannelPlayerActivity : AppCompatActivity() {
     private var playerListener = object: Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
-            if (isPlaying) {
-                layout.playIcon.setImageResource(R.drawable.icon_pause_filled)
-            } else {
-                layout.playIcon.setImageResource(R.drawable.icon_play_filled)
+            when (isPlaying) {
+                true -> layout.playerAction.setImageResource(R.drawable.icon_pause_filled)
+                else -> layout.playerAction.setImageResource(R.drawable.icon_play_filled)
             }
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -189,34 +202,28 @@ class TvChannelPlayerActivity : AppCompatActivity() {
                 Player.STATE_BUFFERING -> {
                     layout.apply {
                         playerProgressbar.visibility = View.VISIBLE
-                        playIcon.visibility = View.GONE
+                        playerAction.visibility = View.GONE
                     }
                 }
                 else -> {
                     layout.apply {
                         playerProgressbar.visibility = View.GONE
-                        playIcon.visibility = View.VISIBLE
+                        playerAction.visibility = View.VISIBLE
                     }
                 }
             }
         }
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             super.onPlayerErrorChanged(error)
-            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
-        }
-    }
-
-    private fun releasePlayer() {
-        exoPlayer.apply {
-            playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-            clearMediaItems()
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
         }
     }
 
     override fun onResume() {
         super.onResume()
         playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-        Helper.restrictVpn(this@TvChannelPlayerActivity)
     }
 
     override fun onPause() {
@@ -231,10 +238,7 @@ class TvChannelPlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        exoPlayer.apply {
-            removeListener(playerListener)
-            releasePlayer()
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             if (!Config.DEVELOPMENT_BUILD) {

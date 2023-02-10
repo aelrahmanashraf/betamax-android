@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 enum class PlayerStatus {
-    INITIALIZE, PREPARE, PLAY, PAUSE, RETRY
+    INITIALIZE, PREPARE, PLAY, PAUSE, RETRY, RELEASE
 }
 
 @HiltViewModel
