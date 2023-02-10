@@ -198,18 +198,15 @@ class TvChannelPlayerActivity : AppCompatActivity() {
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
             super.onPlaybackStateChanged(playbackState)
-            when (playbackState) {
-                Player.STATE_BUFFERING -> {
-                    layout.apply {
-                        playerProgressbar.visibility = View.VISIBLE
-                        playerAction.visibility = View.GONE
-                    }
+            if (playbackState == Player.STATE_BUFFERING) {
+                layout.apply {
+                    playerProgressbar.visibility = View.VISIBLE
+                    playerAction.visibility = View.GONE
                 }
-                else -> {
-                    layout.apply {
-                        playerProgressbar.visibility = View.GONE
-                        playerAction.visibility = View.VISIBLE
-                    }
+            } else {
+                layout.apply {
+                    playerProgressbar.visibility = View.GONE
+                    playerAction.visibility = View.VISIBLE
                 }
             }
         }

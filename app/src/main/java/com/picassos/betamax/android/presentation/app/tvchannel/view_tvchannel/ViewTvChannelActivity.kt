@@ -13,6 +13,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -44,6 +47,7 @@ import com.picassos.betamax.android.presentation.app.tvchannel.tvchannel_player.
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserBottomSheetModal
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ViewTvChannelActivity : AppCompatActivity() {
@@ -69,6 +73,12 @@ class ViewTvChannelActivity : AppCompatActivity() {
             addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
             if (!Config.DEVELOPMENT_BUILD) {
                 setFlags(LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SECURE)
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@ViewTvChannelActivity)
             }
         }
 
@@ -173,7 +183,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
             isSafe?.let { quality ->
                 videoQualityChooserViewModel.setVideoQuality(null)
                 exoPlayer?.apply {
-                    releasePlayer()
+                    playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
                     when (quality) {
                         1 -> initializePlayer(url = tvChannel.sdUrl)
                         2 -> initializePlayer(url = tvChannel.hdUrl)
@@ -225,13 +235,11 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
                 }
                 PlayerStatus.PREPARE -> {
-                    exoPlayer?.apply {
-                        prepare()
-                        layout.playerAction.setOnClickListener {
-                            when (isPlaying) {
-                                true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-                                else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-                            }
+                    exoPlayer?.prepare()
+                    layout.playerAction.setOnClickListener {
+                        when (exoPlayer?.isPlaying) {
+                            true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                            else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                         }
                     }
                     playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
@@ -256,6 +264,12 @@ class ViewTvChannelActivity : AppCompatActivity() {
                         }
                     }
                 }
+                PlayerStatus.RELEASE -> {
+                    exoPlayer?.apply {
+                        removeListener(playerListener)
+                        clearMediaItems()
+                    }
+                }
             }
         }
 
@@ -278,16 +292,13 @@ class ViewTvChannelActivity : AppCompatActivity() {
     private var playerListener = object: Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
-            if (isPlaying) {
-                layout.playerAction.setImageResource(R.drawable.icon_pause_filled)
-            } else {
-                layout.playerAction.setImageResource(R.drawable.icon_play_filled)
+            when (isPlaying) {
+                true -> layout.playerAction.setImageResource(R.drawable.icon_pause_filled)
+                else -> layout.playerAction.setImageResource(R.drawable.icon_play_filled)
             }
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
             super.onPlaybackStateChanged(playbackState)
-
-            // TODO: Show progressbar when playback state change to buffering and hide it when playing
             if (playbackState == Player.STATE_BUFFERING) {
                 layout.apply {
                     playerProgressbar.visibility = View.VISIBLE
@@ -302,15 +313,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             super.onPlayerErrorChanged(error)
-            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
-        }
-    }
-
-    private fun releasePlayer() {
-        exoPlayer?.apply {
-            playWhenReady = false
-            pause()
-            clearMediaItems()
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
         }
     }
 
@@ -342,7 +347,6 @@ class ViewTvChannelActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-        Helper.restrictVpn(this@ViewTvChannelActivity)
     }
 
     override fun onPause() {
@@ -357,10 +361,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        exoPlayer?.apply {
-            removeListener(playerListener)
-            releasePlayer()
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
         window.apply {
             clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON)
             if (!Config.DEVELOPMENT_BUILD) {
