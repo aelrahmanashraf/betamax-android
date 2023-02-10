@@ -18,6 +18,7 @@ local.properties
 
 # Key store
 keystore.jks
+keystore.properties
 keystore_details.txt
 private_key.pepk
                         
