@@ -71,7 +71,6 @@
     <string name="story">Story</string>
     <string name="feedback_email_subject">Subject</string>
     <string name="feedback_email_body">Body</string>
-    <string name="betamax_premium">Betamax Premium</string>
     <string name="subscribe">Subscribe</string>
     <string name="premium">Premium</string>
     <string name="access_all_content">Access all content</string>
@@ -107,9 +106,6 @@
     <string name="select_video_quality">Select Video Quality</string>
     <string name="contact_us">Contact Us</string>
     <string name="continue_watching">Continue Watching</string>
-    <string name="silver_package">Silver Package</string>
-    <string name="gold_package">Gold Package</string>
-    <string name="diamond_package">Diamond Package</string>
     <string name="save">Save</string>
     <string name="profile_info_saved_successfully">Profile info saved successfully.</string>
     <string name="no_tv_channels_found">No tv channels found!</string>
@@ -140,7 +136,6 @@
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="all_tv_channels">All Tv Channels</string>
-    <string name="choose_language">Choose Language</string>
     <string name="cant_move_back">Can\'t move back</string>
     <string name="cant_move_forward">Can\'t move forward</string>
     <string name="regular">Regular</string>

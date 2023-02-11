@@ -6,7 +6,6 @@
     <color name="color_white">#FFFFFF</color>
     <color name="color_light_white">#F2F5F6</color>
     <color name="color_darker">#242C3D</color>
-    <color name="color_black_light">#313131</color>
     <color name="color_dark">#141723</color>
     <color name="reverse_light">#F2F5F6</color>
     <color name="reverse_dark">#242C3D</color>
@@ -16,17 +15,10 @@
     <color name="color_warning">#FFAB00</color>
     <color name="color_white_alpha">#B3FFFFFF</color>
     <color name="color_dark_alpha">#80141723</color>
-    <color name="color_blue_light">#E9F3FF</color>
-    <color name="color_blue">#0D79EC</color>
     <color name="color_theme">#6360f9</color>
     <color name="color_theme_dark">#6f62ff</color>
-    <color name="color_red_light">#FFEDEB</color>
     <color name="color_red">#FE4949</color>
-    <color name="color_yellow_light">#FFAB00</color>
     <color name="color_yellow">#ffe258</color>
-    <color name="color_green_light">#52DB6C</color>
-    <color name="color_active_light">#E9F3FF</color>
-    <color name="color_active_dark">#2B3A4F</color>
     <color name="color_white_alpha70">#B3FFFFFF</color>
     <color name="color_white_alpha90">#E6FFFFFF</color>
     <color name="color_dark_alpha50">#80141723</color>
