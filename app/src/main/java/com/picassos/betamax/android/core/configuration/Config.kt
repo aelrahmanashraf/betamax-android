@@ -13,10 +13,10 @@ object Config {
     const val PLAYER_FORWARD_DURATION = 30000L
 
     // exoplayer
-    const val MIN_BUFFER_DURATION = 2000
-    const val MAX_BUFFER_DURATION = 5000
-    const val MIN_PLAYBACK_START_BUFFER = 1500
-    const val MIN_PLAYBACK_RESUME_BUFFER = 2000
+    const val MIN_BUFFER_DURATION = 32 * 1024
+    const val MAX_BUFFER_DURATION = 64 * 1024
+    const val MIN_PLAYBACK_START_BUFFER = 1024
+    const val MIN_PLAYBACK_RESUME_BUFFER = 1024
 
     // build preferences
     const val BUILD_TYPE = BuildConfig.BUILD_TYPE

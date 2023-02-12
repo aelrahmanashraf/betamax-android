@@ -1,25 +1,34 @@
 package com.picassos.betamax.android.presentation.app.movie.movie_player
 
-import android.net.Uri
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource
+import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -28,11 +37,15 @@ import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityMoviePlayerBinding
 import com.picassos.betamax.android.domain.model.PlayerContent
+import com.picassos.betamax.android.presentation.app.App
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class MoviePlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityMoviePlayerBinding
@@ -41,7 +54,7 @@ class MoviePlayerActivity : AppCompatActivity() {
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
     private lateinit var exoPlayer: SimpleExoPlayer
-    private var isFullscreen = false
+    private val cache: SimpleCache = App.cache
 
     private lateinit var playerContent: PlayerContent
 
@@ -71,6 +84,12 @@ class MoviePlayerActivity : AppCompatActivity() {
         WindowInsetsControllerCompat(window, layout.root).let { controller ->
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@MoviePlayerActivity)
+            }
         }
 
         layout.goBack.setOnClickListener {
@@ -128,23 +147,31 @@ class MoviePlayerActivity : AppCompatActivity() {
         })
     }
 
+    @SuppressLint("SwitchIntDef")
     private fun initializePlayer(url: String) {
-        val loadControl: LoadControl = DefaultLoadControl.Builder()
+        val loadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
             .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
             .setTargetBufferBytes(-1)
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@MoviePlayerActivity, Util.getUserAgent(this@MoviePlayerActivity, applicationInfo.name))
-        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(Helper.parseUrl(url))))
+        val trackSelector = DefaultTrackSelector(this@MoviePlayerActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
+        val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
+        val cacheDataSource = CacheDataSource.Factory()
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(httpDataSource)
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(url))
 
-        exoPlayer = SimpleExoPlayer.Builder(this)
+        exoPlayer = SimpleExoPlayer.Builder(this@MoviePlayerActivity)
+            .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
-            .build()
-            .apply {
+            .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))
+            .build().apply {
                 addListener(playerListener)
-                setMediaSource(mediaSource)
+                setMediaSource(mediaSource, true)
             }
+        playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
         layout.exoPlayer.apply {
             player = exoPlayer
@@ -190,11 +217,17 @@ class MoviePlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    layout.playIcon.apply {
+                    layout.playerAction.apply {
                         setImageResource(R.drawable.icon_retry)
                         setOnClickListener {
                             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                         }
+                    }
+                }
+                PlayerStatus.RELEASE -> {
+                    exoPlayer.apply {
+                        removeListener(playerListener)
+                        clearMediaItems()
                     }
                 }
             }
@@ -202,10 +235,8 @@ class MoviePlayerActivity : AppCompatActivity() {
 
         layout.replay.setOnClickListener {
             exoPlayer.apply {
-                if (currentPosition <= Config.PLAYER_REPLAY_DURATION)
-                    seekTo(0)
-                else
-                    seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
+                if (currentPosition <= Config.PLAYER_REPLAY_DURATION) seekTo(0)
+                else seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
             }
         }
 
@@ -213,15 +244,20 @@ class MoviePlayerActivity : AppCompatActivity() {
             exoPlayer.seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
         }
 
-        layout.fullscreenMode.setOnClickListener {
-            if (!isFullscreen) {
-                isFullscreen = true
-                layout.fullscreenIcon.setImageResource(R.drawable.icon_fit_to_width_filled)
-                layout.exoPlayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-            } else {
-                isFullscreen = false
-                layout.fullscreenIcon.setImageResource(R.drawable.icon_fullscreen_filled)
-                layout.exoPlayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+        layout.exoPlayer.apply exoplayer@ {
+            findViewById<ImageView>(R.id.fullscreen_mode).apply fullscreen@ {
+                this@fullscreen.setOnClickListener {
+                    when (this@exoplayer.resizeMode) {
+                        AspectRatioFrameLayout.RESIZE_MODE_FIT -> {
+                            this@fullscreen.setImageDrawable(AppCompatResources.getDrawable(this@MoviePlayerActivity, R.drawable.icon_fit_to_width_filled))
+                            this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                        }
+                        AspectRatioFrameLayout.RESIZE_MODE_FILL -> {
+                            this@fullscreen.setImageDrawable(AppCompatResources.getDrawable(this@MoviePlayerActivity, R.drawable.icon_fullscreen_filled))
+                            this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                        }
+                    }
+                }
             }
         }
     }
@@ -230,11 +266,9 @@ class MoviePlayerActivity : AppCompatActivity() {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                exoPlayer.playWhenReady = true
-                layout.playIcon.setImageResource(R.drawable.icon_pause_filled)
+                layout.playerAction.setImageResource(R.drawable.icon_pause_filled)
             } else {
-                exoPlayer.playWhenReady
-                layout.playIcon.setImageResource(R.drawable.icon_play_filled)
+                layout.playerAction.setImageResource(R.drawable.icon_play_filled)
             }
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -247,13 +281,13 @@ class MoviePlayerActivity : AppCompatActivity() {
                 Player.STATE_BUFFERING -> {
                     layout.apply {
                         playerProgressbar.visibility = View.VISIBLE
-                        playIcon.visibility = View.GONE
+                        playerAction.visibility = View.INVISIBLE
                     }
                 }
                 else -> {
                     layout.apply {
-                        playerProgressbar.visibility = View.GONE
-                        playIcon.visibility = View.VISIBLE
+                        playerProgressbar.visibility = View.INVISIBLE
+                        playerAction.visibility = View.VISIBLE
                     }
                 }
             }
@@ -264,17 +298,9 @@ class MoviePlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun releasePlayer() {
-        exoPlayer.apply {
-            playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-            clearMediaItems()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-        Helper.restrictVpn(this@MoviePlayerActivity)
     }
 
     override fun onPause() {
@@ -289,10 +315,7 @@ class MoviePlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        exoPlayer.apply {
-            removeListener(playerListener)
-            releasePlayer()
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             if (Config.BUILD_TYPE == "release") {

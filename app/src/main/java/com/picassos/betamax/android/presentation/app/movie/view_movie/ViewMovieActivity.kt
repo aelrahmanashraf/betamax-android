@@ -9,9 +9,15 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.picassos.betamax.android.core.utilities.Helper
 import com.facebook.drawee.backends.pipeline.PipelineDraweeController
@@ -36,14 +42,18 @@ import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.domain.model.Seasons
+import com.picassos.betamax.android.domain.worker.VideoPreloadWorker
 import com.picassos.betamax.android.presentation.app.episode.show_episode.ShowEpisodeBottomSheetModal
 import com.picassos.betamax.android.presentation.app.movie.movie_player.MoviePlayerActivity
 import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsBottomSheetModal
 import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsViewModel
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 import org.json.JSONException
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class ViewMovieActivity : AppCompatActivity() {
     private lateinit var layout: ActivityViewMovieBinding
@@ -63,6 +73,12 @@ class ViewMovieActivity : AppCompatActivity() {
         Helper.darkMode(this)
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_view_movie)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@ViewMovieActivity)
+            }
+        }
 
         val requestDialog = RequestDialog(this)
 
@@ -87,6 +103,7 @@ class ViewMovieActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(viewMovieViewModel.movie) { isSafe ->
             isSafe?.let { movie ->
                 this.movie = movie
+                schedulePreloadWork(movie.url)
             }
         }
 
@@ -183,10 +200,10 @@ class ViewMovieActivity : AppCompatActivity() {
                 layout.saveMovie.apply {
                     when (state.response.movieSaved) {
                         1 -> {
-                            setImageDrawable(getDrawable(R.drawable.icon_check))
+                            setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_check))
                         }
                         else -> {
-                            setImageDrawable(getDrawable(R.drawable.icon_plus))
+                            setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_plus))
                         }
                     }
                     setOnClickListener {
@@ -280,8 +297,8 @@ class ViewMovieActivity : AppCompatActivity() {
                 requireRefresh = true
 
                 when (state.responseCode) {
-                    "1" -> layout.saveMovie.setImageDrawable(getDrawable(R.drawable.icon_check))
-                    "0" -> layout.saveMovie.setImageDrawable(getDrawable(R.drawable.icon_plus))
+                    "1" -> layout.saveMovie.setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_check))
+                    "0" -> layout.saveMovie.setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_plus))
                     else -> showToast(this@ViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
                 }
             }
@@ -390,8 +407,12 @@ class ViewMovieActivity : AppCompatActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@ViewMovieActivity)
+    private fun schedulePreloadWork(url: String) {
+        val workManager = WorkManager.getInstance(applicationContext)
+        val videoPreloadWorker = VideoPreloadWorker.buildWorkRequest(url)
+        workManager.enqueueUniqueWork(
+            "VideoPreloadWorker",
+            ExistingWorkPolicy.KEEP,
+            videoPreloadWorker)
     }
 }

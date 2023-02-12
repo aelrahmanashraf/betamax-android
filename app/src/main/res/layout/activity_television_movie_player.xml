@@ -15,7 +15,7 @@
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@id/exo_player"
             android:layout_width="match_parent"
-            app:controller_layout_id="@layout/custom_control_view"
+            app:controller_layout_id="@layout/movie_custom_controller_view"
             android:layout_height="match_parent" />
 
         <RelativeLayout
