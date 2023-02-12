@@ -45,7 +45,7 @@
                     android:layout_marginEnd="3dp"
                     android:alpha=".8"
                     android:text="/"
-                    android:textColor="@color/color_white"
+                    android:textColor="@color/color_grey"
                     android:textSize="13sp"
                     tools:ignore="HardcodedText" />
 
@@ -55,7 +55,7 @@
                     android:layout_height="wrap_content"
                     android:alpha=".8"
                     android:text="@string/duration_hint"
-                    android:textColor="@color/color_white"
+                    android:textColor="@color/color_grey"
                     android:textSize="13sp" />
 
             </LinearLayout>
