@@ -224,9 +224,11 @@ class ViewTvChannelActivity : AppCompatActivity() {
         layout.exoPlayer.apply {
             player = exoPlayer
             setControllerVisibilityListener { visibility ->
-                layout.controllerContainer.visibility = when (visibility) {
-                    View.VISIBLE -> View.VISIBLE
-                    else -> View.GONE
+                layout.controllerContainer.apply {
+                    when (visibility) {
+                        View.VISIBLE -> animate().alpha(1F).duration = 400
+                        View.GONE -> animate().alpha(0F).duration = 400
+                    }
                 }
             }
         }
