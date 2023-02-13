@@ -1,5 +1,6 @@
 package com.picassos.betamax.android.presentation.app.profile
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -18,6 +19,8 @@ import com.picassos.betamax.android.BuildConfig
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
+import com.picassos.betamax.android.core.utilities.Intents.openEmailAddress
+import com.picassos.betamax.android.core.utilities.Intents.openWebBrowser
 import com.picassos.betamax.android.core.view.Toasto.showToast
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityProfileBinding
@@ -47,6 +50,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var subscription: Subscription
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val entryPoint = EntryPointAccessors.fromApplication(this@ProfileActivity, AppEntryPoint::class.java)
@@ -57,6 +61,12 @@ class ProfileActivity : AppCompatActivity() {
         layout = DataBindingUtil.setContentView<ActivityProfileBinding>(this, R.layout.activity_profile).apply {
             lifecycleOwner = this@ProfileActivity
             viewModel = profileViewModel
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@ProfileActivity)
+            }
         }
 
         val requestDialog = RequestDialog(this)
@@ -104,21 +114,16 @@ class ProfileActivity : AppCompatActivity() {
                             manageVideoQualityBottomSheetModal.show(supportFragmentManager, "TAG")
                         }
                         sendFeedback.setOnClickListener {
-                            Helper.handleEmailIntent(
-                                context = this@ProfileActivity,
+                            openEmailAddress(
                                 email = configuration.email,
                                 subject = getString(R.string.feedback_email_subject),
                                 text = getString(R.string.feedback_email_body))
                         }
                         privacyPolicy.setOnClickListener {
-                            Helper.handleWebIntent(
-                                context = this@ProfileActivity,
-                                url = configuration.privacyURL)
+                            openWebBrowser(url = configuration.privacyURL)
                         }
                         helpCentre.setOnClickListener {
-                            Helper.handleWebIntent(
-                                context = this@ProfileActivity,
-                                url = configuration.helpURL)
+                            openWebBrowser(url = configuration.helpURL)
                         }
                         about.setOnClickListener {
                             startActivity(Intent(this@ProfileActivity, AboutActivity::class.java))
@@ -129,10 +134,10 @@ class ProfileActivity : AppCompatActivity() {
                         developedByContainer.visibility = View.VISIBLE
                         developedByAuthor.apply {
                             visibility = View.VISIBLE
-                            text = getString(R.string.by) + " ${configuration.developedBy}"
+                            text = "${getString(R.string.by)} ${configuration.developedBy}"
                         }
                         copyright.text = Helper.copyright(this@ProfileActivity)
-                        version.text = getString(R.string.version) + " " + BuildConfig.VERSION_NAME
+                        version.text = "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
                     }
                 }.collect()
             }
@@ -198,10 +203,5 @@ class ProfileActivity : AppCompatActivity() {
         if (result != null && result.resultCode == RESULT_OK) {
             profileViewModel.requestCheckSubscription()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@ProfileActivity)
     }
 }

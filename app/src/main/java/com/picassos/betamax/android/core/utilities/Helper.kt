@@ -2,18 +2,25 @@ package com.picassos.betamax.android.core.utilities
 
 import android.app.Activity
 import android.app.UiModeManager
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Context.UI_MODE_SERVICE
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.net.Uri
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
+import android.view.View
+import android.view.Window
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
 import com.picassos.betamax.android.presentation.app.restrict.vpn_restriction.VpnRestrictedActivity
+import kotlinx.coroutines.*
 import java.io.Serializable
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -94,36 +101,30 @@ object Helper {
         return calendar.get(Calendar.YEAR)
     }
 
-    fun handleWebIntent(context: Context, url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
+    fun Float.toDips(resources: Resources): Int {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, resources.displayMetrics).toInt()
+    }
+
+    fun showSystemUI(window: Window, root: View) {
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        WindowInsetsControllerCompat(window, root).apply {
+            show(WindowInsetsCompat.Type.systemBars())
         }
     }
 
-    fun handleEmailIntent(context: Context, email: String, subject: String?, text: String?) {
-        try {
-            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email")).apply {
-                putExtra(Intent.EXTRA_SUBJECT, subject)
-                putExtra(Intent.EXTRA_TEXT, text)
-            }
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
+    fun hideSystemUI(window: Window, root: View) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, root).apply {
+            hide(WindowInsetsCompat.Type.systemBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     }
 
-    fun handleWhatsappIntent(context: Context, number: String) {
-        val url = "https://api.whatsapp.com/send?phone=$number"
-        try {
-            val packageManager: PackageManager = context.packageManager
-            packageManager.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES)
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            context.startActivity(intent)
-        } catch (e: PackageManager.NameNotFoundException) {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+    fun Activity.requestedOrientationWithFullSensor(orientation: Int) {
+        CoroutineScope(Dispatchers.Main).launch {
+            requestedOrientation = orientation
+            delay(500)
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
         }
     }
 

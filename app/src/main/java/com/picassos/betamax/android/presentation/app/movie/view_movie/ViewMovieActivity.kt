@@ -9,7 +9,6 @@ import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
@@ -200,10 +199,10 @@ class ViewMovieActivity : AppCompatActivity() {
                 layout.saveMovie.apply {
                     when (state.response.movieSaved) {
                         1 -> {
-                            setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_check))
+                            setImageResource(R.drawable.icon_check)
                         }
                         else -> {
-                            setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_plus))
+                            setImageResource(R.drawable.icon_plus)
                         }
                     }
                     setOnClickListener {
@@ -297,8 +296,8 @@ class ViewMovieActivity : AppCompatActivity() {
                 requireRefresh = true
 
                 when (state.responseCode) {
-                    "1" -> layout.saveMovie.setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_check))
-                    "0" -> layout.saveMovie.setImageDrawable(AppCompatResources.getDrawable(this@ViewMovieActivity, R.drawable.icon_plus))
+                    "1" -> layout.saveMovie.setImageResource(R.drawable.icon_check)
+                    "0" -> layout.saveMovie.setImageResource(R.drawable.icon_plus)
                     else -> showToast(this@ViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
                 }
             }

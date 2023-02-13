@@ -1,16 +1,15 @@
 package com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel
 
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager.LayoutParams
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.RelativeLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,6 +23,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -36,16 +36,16 @@ import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
+import com.picassos.betamax.android.core.utilities.Helper.requestedOrientationWithFullSensor
+import com.picassos.betamax.android.core.utilities.Helper.toDips
 import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.databinding.ActivityViewTvchannelBinding
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.model.Genres
-import com.picassos.betamax.android.domain.model.TvChannelPlayerContent
 import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.app.tvchannel.related_tvchannels.RelatedTvChannelsAdapter
-import com.picassos.betamax.android.presentation.app.tvchannel.tvchannel_player.TvChannelPlayerActivity
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserBottomSheetModal
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -194,8 +194,23 @@ class ViewTvChannelActivity : AppCompatActivity() {
                 }
             }
         }
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            @SuppressLint("SwitchIntDef")
+            override fun handleOnBackPressed() {
+                when (resources.configuration.orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> {
+                        requestedOrientationWithFullSensor(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                    }
+                    Configuration.ORIENTATION_PORTRAIT -> {
+                        finish()
+                    }
+                }
+            }
+        })
     }
 
+    @SuppressLint("SwitchIntDef")
     private fun initializePlayer(url: String) {
         selectedUrl = url
 
@@ -278,7 +293,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
 
         layout.exoPlayer.findViewById<ImageView>(R.id.fullscreen_mode).setOnClickListener {
-            playInFullscreen()
+            when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_PORTRAIT -> requestedOrientationWithFullSensor(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+                Configuration.ORIENTATION_LANDSCAPE -> requestedOrientationWithFullSensor(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+            }
         }
 
         layout.playerOptions.setOnClickListener {
@@ -317,16 +335,6 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
     }
 
-    private fun playInFullscreen() {
-        Intent(this@ViewTvChannelActivity, TvChannelPlayerActivity::class.java).also { intent ->
-            intent.putExtra("playerContent", TvChannelPlayerContent(
-                url = selectedUrl,
-                userAgent = tvChannel.userAgent,
-                currentPosition = exoPlayer!!.currentPosition.toInt()))
-            startActivityForResult.launch(intent)
-        }
-    }
-
     @SuppressLint("InflateParams")
     private fun createGenreChip(genre: Genres.Genre): Chip {
         val chip = this@ViewTvChannelActivity.layoutInflater.inflate(R.layout.item_genre_selectable, null, false) as Chip
@@ -344,19 +352,26 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
     override fun onConfigurationChanged(configuration: Configuration) {
         super.onConfigurationChanged(configuration)
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            playInFullscreen()
-        }
-    }
-
-    private var startActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult? ->
-        if (result != null && result.resultCode == RESULT_OK) {
-            result.data?.let { data ->
-                exoPlayer?.apply {
-                    seekTo(data.getIntExtra("currentPosition", 0).toLong())
-                    Toast.makeText(this@ViewTvChannelActivity, "Back", Toast.LENGTH_LONG).show()
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            layout.apply {
+                goBack.visibility = View.VISIBLE
+                playerContainer.layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, (200f).toDips(resources))
+                exoPlayer.apply exoplayer@ {
+                    this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    this@exoplayer.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fullscreen_filled)
                 }
             }
+            Helper.showSystemUI(window, layout.root)
+        } else if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            layout.apply {
+                goBack.visibility = View.GONE
+                playerContainer.layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                exoPlayer.apply exoplayer@ {
+                    this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                    this@exoplayer.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fit_to_width_filled)
+                }
+            }
+            Helper.hideSystemUI(window, layout.root)
         }
     }
 

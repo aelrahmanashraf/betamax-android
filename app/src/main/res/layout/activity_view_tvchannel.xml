@@ -23,7 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:animateLayoutChanges="true"
-                app:controller_layout_id="@layout/tvchannel_minimized_custom_controller_view" />
+                app:controller_layout_id="@layout/tvchannel_custom_controller_view" />
 
             <RelativeLayout
                 android:id="@id/controller_container"

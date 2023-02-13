@@ -4,13 +4,19 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.databinding.ActivityAboutBinding
 import com.picassos.betamax.android.core.utilities.Helper
+import com.picassos.betamax.android.core.utilities.Intents.openWebBrowser
+import com.picassos.betamax.android.core.utilities.Intents.openWhatsapp
 import com.picassos.betamax.android.di.AppEntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
@@ -26,6 +32,12 @@ class AboutActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_about)
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@AboutActivity)
+            }
+        }
+
         layout.goBack.setOnClickListener { finish() }
 
         collectLatestOnLifecycleStarted(entryPoint.getConfigurationUseCase().invoke()) { configuration ->
@@ -38,19 +50,12 @@ class AboutActivity : AppCompatActivity() {
                 brandingText.text = getString(R.string.app_name).lowercase()
                 aboutText.text = configuration.aboutText
                 telegramLink.setOnClickListener {
-                    Helper.handleWebIntent(
-                        context = this@AboutActivity,
-                        url = configuration.telegramURL)
+                    openWebBrowser(url = configuration.telegramURL)
                 }
                 whatsappLink.setOnClickListener {
-                    Helper.handleWhatsappIntent(this@AboutActivity, configuration.whatsappURL)
+                    openWhatsapp(number = configuration.whatsappURL)
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@AboutActivity)
     }
 }

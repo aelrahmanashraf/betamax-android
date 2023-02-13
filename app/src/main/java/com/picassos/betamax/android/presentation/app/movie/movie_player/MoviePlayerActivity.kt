@@ -9,10 +9,6 @@ import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -241,11 +237,11 @@ class MoviePlayerActivity : AppCompatActivity() {
                 this@fullscreen.setOnClickListener {
                     when (this@exoplayer.resizeMode) {
                         AspectRatioFrameLayout.RESIZE_MODE_FIT -> {
-                            this@fullscreen.setImageDrawable(AppCompatResources.getDrawable(this@MoviePlayerActivity, R.drawable.icon_fit_to_width_filled))
+                            this@fullscreen.setImageResource(R.drawable.icon_fit_to_width_filled)
                             this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                         }
                         AspectRatioFrameLayout.RESIZE_MODE_FILL -> {
-                            this@fullscreen.setImageDrawable(AppCompatResources.getDrawable(this@MoviePlayerActivity, R.drawable.icon_fullscreen_filled))
+                            this@fullscreen.setImageResource(R.drawable.icon_fullscreen_filled)
                             this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                         }
                     }
@@ -293,11 +289,7 @@ class MoviePlayerActivity : AppCompatActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            WindowInsetsControllerCompat(window, layout.root).apply {
-                hide(WindowInsetsCompat.Type.systemBars())
-                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
+            Helper.hideSystemUI(window, layout.root)
         }
     }
 
