@@ -11,8 +11,12 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.transition.Fade
+import android.transition.Transition
+import android.transition.TransitionManager
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -103,6 +107,15 @@ object Helper {
 
     fun Float.toDips(resources: Resources): Int {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, resources.displayMetrics).toInt()
+    }
+
+    fun View.fadeVisibility(visibility: Int, duration: Long = 400) {
+        val transition: Transition = Fade().apply transition@ {
+            this@transition.duration = duration
+            this@transition.addTarget(this@fadeVisibility)
+        }
+        TransitionManager.beginDelayedTransition(this.parent as ViewGroup, transition)
+        this.visibility = visibility
     }
 
     fun showSystemUI(window: Window, root: View) {

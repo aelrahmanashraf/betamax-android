@@ -35,6 +35,7 @@ import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
+import com.picassos.betamax.android.core.utilities.Helper.fadeVisibility
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.utilities.Helper.requestedOrientationWithFullSensor
 import com.picassos.betamax.android.core.utilities.Helper.toDips
@@ -241,8 +242,8 @@ class ViewTvChannelActivity : AppCompatActivity() {
             setControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
-                        View.VISIBLE -> animate().alpha(1F).duration = 400
-                        View.GONE -> animate().alpha(0F).duration = 400
+                        View.VISIBLE -> fadeVisibility(View.VISIBLE, 400)
+                        View.GONE -> fadeVisibility(View.GONE, 400)
                     }
                 }
             }
