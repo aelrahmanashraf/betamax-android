@@ -1,6 +1,7 @@
 package com.picassos.betamax.android.presentation.app.movie.movie_player
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -48,7 +49,7 @@ class MoviePlayerActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
-    private lateinit var exoPlayer: SimpleExoPlayer
+    private lateinit var exoPlayer: ExoPlayer
     private val cache: SimpleCache = App.cache
 
     private lateinit var playerContent: PlayerContent
@@ -147,9 +148,9 @@ class MoviePlayerActivity : AppCompatActivity() {
             .setCache(cache)
             .setUpstreamDataSourceFactory(httpDataSource)
             .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(url))
+        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
-        exoPlayer = SimpleExoPlayer.Builder(this@MoviePlayerActivity)
+        exoPlayer = ExoPlayer.Builder(this@MoviePlayerActivity)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))

@@ -22,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/DarkTheme"
         android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup"
         tools:targetApi="m">
         <activity
             android:name="com.picassos.betamax.android.presentation.app.launch.LaunchActivity"

@@ -4,7 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.core.ImagePipelineConfig
-import com.google.android.exoplayer2.database.ExoDatabaseProvider
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.firebase.FirebaseApp
@@ -31,7 +31,7 @@ class App : Application() {
 
     private val cacheSize: Long = 90 * 1024 * 1024
     private lateinit var cacheEvictor: LeastRecentlyUsedCacheEvictor
-    private lateinit var exoplayerDatabaseProvider: ExoDatabaseProvider
+    private lateinit var exoplayerDatabaseProvider: StandaloneDatabaseProvider
 
     override fun onCreate() {
         super.onCreate()
@@ -50,7 +50,7 @@ class App : Application() {
         OneSignal.setAppId(ONESIGNAL_APP_ID)
 
         cacheEvictor = LeastRecentlyUsedCacheEvictor(cacheSize)
-        exoplayerDatabaseProvider = ExoDatabaseProvider(this)
+        exoplayerDatabaseProvider = StandaloneDatabaseProvider(this)
         cache = SimpleCache(cacheDir, cacheEvictor, exoplayerDatabaseProvider)
     }
 }

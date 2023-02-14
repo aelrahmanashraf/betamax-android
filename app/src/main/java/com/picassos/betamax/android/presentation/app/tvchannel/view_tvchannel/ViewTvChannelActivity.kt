@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.*
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.chip.Chip
 import com.google.firebase.crashlytics.ktx.crashlytics
@@ -49,9 +47,11 @@ import com.picassos.betamax.android.presentation.app.tvchannel.related_tvchannel
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserBottomSheetModal
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class ViewTvChannelActivity : AppCompatActivity() {
     private lateinit var layout: ActivityViewTvchannelBinding
@@ -59,7 +59,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val videoQualityChooserViewModel: VideoQualityChooserViewModel by viewModels()
 
-    private var exoPlayer: SimpleExoPlayer? = null
+    private var exoPlayer: ExoPlayer? = null
 
     private lateinit var tvChannel: TvChannels.TvChannel
     private var selectedGenre = 0
@@ -185,8 +185,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(videoQualityChooserViewModel.selectedVideoQuality) { isSafe ->
             isSafe?.let { quality ->
                 exoPlayer?.apply {
-                    playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
-                    delay(500)
+                    releasePlayer()
                     when (quality) {
                         1 -> initializePlayer(url = tvChannel.sdUrl)
                         2 -> initializePlayer(url = tvChannel.hdUrl)
@@ -226,10 +225,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@ViewTvChannelActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@ViewTvChannelActivity, Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
-        val mediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        val httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
-        exoPlayer = SimpleExoPlayer.Builder(this@ViewTvChannelActivity, renderersFactory)
+        exoPlayer = ExoPlayer.Builder(this@ViewTvChannelActivity, renderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .build().apply {
@@ -286,10 +285,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RELEASE -> {
-                    exoPlayer?.apply {
-                        removeListener(playerListener)
-                        clearMediaItems()
-                    }
+                    releasePlayer()
                 }
             }
         }
@@ -334,6 +330,14 @@ class ViewTvChannelActivity : AppCompatActivity() {
             if (error != null) {
                 playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
             }
+        }
+    }
+
+    private fun releasePlayer() {
+        exoPlayer?.apply {
+            stop()
+            removeListener(playerListener)
+            clearMediaItems()
         }
     }
 

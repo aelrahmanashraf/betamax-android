@@ -142,8 +142,9 @@ dependencies {
     implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
 
     // exo player
-    implementation "com.google.android.exoplayer:exoplayer:2.15.0"
-    implementation "com.google.android.exoplayer:exoplayer-ui:2.15.0"
+    def exoplayer_version = "2.18.2"
+    implementation "com.google.android.exoplayer:exoplayer:$exoplayer_version"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
 
     // 3rd party libs
     implementation 'me.relex:circleindicator:2.1.6'
