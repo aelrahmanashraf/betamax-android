@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -50,6 +49,7 @@ import com.picassos.betamax.android.presentation.app.tvchannel.related_tvchannel
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserBottomSheetModal
 import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -184,15 +184,16 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
         collectLatestOnLifecycleStarted(videoQualityChooserViewModel.selectedVideoQuality) { isSafe ->
             isSafe?.let { quality ->
-                videoQualityChooserViewModel.setVideoQuality(null)
                 exoPlayer?.apply {
                     playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
+                    delay(500)
                     when (quality) {
                         1 -> initializePlayer(url = tvChannel.sdUrl)
                         2 -> initializePlayer(url = tvChannel.hdUrl)
                         3 -> initializePlayer(url = tvChannel.fhdUrl)
                     }
                 }
+                videoQualityChooserViewModel.setVideoQuality(null)
             }
         }
 
@@ -358,21 +359,19 @@ class ViewTvChannelActivity : AppCompatActivity() {
                 goBack.visibility = View.VISIBLE
                 playerContainer.layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, (200f).toDips(resources))
                 exoPlayer.apply exoplayer@ {
-                    this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                     this@exoplayer.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fullscreen_filled)
                 }
+                Helper.showSystemUI(window, root)
             }
-            Helper.showSystemUI(window, layout.root)
         } else if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             layout.apply {
                 goBack.visibility = View.GONE
                 playerContainer.layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
                 exoPlayer.apply exoplayer@ {
-                    this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
                     this@exoplayer.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fit_to_width_filled)
                 }
+                Helper.hideSystemUI(window, root)
             }
-            Helper.hideSystemUI(window, layout.root)
         }
     }
 

@@ -103,6 +103,8 @@
         <activity
             android:name="com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel.ViewTvChannelActivity"
             android:configChanges="orientation|keyboard|layoutDirection|screenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
             android:screenOrientation="fullSensor" />
         <activity
             android:name="com.picassos.betamax.android.presentation.app.profile.ProfileActivity"
