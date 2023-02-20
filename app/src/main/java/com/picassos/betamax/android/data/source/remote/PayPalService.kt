@@ -1,6 +1,7 @@
 package com.picassos.betamax.android.data.source.remote
 
 import com.picassos.betamax.android.BuildConfig
+import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.ConnectivityInterceptor
 import com.picassos.betamax.android.core.utilities.Security
 import com.picassos.betamax.android.data.source.remote.body.paypal.PayPalCreateOrderBody
@@ -45,7 +46,7 @@ interface PayPalService {
     ): PayPalCaptureOrderDto
 
     companion object {
-        private val BASE_URL = when (BuildConfig.BUILD_TYPE) {
+        private val BASE_URL = when (Config.BUILD_TYPEcls) {
             "release" -> "https://api-m.paypal.com"
             else -> "https://api-m.sandbox.paypal.com/"
         }
