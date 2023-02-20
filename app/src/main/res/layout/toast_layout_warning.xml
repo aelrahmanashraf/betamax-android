@@ -4,30 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentTop="true"
-    android:alpha="0.86"
+    android:alpha="0.90"
     android:background="@drawable/toast_warning"
-    android:paddingStart="36dp"
-    android:paddingEnd="36dp">
+    android:padding="55dp">
 
-    <RelativeLayout
+    <TextView
+        android:id="@id/toast_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginTop="36dp"
-        android:layout_marginBottom="36dp"
-        tools:ignore="UselessParent">
-
-        <TextView
-            android:id="@id/toast_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:text="Mynta.app"
-            android:textColor="@color/color_dark"
-            android:textSize="13sp"
-            tools:ignore="HardcodedText" />
-
-    </RelativeLayout>
+        android:text="Toast"
+        android:textColor="@color/color_white"
+        android:textSize="14sp"
+        tools:ignore="HardcodedText" />
 
 </RelativeLayout>
