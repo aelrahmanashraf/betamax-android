@@ -32,7 +32,7 @@ Crafted with :heart: by Egyptain hands.
 * [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
 * [DataBinding](https://developer.android.com/topic/libraries/data-binding)
 * [Shared Preferences](https://developer.android.com/training/data-storage/shared-preferences)
-* [Google Billing Library](https://developer.android.com/google/play/billing/integrate)
+* [PayPal REST API](https://developer.paypal.com/api/rest/)
 * [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/android/client)
 * [Crashlytics](https://firebase.google.com/products/crashlytics)
 
