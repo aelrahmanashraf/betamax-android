@@ -36,10 +36,10 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val config = ImagePipelineConfig.newBuilder(this)
+        val frescoConfig = ImagePipelineConfig.newBuilder(this)
             .setBitmapsConfig(Bitmap.Config.ARGB_8888)
             .build()
-        Fresco.initialize(this, config)
+        Fresco.initialize(this, frescoConfig)
 
         Connectivity.instance.initializeWithApplicationContext(this)
 

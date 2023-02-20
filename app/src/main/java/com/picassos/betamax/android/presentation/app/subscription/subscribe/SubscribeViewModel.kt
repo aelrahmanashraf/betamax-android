@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
+import com.picassos.betamax.android.domain.model.SubscriptionPackage
 import com.picassos.betamax.android.domain.usecase.subscription.SubscribeUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SubscribeViewModel @Inject constructor(app: Application, private val subscribeUseCases: SubscribeUseCases): AndroidViewModel(app) {
+    private val _selectedSubscriptionPackage = MutableStateFlow(SubscriptionPackage())
+    val selectedSubscriptionPackage = _selectedSubscriptionPackage.asStateFlow()
+
+    fun setSelectedSubscriptionPackage(subscriptionPackage: SubscriptionPackage) {
+        _selectedSubscriptionPackage.tryEmit(subscriptionPackage)
+    }
+
     private val _subscribe = MutableStateFlow(SubscribeState())
     val subscribe = _subscribe.asStateFlow()
 

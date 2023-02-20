@@ -71,7 +71,6 @@
     <string name="story">Story</string>
     <string name="feedback_email_subject">Subject</string>
     <string name="feedback_email_body">Body</string>
-    <string name="subscribe">Subscribe</string>
     <string name="premium">Premium</string>
     <string name="access_all_content">Access all content</string>
     <string name="genres">Genres</string>
@@ -97,7 +96,6 @@
     <string name="benefits_of_premium">Benefits of Premium</string>
     <string name="remove_ads">Remove ads</string>
     <string name="silver">Silver</string>
-    <string name="_3_days_trial">3 days trial</string>
     <string name="gold">Gold</string>
     <string name="diamond">Diamond</string>
     <string name="per_month">Per month</string>
@@ -131,6 +129,7 @@
     <string name="your_list_is_empty">Your list is empty.</string>
     <string name="start_adding_content_to_your_list">Start adding movies, series and tv channels to your list.</string>
     <string name="seasons">Seasons</string>
+    <string name="checkout">Checkout</string>
     <string name="preview">Preview</string>
     <string name="are_you_sure_you_want_exit">Are you sure you want exit?</string>
     <string name="confirm">Confirm</string>
@@ -139,4 +138,11 @@
     <string name="cant_move_back">Can\'t move back</string>
     <string name="cant_move_forward">Can\'t move forward</string>
     <string name="regular">Regular</string>
+    <string name="proceed_to_payment">Proceed to Payment</string>
+    <string name="payment">Payment</string>
+    <string name="paypal">PayPal</string>
+    <string name="select_payment_method_to_checkout">Select a payment method to checkout</string>
+    <string name="amount">Amount</string>
+    <string name="tax">Tax</string>
+    <string name="total">Total</string>
 </resources>

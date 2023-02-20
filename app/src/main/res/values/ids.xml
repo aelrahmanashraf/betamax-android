@@ -17,6 +17,9 @@
     <item name="movie_language_two" type="id" />
     <item name="movie_language_three" type="id" />
     <item name="my_movies" type="id" />
+    <item name="payment_amount" type="id" />
+    <item name="payment_tax" type="id" />
+    <item name="payment_total" type="id" />
     <item name="my_tvchannels" type="id" />
     <item name="player_options" type="id" />
     <item name="tvchannels_genres" type="id" />
@@ -178,11 +181,14 @@
     <item name="subscribe" type="id" />
     <item name="silver_package" type="id" />
     <item name="gold_package" type="id" />
+    <item name="paypal_payment_method" type="id" />
     <item name="diamond_package" type="id" />
     <item name="episodes_list" type="id" />
     <item name="silver_package_price" type="id" />
     <item name="gold_package_price" type="id" />
+    <item name="checkout" type="id" />
     <item name="diamond_package_price" type="id" />
+    <item name="payment" type="id" />
     <item name="edit_profile_info" type="id" />
     <item name="cancel" type="id" />
     <item name="toast_text" type="id" />

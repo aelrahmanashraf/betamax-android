@@ -1,6 +1,7 @@
 package com.picassos.betamax.android.presentation.app.subscription.subscribe
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,13 +11,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.picassos.betamax.android.R
+import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.databinding.ActivitySubscribeBinding
 import com.picassos.betamax.android.di.AppEntryPoint
+import com.picassos.betamax.android.domain.model.SubscriptionPackage
+import com.picassos.betamax.android.presentation.app.payment.PaymentActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
@@ -24,8 +26,6 @@ import kotlin.system.exitProcess
 class SubscribeActivity : AppCompatActivity() {
     private lateinit var layout: ActivitySubscribeBinding
     private val subscribeViewModel: SubscribeViewModel by viewModels()
-
-    private var selectedPackage = 1
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,49 +36,73 @@ class SubscribeActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_subscribe)
 
-        layout.goBack.setOnClickListener { finish() }
-
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(entryPoint.getConfigurationUseCase().invoke(), entryPoint.getAccountUseCase().invoke()) { configuration, account ->
-                    if (!Helper.verifyLicense(configuration.developedBy)) {
-                        finishAffinity()
-                        exitProcess(0)
-                    }
-
-                    layout.apply {
-                        silverPackagePrice.text = "$${configuration.silverPackagePrice}"
-                        silverPackage.setOnClickListener {
-                            selectedPackage = 1
-                            silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
-                            goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
-                            diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
-                        }
-                        goldPackagePrice.text = "$${configuration.goldPackagePrice}"
-                        goldPackage.setOnClickListener {
-                            selectedPackage = 2
-                            silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
-                            goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
-                            diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
-                        }
-                        diamondPackagePrice.text = "$${configuration.diamondPackagePrice}"
-                        diamondPackage.setOnClickListener {
-                            selectedPackage = 3
-                            silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
-                            goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
-                            diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
-                        }
-                        subscribe.setOnClickListener {
-
-                        }
-                    }
-                }.collect()
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@SubscribeActivity)
             }
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@SubscribeActivity)
+        layout.goBack.setOnClickListener { finish() }
+
+        collectLatestOnLifecycleStarted(entryPoint.getConfigurationUseCase().invoke()) { configuration ->
+            if (!Helper.verifyLicense(configuration.developedBy)) {
+                finishAffinity()
+                exitProcess(0)
+            }
+            subscribeViewModel.setSelectedSubscriptionPackage(SubscriptionPackage(
+                id = 1,
+                title = getString(R.string.silver),
+                price = configuration.silverPackagePrice))
+
+            layout.apply {
+                silverPackagePrice.text = "$${configuration.silverPackagePrice}"
+                goldPackagePrice.text = "$${configuration.goldPackagePrice}"
+                diamondPackagePrice.text = "$${configuration.diamondPackagePrice}"
+            }
+
+            layout.apply {
+                silverPackage.setOnClickListener {
+                    subscribeViewModel.setSelectedSubscriptionPackage(SubscriptionPackage(
+                        id = 1,
+                        title = getString(R.string.silver),
+                        price = configuration.silverPackagePrice))
+                    silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
+                    goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                    diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                }
+                goldPackage.setOnClickListener {
+                    subscribeViewModel.setSelectedSubscriptionPackage(SubscriptionPackage(
+                        id = 2,
+                        title = getString(R.string.gold),
+                        price = configuration.goldPackagePrice))
+                    silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                    goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
+                    diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                }
+                diamondPackage.setOnClickListener {
+                    subscribeViewModel.setSelectedSubscriptionPackage(SubscriptionPackage(
+                        id = 3,
+                        title = getString(R.string.diamond),
+                        price = configuration.diamondPackagePrice))
+                    silverPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                    goldPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background)
+                    diamondPackage.background = AppCompatResources.getDrawable(this@SubscribeActivity, R.drawable.pricing_background_selected)
+                }
+            }
+        }
+
+        collectLatestOnLifecycleStarted(subscribeViewModel.selectedSubscriptionPackage) { subscriptionPackage ->
+            if (subscriptionPackage != SubscriptionPackage()) {
+                layout.payment.apply {
+                    isEnabled = true
+                    setOnClickListener {
+                        Intent(this@SubscribeActivity, PaymentActivity::class.java).also { intent ->
+                            intent.putExtra("subscriptionPackage", subscriptionPackage)
+                            startActivity(intent)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

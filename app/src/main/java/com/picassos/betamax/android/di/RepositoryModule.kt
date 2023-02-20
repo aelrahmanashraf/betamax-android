@@ -3,6 +3,7 @@ package com.picassos.betamax.android.di
 import com.picassos.betamax.android.data.repository.*
 import com.picassos.betamax.android.data.source.local.datastore.SharedDataManager
 import com.picassos.betamax.android.data.source.remote.APIService
+import com.picassos.betamax.android.data.source.remote.PayPalService
 import com.picassos.betamax.android.domain.repository.*
 import dagger.Module
 import dagger.Provides
@@ -23,6 +24,12 @@ object RepositoryModule {
     @Singleton
     fun providerContinueWatchingRepository(api: APIService): ContinueWatchingRepository {
         return ContinueWatchingRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun providerPayPalRepository(api: PayPalService): PayPalRepository {
+        return PayPalRepositoryImpl(api)
     }
 
     @Provides

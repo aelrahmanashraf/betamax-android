@@ -62,7 +62,8 @@
                 android:fontFamily="@font/poppins_regular"
                 android:text="@string/all_genres"
                 android:textColor="?color_dark"
-                android:textSize="19sp" />
+                android:textSize="19sp"
+                tools:ignore="RelativeOverlap" />
 
             <ImageView
                 android:layout_width="30dp"
