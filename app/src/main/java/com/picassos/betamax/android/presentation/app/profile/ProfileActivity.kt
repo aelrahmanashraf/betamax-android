@@ -102,7 +102,7 @@ class ProfileActivity : AppCompatActivity() {
                                 if (!Helper.isTelevision(this@ProfileActivity)) {
                                     startActivityForResult.launch(Intent(this@ProfileActivity, SubscribeActivity::class.java))
                                 } else {
-                                    val televisionSubscriptionDialog = TelevisionSubscriptionDialog(this@ProfileActivity, account.paymentToken)
+                                    val televisionSubscriptionDialog = TelevisionSubscriptionDialog(this@ProfileActivity, "test")
                                     televisionSubscriptionDialog.show()
                                 }
                             } else {

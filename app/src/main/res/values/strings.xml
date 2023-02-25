@@ -107,7 +107,6 @@
     <string name="save">Save</string>
     <string name="profile_info_saved_successfully">Profile info saved successfully.</string>
     <string name="no_tv_channels_found">No tv channels found!</string>
-    <string name="you_have_exceeded_your_devices_limit">You have exceeded your devices limit.</string>
     <string name="select_season">Select Season</string>
     <string name="season_1">Season 1</string>
     <string name="app_restricted">App is Restricted</string>

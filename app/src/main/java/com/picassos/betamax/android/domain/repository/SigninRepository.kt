@@ -5,5 +5,5 @@ import com.picassos.betamax.android.domain.model.Account
 import kotlinx.coroutines.flow.Flow
 
 interface SigninRepository {
-    suspend fun signin(email: String, password: String): Flow<Resource<Account>>
+    suspend fun signin(imei: String, email: String, password: String): Flow<Resource<Account>>
 }

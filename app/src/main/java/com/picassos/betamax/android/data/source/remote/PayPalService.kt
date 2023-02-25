@@ -46,7 +46,7 @@ interface PayPalService {
     ): PayPalCaptureOrderDto
 
     companion object {
-        private val BASE_URL = when (Config.BUILD_TYPEcls) {
+        private val BASE_URL = when (Config.BUILD_TYPE) {
             "release" -> "https://api-m.paypal.com"
             else -> "https://api-m.sandbox.paypal.com/"
         }

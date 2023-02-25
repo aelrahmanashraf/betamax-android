@@ -16,8 +16,6 @@ data class AccountDto(
         data class Details(
             @SerializedName("token")
             val token: String,
-            @SerializedName("payment_token")
-            val paymentToken: String,
             @SerializedName("username")
             val username: String,
             @SerializedName("email_address")

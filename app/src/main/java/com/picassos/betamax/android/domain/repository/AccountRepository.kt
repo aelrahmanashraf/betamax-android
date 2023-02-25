@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {
     fun getLocalAccount(): Flow<Account>
-    suspend fun getAccount(token: String): Flow<Resource<Account>>
+    suspend fun getAccount(token: String, imei: String): Flow<Resource<Account>>
     suspend fun setLocalAccount(account: String)
 }

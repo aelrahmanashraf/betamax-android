@@ -13,6 +13,7 @@ interface APIService {
     @POST("auth/signin/request_signin.inc.php")
     suspend fun signin(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("imei") imei: String,
         @Field("email") email: String,
         @Field("password") password: String
     ): AccountDto
@@ -21,7 +22,8 @@ interface APIService {
     @POST("auth/account/request_account.inc.php")
     suspend fun account(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
-        @Field("token") token: String
+        @Field("token") token: String,
+        @Field("imei") imei: String
     ): AccountDto
 
     @FormUrlEncoded
@@ -29,6 +31,7 @@ interface APIService {
     suspend fun signout(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
         @Field("token") token: String,
+        @Field("imei") imei: String
     ): Int
 
     @FormUrlEncoded
@@ -81,6 +84,7 @@ interface APIService {
     @POST("auth/register/request_register.inc.php")
     suspend fun register(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("imei") imei: String,
         @Field("username") username: String,
         @Field("email") email: String,
         @Field("password") password: String

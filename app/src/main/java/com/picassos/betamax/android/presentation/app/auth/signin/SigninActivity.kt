@@ -23,7 +23,6 @@ import com.picassos.betamax.android.domain.model.Account
 import com.picassos.betamax.android.domain.usecase.form_validation.ValidateEmail
 import com.picassos.betamax.android.presentation.app.auth.register.RegisterActivity
 import com.picassos.betamax.android.presentation.app.auth.verify_code.VerifyCodeActivity
-import com.picassos.betamax.android.presentation.television.main.TelevisionMainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlin.system.exitProcess
@@ -85,12 +84,6 @@ class SigninActivity : AppCompatActivity() {
                         layout.signinResponse.apply {
                             visibility = View.VISIBLE
                             text = getString(R.string.no_users_found)
-                        }
-                    }
-                    503 -> {
-                        layout.signinResponse.apply {
-                            visibility = View.VISIBLE
-                            text = getString(R.string.you_have_exceeded_your_devices_limit)
                         }
                     }
                     else -> {

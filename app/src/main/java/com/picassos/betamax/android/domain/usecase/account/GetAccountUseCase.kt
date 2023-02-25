@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetAccountUseCase @Inject constructor(private val repository: AccountRepository) {
-    suspend operator fun invoke(token: String): Flow<Resource<Account>> =
-        repository.getAccount(token)
+    suspend operator fun invoke(token: String, imei: String): Flow<Resource<Account>> =
+        repository.getAccount(token, imei)
 }

@@ -1,5 +1,6 @@
 package com.picassos.betamax.android.presentation.app.launch
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -9,6 +10,7 @@ import android.view.Gravity
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -24,13 +26,13 @@ import com.picassos.betamax.android.databinding.ActivityLaunchBinding
 import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.presentation.app.auth.signin.SigninActivity
 import com.picassos.betamax.android.presentation.app.main.MainActivity
-import com.picassos.betamax.android.presentation.television.main.TelevisionMainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class LaunchActivity : AppCompatActivity() {
     private lateinit var layout: ActivityLaunchBinding

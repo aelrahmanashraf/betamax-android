@@ -8,6 +8,7 @@ import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.model.Account
 import com.picassos.betamax.android.domain.usecase.register.RegisterUseCases
 import com.google.gson.Gson
+import com.picassos.betamax.android.core.utilities.Security
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -77,9 +78,9 @@ class RegisterViewModel @Inject constructor(app: Application, private val regist
                 }
 
                 requestRegister(
-                    _registrationFormState.value.username,
-                    _registrationFormState.value.email,
-                    _registrationFormState.value.password)
+                    username = _registrationFormState.value.username,
+                    email = _registrationFormState.value.email,
+                    password = _registrationFormState.value.password)
             }
         }
     }
@@ -87,9 +88,9 @@ class RegisterViewModel @Inject constructor(app: Application, private val regist
     private val _register = MutableStateFlow(RegisterState())
     val register = _register.asStateFlow()
 
-    private fun requestRegister(username: String, email: String, password: String) {
+    private fun requestRegister(imei: String = Security.getDeviceImei(), username: String, email: String, password: String) {
         viewModelScope.launch {
-            registerUseCases.registerUseCase.invoke(username, email, password).collect { result ->
+            registerUseCases.registerUseCase.invoke(imei, username, email, password).collect { result ->
                 when (result) {
                     is Resource.Loading -> {
                         _register.emit(RegisterState(
@@ -103,7 +104,6 @@ class RegisterViewModel @Inject constructor(app: Application, private val regist
                             if (account.responseCode == 200) {
                                 registerUseCases.setLocalAccountUseCase(Gson().toJson(Account(
                                     token = account.token,
-                                    paymentToken = account.paymentToken,
                                     username = account.username,
                                     emailAddress = account.emailAddress,
                                     emailConfirmed = account.emailConfirmed)))

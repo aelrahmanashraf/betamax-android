@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.picassos.betamax.android.core.resource.Resource
+import com.picassos.betamax.android.core.utilities.Security
 import com.picassos.betamax.android.domain.model.Account
 import com.picassos.betamax.android.domain.model.Configuration
 import com.picassos.betamax.android.domain.usecase.launch.LaunchUseCases
@@ -19,10 +20,10 @@ class LaunchViewModel @Inject constructor(app: Application, private val launchUs
     private val _launch = MutableStateFlow(LaunchState())
     val launch = _launch.asStateFlow()
 
-    fun requestLaunch() {
+    fun requestLaunch(imei: String = Security.getDeviceImei()) {
         viewModelScope.launch {
             launchUseCases.getLocalAccountUseCase.invoke().collect { localAccount ->
-                launchUseCases.launchUseCase.invoke(localAccount.token).collect { result ->
+                launchUseCases.launchUseCase.invoke(localAccount.token, imei).collect { result ->
                     when (result) {
                         is Resource.Loading -> {
                             _launch.emit(LaunchState(
@@ -52,7 +53,6 @@ class LaunchViewModel @Inject constructor(app: Application, private val launchUs
                                 if (account.responseCode == 200) {
                                     launchUseCases.setLocalAccountUseCase(Gson().toJson(Account(
                                         token = account.token,
-                                        paymentToken = account.paymentToken,
                                         username = account.username,
                                         emailAddress = account.emailAddress,
                                         emailConfirmed = account.emailConfirmed)))

@@ -268,7 +268,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
 
                         val subscription = subscriptionState.response
                         when (subscription.daysLeft) {
-                            0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity, account.paymentToken).show()
+                            0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity, "test").show()
                             else -> {
                                 episode?.let { episode ->
                                     Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->

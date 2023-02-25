@@ -14,11 +14,12 @@ import javax.inject.Singleton
 
 @Singleton
 class RegisterRepositoryImpl @Inject constructor(private val service: APIService): RegisterRepository {
-    override suspend fun register(username: String, email: String, password: String): Flow<Resource<Account>> {
+    override suspend fun register(imei: String, username: String, email: String, password: String): Flow<Resource<Account>> {
         return flow {
             emit(Resource.Loading(true))
             try {
                 val response = service.register(
+                    imei = imei,
                     username = username,
                     email = email,
                     password = password)

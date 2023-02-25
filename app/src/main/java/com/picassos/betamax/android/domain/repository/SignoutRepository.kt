@@ -4,5 +4,5 @@ import com.picassos.betamax.android.core.resource.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface SignoutRepository {
-    suspend fun signout(token: String): Flow<Resource<Int>>
+    suspend fun signout(token: String, imei: String): Flow<Resource<Int>>
 }

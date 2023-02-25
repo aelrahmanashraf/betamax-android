@@ -8,6 +8,7 @@ import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.model.Account
 import com.picassos.betamax.android.domain.usecase.signin.SigninUseCases
 import com.google.gson.Gson
+import com.picassos.betamax.android.core.utilities.Security
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,8 +54,8 @@ class SigninViewModel @Inject constructor(app: Application, private val signinUs
                         passwordError = null) }
 
                 requestSignin(
-                    _signinFormState.value.email,
-                    _signinFormState.value.password)
+                    email = _signinFormState.value.email,
+                    password = _signinFormState.value.password)
             }
         }
     }
@@ -62,9 +63,9 @@ class SigninViewModel @Inject constructor(app: Application, private val signinUs
     private val _signin = MutableStateFlow(SigninState())
     val signin = _signin.asStateFlow()
 
-    private fun requestSignin(email: String, password: String) {
+    private fun requestSignin(imei: String = Security.getDeviceImei(), email: String, password: String) {
         viewModelScope.launch {
-            signinUseCases.signinUseCase(email, password).collect { result ->
+            signinUseCases.signinUseCase(imei, email, password).collect { result ->
                 when (result) {
                     is Resource.Loading -> {
                         _signin.emit(SigninState(
@@ -78,7 +79,6 @@ class SigninViewModel @Inject constructor(app: Application, private val signinUs
                             if (account.responseCode == 200) {
                                 signinUseCases.setLocalAccountUseCase(Gson().toJson(Account(
                                     token = account.token,
-                                    paymentToken = account.paymentToken,
                                     username = account.username,
                                     emailAddress = account.emailAddress,
                                     emailConfirmed = account.emailConfirmed)))

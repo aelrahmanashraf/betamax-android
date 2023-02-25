@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 @Singleton
 class LaunchRepositoryImpl @Inject constructor(private val service: APIService): LaunchRepository {
-    override suspend fun launch(token: String): Flow<Resource<Launch>> {
+    override suspend fun launch(token: String, imei: String): Flow<Resource<Launch>> {
         return flow {
             emit(Resource.Loading(true))
             try {
@@ -27,7 +27,9 @@ class LaunchRepositoryImpl @Inject constructor(private val service: APIService):
                         service.configuration()
                     }
                     val account = async(Dispatchers.IO) {
-                        service.account(token = token)
+                        service.account(
+                            token = token,
+                            imei = imei)
                     }
                     emit(Resource.Success(Launch(
                         configuration.await().toConfiguration(),

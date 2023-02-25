@@ -12,11 +12,13 @@ import javax.inject.Singleton
 
 @Singleton
 class SignoutRepositoryImpl @Inject constructor(private val service: APIService): SignoutRepository {
-    override suspend fun signout(token: String): Flow<Resource<Int>> {
+    override suspend fun signout(token: String, imei: String): Flow<Resource<Int>> {
         return flow {
             emit(Resource.Loading(true))
             try {
-                val response = service.signout(token = token)
+                val response = service.signout(
+                    token = token,
+                    imei = imei)
                 emit(Resource.Success(response))
             } catch (t: Throwable) {
                 when (t) {

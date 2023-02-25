@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
+import com.picassos.betamax.android.core.utilities.Security
 import com.picassos.betamax.android.domain.usecase.account.AccountUseCases
 import com.picassos.betamax.android.presentation.app.auth.signout.SignoutState
 import com.picassos.betamax.android.presentation.app.subscription.check_subscription.CheckSubscriptionState
@@ -56,10 +57,10 @@ class ProfileViewModel @Inject constructor(app: Application, private val account
     private val _signout = MutableStateFlow(SignoutState())
     val signout = _signout.asStateFlow()
 
-    fun requestSignout() {
+    fun requestSignout(imei: String = Security.getDeviceImei()) {
         viewModelScope.launch {
             accountUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                accountUseCases.signoutUseCase(account.token).collect { result ->
+                accountUseCases.signoutUseCase(account.token, imei).collect { result ->
                     when (result) {
                         is Resource.Loading -> {
                             _signout.emit(SignoutState(

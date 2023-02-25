@@ -13,9 +13,6 @@
     <item name="trending" type="id" />
     <item name="section_title" type="id" />
     <item name="about_text" type="id" />
-    <item name="movie_language_one" type="id" />
-    <item name="movie_language_two" type="id" />
-    <item name="movie_language_three" type="id" />
     <item name="my_movies" type="id" />
     <item name="payment_amount" type="id" />
     <item name="payment_tax" type="id" />
@@ -149,9 +146,6 @@
     <item name="sd_quality" type="id" />
     <item name="season_title" type="id" />
     <item name="hd_quality" type="id" />
-    <item name="language_one" type="id" />
-    <item name="language_two" type="id" />
-    <item name="language_three" type="id" />
     <item name="notification_image" type="id" />
     <item name="notification_title" type="id" />
     <item name="notification_body" type="id" />

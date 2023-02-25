@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LaunchUseCase @Inject constructor(private val repository: LaunchRepository) {
-    suspend operator fun invoke(token: String): Flow<Resource<Launch>> =
-        repository.launch(token)
+    suspend operator fun invoke(token: String, imei: String): Flow<Resource<Launch>> =
+        repository.launch(token, imei)
 }

@@ -27,11 +27,13 @@ class AccountRepositoryImpl @Inject constructor(private val service: APIService,
         }
     }
 
-    override suspend fun getAccount(token: String): Flow<Resource<Account>> {
+    override suspend fun getAccount(token: String, imei: String): Flow<Resource<Account>> {
         return flow {
             emit(Resource.Loading(true))
             try {
-                val response = service.account(token = token)
+                val response = service.account(
+                    token = token,
+                    imei = imei)
                 emit(Resource.Success(response.toAccount()))
             } catch (t: Throwable) {
                 when (t) {
