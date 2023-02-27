@@ -137,11 +137,17 @@
     <string name="cant_move_back">No se puede retroceder</string>
     <string name="cant_move_forward">No se puede avanzar</string>
     <string name="regular">Regular</string>
-    <string name="proceed_to_payment">Procesar pago</string>
+    <string name="select_this_package">Seleccione este paquete</string>
     <string name="payment">Pagar</string>
     <string name="paypal">PayPal</string>
     <string name="select_payment_method_to_checkout">Seleccionar metodo de pago para pagar</string>
-    <string name="amount">Cantidad</string>
     <string name="tax">Impuestos</string>
     <string name="total">Total</string>
+    <string name="subtotal">Total parcial</string>
+    <string name="_1_device">• 1 Dispositivo</string>
+    <string name="_2_device">• 2 Dispositivo</string>
+    <string name="_3_device">• 3 Dispositivo</string>
+    <string name="kontinue">Continuar</string>
+    <string name="congratulations">¡Felicidades!</string>
+    <string name="you_have_successfully_subscribed_you_can_now_access_exclusive_content_all_day_long">Te has suscrito con éxito. Ahora puedes acceder a contenido exclusivo durante todo el día</string>
 </resources>

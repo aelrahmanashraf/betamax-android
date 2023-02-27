@@ -116,13 +116,11 @@
                         android:layout_marginStart="20dp"
                         android:layout_marginTop="5dp"
                         android:layout_marginEnd="20dp"
-                        android:alpha=".9"
-                        android:fontFamily="@font/poppins_light"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/subscription_status"
                         android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

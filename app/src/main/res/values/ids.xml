@@ -14,7 +14,7 @@
     <item name="section_title" type="id" />
     <item name="about_text" type="id" />
     <item name="my_movies" type="id" />
-    <item name="payment_amount" type="id" />
+    <item name="payment_subtotal" type="id" />
     <item name="payment_tax" type="id" />
     <item name="payment_total" type="id" />
     <item name="my_tvchannels" type="id" />
@@ -124,6 +124,7 @@
     <item name="register_response" type="id" />
     <item name="signin_response" type="id" />
     <item name="register" type="id" />
+    <item name="kontinue" type="id" />
     <item name="fragment_container" type="id" />
     <item name="bottom_navigation" type="id" />
     <item name="change_password" type="id" />

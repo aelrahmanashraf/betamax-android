@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeViewModel" />
@@ -56,7 +57,7 @@
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="5dp"
+                            android:layout_marginEnd="15dp"
                             android:layout_weight=".65"
                             android:orientation="vertical">
 
@@ -74,7 +75,6 @@
                                 android:alpha=".9"
                                 android:fontFamily="@font/poppins_semibold"
                                 android:text="@string/benefits_of_premium"
-                                android:textAlignment="center"
                                 android:textColor="?color_dark"
                                 android:textSize="20sp" />
 
@@ -151,8 +151,8 @@
                             android:id="@+id/animation_view"
                             android:layout_width="0dp"
                             android:layout_height="120dp"
-                            android:layout_weight=".35"
                             android:layout_marginEnd="5dp"
+                            android:layout_weight=".35"
                             app:lottie_autoPlay="true"
                             app:lottie_loop="false"
                             app:lottie_rawRes="@raw/crown" />
@@ -216,7 +216,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="15dp"
                                     android:fontFamily="@font/poppins_medium"
-                                    android:text="•  1 Device"
+                                    android:text="@string/_1_device"
                                     android:textAlignment="center"
                                     android:textColor="?color_dark"
                                     android:textSize="13sp" />
@@ -270,7 +270,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="15dp"
                                     android:fontFamily="@font/poppins_medium"
-                                    android:text="•  2 Device"
+                                    android:text="@string/_2_device"
                                     android:textAlignment="center"
                                     android:textColor="?color_dark"
                                     android:textSize="13sp" />
@@ -325,7 +325,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="15dp"
                                     android:fontFamily="@font/poppins_medium"
-                                    android:text="•  3 Device"
+                                    android:text="@string/_3_device"
                                     android:textAlignment="center"
                                     android:textColor="?color_dark"
                                     android:textSize="13sp" />
@@ -348,9 +348,9 @@
                             style="@style/Widget.AppCompat.Button.Borderless"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/input_height"
-                            android:enabled="false"
                             android:background="@drawable/button_primary"
-                            android:text="@string/proceed_to_payment"
+                            android:enabled="false"
+                            android:text="@string/select_this_package"
                             android:textAllCaps="false"
                             android:textColor="?color_dark"
                             android:textSize="@dimen/input_text_size" />

@@ -21,12 +21,12 @@ import com.picassos.betamax.android.core.utilities.Let
 import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.core.utilities.Security
 import com.picassos.betamax.android.core.view.Toasto.showToast
+import com.picassos.betamax.android.core.view.dialog.SubscriptionSuccessDialog
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.data.source.remote.PayPalService
 import com.picassos.betamax.android.data.source.remote.body.paypal.PayPalCreateOrderBody
 import com.picassos.betamax.android.databinding.ActivityPaymentBinding
 import com.picassos.betamax.android.domain.model.SubscriptionPackage
-import com.picassos.betamax.android.presentation.app.main.MainActivity
 import com.picassos.betamax.android.presentation.app.payment.payment_methods.paypal.PayPalViewModel
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,7 +61,13 @@ class PaymentActivity : AppCompatActivity() {
 
         requestDialog = RequestDialog(this)
 
-        layout.goBack.setOnClickListener { finish() }
+        layout.apply {
+            goBack.setOnClickListener {
+                finish()
+            }
+            brandingText.text =
+                getString(R.string.app_name).lowercase()
+        }
 
         getSerializable(this@PaymentActivity, "subscriptionPackage", SubscriptionPackage::class.java).also { subscriptionPackage ->
             paymentViewModel.setSubscriptionPackage(subscriptionPackage)
@@ -76,13 +82,13 @@ class PaymentActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 combine(paymentViewModel.subscriptionPackage, paymentViewModel.selectedPaymentMethod) { subscriptionPackage, isSafePaymentMethod ->
-                    val total = subscriptionPackage.price.toDouble() + 0.99
+                    val total = subscriptionPackage.price.toDouble() + 1.00
 
                     layout.apply layout@ {
                         this@layout.subscriptionPackage.text =
                             subscriptionPackage.title
-                        paymentAmount.text = "$${subscriptionPackage.price}"
-                        paymentTax.text = "$0.99"
+                        paymentSubtotal.text = "$${subscriptionPackage.price}"
+                        paymentTax.text = "$1.00"
                         paymentTotal.text = "$$total"
                     }
 
@@ -110,10 +116,7 @@ class PaymentActivity : AppCompatActivity() {
             if (state.responseCode != null) {
                 requestDialog.dismiss()
 
-                Intent(this@PaymentActivity, MainActivity::class.java).also {intent ->
-                    startActivity(intent)
-                    finishAffinity()
-                }
+                SubscriptionSuccessDialog(this@PaymentActivity).show()
             }
             if (state.error != null) {
                 requestDialog.dismiss()

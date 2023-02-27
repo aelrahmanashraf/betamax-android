@@ -78,9 +78,12 @@ class ProfileActivity : AppCompatActivity() {
             if (state.response != null) {
                 subscription = state.response
 
-                layout.premiumBadge.visibility = when (state.response.daysLeft) {
-                    0 -> View.GONE
-                    else -> View.VISIBLE
+                layout.apply {
+                    premiumBadge.visibility = when (state.response.daysLeft) {
+                        0 -> View.GONE
+                        else -> View.VISIBLE
+                    }
+                    manageSubscription.isEnabled = true
                 }
             }
         }

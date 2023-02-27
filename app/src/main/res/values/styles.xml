@@ -100,4 +100,10 @@
     <style name="DialogStyle">
         <item name="android:navigationBarColor">@color/color_dark</item>
     </style>
+
+    <style name="ThemeDialogStyle">
+        <item name="android:statusBarColor">@color/color_theme</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:navigationBarColor">@color/color_theme</item>
+    </style>
 </resources>

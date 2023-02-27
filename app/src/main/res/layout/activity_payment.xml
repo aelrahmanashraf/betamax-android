@@ -16,8 +16,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="20dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <RelativeLayout
                 android:id="@id/toolbar"
@@ -64,9 +64,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="20dp"
-                    android:orientation="vertical"
                     android:background="@drawable/toolbar_background"
+                    android:orientation="vertical"
+                    android:padding="20dp"
                     tools:ignore="UselessParent">
 
                     <LinearLayout
@@ -81,7 +81,6 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/branding_font"
                             android:text="@string/app_name"
-                            android:textAlignment="center"
                             android:textColor="?color_dark"
                             android:textSize="30sp" />
 
@@ -89,9 +88,9 @@
                             android:id="@id/subscription_package"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="7dp"
                             android:fontFamily="@font/poppins_medium"
                             android:textColor="@color/color_theme"
-                            android:layout_marginStart="7dp"
                             android:textColorHint="?color_dark"
                             android:textSize="18sp"
                             tools:ignore="HardcodedText" />
@@ -104,14 +103,12 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
-                        android:layout_marginBottom="15dp"
-                        android:alpha=".9"
-                        android:fontFamily="@font/poppins_light"
+                        android:layout_marginBottom="25dp"
+                        android:fontFamily="@font/poppins_regular"
                         android:text="@string/subscription_status"
                         android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -120,23 +117,23 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
                             android:layout_gravity="center_horizontal"
                             android:fontFamily="@font/poppins_regular"
-                            android:layout_alignParentStart="true"
-                            android:text="@string/amount"
+                            android:text="@string/subtotal"
                             android:textColor="?color_dark"
                             android:textSize="13sp" />
 
                         <TextView
-                            android:id="@id/payment_amount"
+                            android:id="@id/payment_subtotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:fontFamily="@font/poppins_medium"
                             android:layout_alignParentEnd="true"
+                            android:fontFamily="@font/poppins_medium"
                             android:hint="$0.00"
-                            android:textColorHint="?color_dark"
+                            android:textAlignment="textEnd"
                             android:textColor="?color_dark"
+                            android:textColorHint="?color_dark"
                             android:textSize="13sp"
                             tools:ignore="HardcodedText,RelativeOverlap" />
 
@@ -144,15 +141,15 @@
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_marginTop="5dp"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
                             android:layout_gravity="center_horizontal"
                             android:fontFamily="@font/poppins_regular"
-                            android:layout_alignParentStart="true"
                             android:text="@string/tax"
                             android:textColor="?color_dark"
                             android:textSize="13sp" />
@@ -161,12 +158,12 @@
                             android:id="@id/payment_tax"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:fontFamily="@font/poppins_medium"
                             android:layout_alignParentEnd="true"
+                            android:fontFamily="@font/poppins_medium"
                             android:hint="$0.00"
-                            android:textColorHint="?color_dark"
+                            android:textAlignment="textEnd"
                             android:textColor="?color_dark"
+                            android:textColorHint="?color_dark"
                             android:textSize="13sp"
                             tools:ignore="HardcodedText,RelativeOverlap" />
 
@@ -175,10 +172,10 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
+                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="7dp"
                         android:layout_marginBottom="8dp"
-                        android:alpha=".4"
-                        android:layout_gravity="center_horizontal"
+                        android:alpha=".1"
                         android:background="?color_dark" />
 
                     <RelativeLayout
@@ -188,9 +185,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
                             android:layout_gravity="center_horizontal"
                             android:fontFamily="@font/poppins_regular"
-                            android:layout_alignParentStart="true"
                             android:text="@string/total"
                             android:textColor="?color_dark"
                             android:textSize="13sp" />
@@ -199,12 +196,12 @@
                             android:id="@id/payment_total"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:fontFamily="@font/poppins_medium"
                             android:layout_alignParentEnd="true"
+                            android:fontFamily="@font/poppins_medium"
                             android:hint="$0.00"
-                            android:textColorHint="?color_dark"
+                            android:textAlignment="textEnd"
                             android:textColor="?color_dark"
+                            android:textColorHint="?color_dark"
                             android:textSize="13sp"
                             tools:ignore="HardcodedText,RelativeOverlap" />
 
@@ -217,8 +214,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="20dp"
-                    android:layout_marginBottom="15dp"
                     android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="15dp"
                     android:fontFamily="@font/poppins_regular"
                     android:text="@string/select_payment_method_to_checkout"
                     android:textColor="?color_dark"
@@ -229,24 +226,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/payment_method_background"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:padding="20dp">
 
                     <ImageView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@drawable/badge_rounded"
-                        android:src="@drawable/icon_paypal_color"
                         android:padding="8dp"
+                        android:src="@drawable/icon_paypal_color"
                         tools:ignore="ContentDescription" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="15dp"
                         android:text="@string/paypal"
                         android:textColor="?color_dark"
-                        android:layout_marginStart="15dp"
                         android:textColorHint="?color_dark"
                         android:textSize="15sp"
                         tools:ignore="HardcodedText" />
@@ -259,8 +256,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/input_height"
                     android:layout_marginTop="30dp"
-                    android:enabled="false"
                     android:background="@drawable/button_primary"
+                    android:enabled="false"
                     android:text="@string/checkout"
                     android:textAllCaps="false"
                     android:textColor="?color_dark"
