@@ -5,16 +5,19 @@ import com.picassos.betamax.android.R
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
+import com.picassos.betamax.android.domain.listener.OnContinueWatchingOptionsClickListener
 import com.picassos.betamax.android.domain.model.ContinueWatching
 
-class ContinueWatchingAdapter(private val listener: OnContinueWatchingClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ContinueWatchingAdapter(private val listener: OnContinueWatchingClickListener, private val optionsListener: OnContinueWatchingOptionsClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class ContinueWatchingHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.continue_watching_thumbnail)
+        private val moreOptions: ImageView = itemView.findViewById(R.id.continue_watching_more_options)
 
         fun setData(data: ContinueWatching.ContinueWatching) {
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
@@ -24,7 +27,19 @@ class ContinueWatchingAdapter(private val listener: OnContinueWatchingClickListe
         }
 
         fun bind(item: ContinueWatching.ContinueWatching, listener: OnContinueWatchingClickListener) {
-            itemView.setOnClickListener {  listener.onItemClick(item) }
+            itemView.setOnClickListener {
+                listener.onItemClick(item)
+            }
+        }
+
+        fun bindOptions(item: ContinueWatching.ContinueWatching, listener: OnContinueWatchingOptionsClickListener) {
+            itemView.setOnLongClickListener {
+                listener.onOptionsClick(item)
+                return@setOnLongClickListener true
+            }
+            moreOptions.setOnClickListener {
+                listener.onOptionsClick(item)
+            }
         }
     }
 
@@ -54,6 +69,7 @@ class ContinueWatchingAdapter(private val listener: OnContinueWatchingClickListe
         val continueWatchingHolder = holder as ContinueWatchingHolder
         continueWatchingHolder.setData(movies)
         continueWatchingHolder.bind(movies, listener)
+        continueWatchingHolder.bindOptions(movies, optionsListener)
     }
 
     override fun getItemCount(): Int {

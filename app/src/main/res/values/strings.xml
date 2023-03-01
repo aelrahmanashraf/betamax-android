@@ -150,4 +150,5 @@
     <string name="kontinue">Continue</string>
     <string name="congratulations">Congratulations!</string>
     <string name="you_have_successfully_subscribed_you_can_now_access_exclusive_content_all_day_long">You have successfully subscribed. You can now access exclusive content all day long.</string>
+    <string name="remove_from_continue_to_watch">Remove from Continue to Watch</string>
 </resources>

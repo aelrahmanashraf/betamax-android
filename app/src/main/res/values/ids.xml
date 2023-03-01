@@ -104,6 +104,8 @@
     <item name="tvchannels_progressbar" type="id" />
     <item name="genres_progressbar" type="id" />
     <item name="continue_watching_thumbnail" type="id" />
+    <item name="remove_continue_watching" type="id" />
+    <item name="continue_watching_more_options" type="id" />
     <item name="movies_progressbar" type="id" />
     <item name="mylist_progressbar" type="id" />
     <item name="configuration" type="id" />

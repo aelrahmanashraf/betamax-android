@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
@@ -39,13 +40,12 @@ import com.picassos.betamax.android.presentation.app.genre.genres.GenresAdapter
 import com.picassos.betamax.android.presentation.app.movie.movies.MoviesAdapter
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
 import com.picassos.betamax.android.core.utilities.Response
-import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
-import com.picassos.betamax.android.domain.listener.OnGenreClickListener
-import com.picassos.betamax.android.domain.listener.OnMovieClickListener
+import com.picassos.betamax.android.domain.listener.*
 import com.picassos.betamax.android.domain.model.ContinueWatching
 import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingAdapter
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
+import com.picassos.betamax.android.presentation.app.continue_watching.continue_watching_options.ContinueWatchingOptionsBottomSheetModal
 import com.picassos.betamax.android.presentation.app.genre.genres.GenresActivity
 import com.picassos.betamax.android.presentation.app.genre.genre_featured_movies.GenreFeaturedMoviesActivity
 import com.picassos.betamax.android.presentation.app.genre.genre_movies.GenreMoviesActivity
@@ -54,15 +54,16 @@ import com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieA
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
     private lateinit var layout: FragmentHomeBinding
     private val homeViewModel: HomeViewModel by viewModels()
-    private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
+    private val continueWatchingViewModel: ContinueWatchingViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         layout = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
@@ -115,6 +116,15 @@ class HomeFragment : Fragment() {
                         currentPosition = continueWatching.currentPosition))
                     startActivity(intent)
                 }
+            }
+        }, optionsListener = object: OnContinueWatchingOptionsClickListener {
+            override fun onOptionsClick(continueWatching: ContinueWatching.ContinueWatching) {
+                val bundle = Bundle().apply {
+                    putInt("contentId", continueWatching.contentId)
+                }
+                val continueWatchingOptionsBottomSheetModal = ContinueWatchingOptionsBottomSheetModal()
+                continueWatchingOptionsBottomSheetModal.arguments = bundle
+                continueWatchingOptionsBottomSheetModal.show(parentFragmentManager, "TAG")
             }
         })
         layout.recyclerContinueWatching.apply {
@@ -202,13 +212,6 @@ class HomeFragment : Fragment() {
                     }
                 }
 
-                continueWatchingAdapter.differ.submitList(state.response.continueWatching.continueWatching)
-                if (state.response.continueWatching.continueWatching.isEmpty()) {
-                    layout.continueWatchingContainer.visibility = View.GONE
-                } else {
-                    layout.continueWatchingContainer.visibility = View.VISIBLE
-                }
-
                 myListAdapter.differ.submitList(state.response.myList.movies)
                 if (state.response.myList.movies.isEmpty()) {
                     layout.myListContainer.visibility = View.GONE
@@ -259,23 +262,38 @@ class HomeFragment : Fragment() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                continueWatchingViewModel.apply {
-                    requestContinueWatching()
-                    continueWatching.collectLatest { state ->
-                        if (state.response != null) {
-                            val continueWatching = state.response.continueWatching
+                continueWatchingViewModel.requestContinueWatching()
+            }
+        }
 
-                            continueWatchingAdapter.differ.submitList(continueWatching)
-                            if (continueWatching.isEmpty()) {
-                                layout.continueWatchingContainer.visibility = View.GONE
-                            } else {
-                                layout.continueWatchingContainer.visibility = View.VISIBLE
-                            }
-                        }
-                    }
+        collectLatestOnLifecycleFragmentOwnerStarted(continueWatchingViewModel.continueWatching) { state ->
+            if (state.response != null) {
+                val continueWatching = state.response.continueWatching
+
+                continueWatchingAdapter.differ.submitList(continueWatching)
+                if (continueWatching.isEmpty()) {
+                    layout.continueWatchingContainer.visibility = View.GONE
+                } else {
+                    layout.continueWatchingContainer.visibility = View.VISIBLE
                 }
             }
         }
+
+        collectLatestOnLifecycleFragmentOwnerStarted(continueWatchingViewModel.deleteContinueWatching) { state ->
+            if (state.isLoading) {
+                requestDialog.show()
+            }
+            if (state.responseCode != null) {
+                requestDialog.dismiss()
+                when (state.responseCode) {
+                    200 -> continueWatchingViewModel.requestContinueWatching()
+                }
+            }
+            if (state.error != null) {
+                requestDialog.dismiss()
+            }
+        }
+
 
         layout.refreshLayout.apply {
             elevation = 0f
