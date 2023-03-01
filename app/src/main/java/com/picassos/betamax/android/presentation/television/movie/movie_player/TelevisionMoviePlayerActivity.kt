@@ -1,25 +1,26 @@
 package com.picassos.betamax.android.presentation.television.movie.movie_player
 
+import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection
+import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource
+import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -28,27 +29,31 @@ import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionMoviePlayerBinding
 import com.picassos.betamax.android.domain.model.PlayerContent
+import com.picassos.betamax.android.presentation.app.App
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
+import com.picassos.betamax.android.presentation.app.player.PlayerStatus
+import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class TelevisionMoviePlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionMoviePlayerBinding
     private val televisionMoviePlayerViewModel: TelevisionMoviePlayerViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
-    private lateinit var exoPlayer: SimpleExoPlayer
+    private lateinit var exoPlayer: ExoPlayer
+    private val cache: SimpleCache = App.cache
 
     private lateinit var playerContent: PlayerContent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setTheme(R.style.PlayerTheme)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
 
         val requestDialog = RequestDialog(
             context = this@TelevisionMoviePlayerActivity,
@@ -60,39 +65,11 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, layout.root).let { controller ->
-            controller.hide(WindowInsetsCompat.Type.systemBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-
         getSerializable(this@TelevisionMoviePlayerActivity, "playerContent", PlayerContent::class.java).also { playerContent ->
             this@TelevisionMoviePlayerActivity.playerContent = playerContent
         }
 
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@TelevisionMoviePlayerActivity, Util.getUserAgent(this@TelevisionMoviePlayerActivity, applicationInfo.name))
-        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(Helper.parseUrl(playerContent.url))))
-
-        exoPlayer = SimpleExoPlayer.Builder(this).build().apply {
-            addListener(playerListener)
-            seekTo(0)
-            setMediaSource(mediaSource)
-            prepare()
-        }
-
-        layout.exoPlayer.apply {
-            player = exoPlayer
-            setControllerVisibilityListener { visibility ->
-                layout.controllerContainer.visibility = when (visibility) {
-                    View.VISIBLE -> View.VISIBLE
-                    else -> View.GONE
-                }
-            }
-        }
-
-        if (playerContent.currentPosition != 0) {
-            exoPlayer.seekTo(playerContent.currentPosition.toLong())
-        }
+        initializePlayer(url = playerContent.url)
 
         collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
             if (state.isLoading) {
@@ -125,15 +102,117 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SwitchIntDef")
+    private fun initializePlayer(url: String) {
+        val loadControl = DefaultLoadControl.Builder()
+            .setAllocator(DefaultAllocator(true, 16))
+            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setTargetBufferBytes(-1)
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
+        val trackSelector = DefaultTrackSelector(this@TelevisionMoviePlayerActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
+        val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
+        val cacheDataSource = CacheDataSource.Factory()
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(httpDataSource)
+            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+
+        exoPlayer = ExoPlayer.Builder(this@TelevisionMoviePlayerActivity)
+            .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))
+            .build().apply {
+                addListener(playerListener)
+                setMediaSource(mediaSource, true)
+            }
+        playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+
+        layout.exoPlayer.apply {
+            player = exoPlayer
+            setControllerVisibilityListener { visibility ->
+                layout.controllerContainer.apply {
+                    when (visibility) {
+                        View.VISIBLE -> animate().alpha(1F).duration = 400
+                        View.GONE -> animate().alpha(0F).duration = 400
+                    }
+                }
+            }
+        }
+
+        if (playerContent.currentPosition != 0) {
+            exoPlayer.seekTo(playerContent.currentPosition.toLong())
+        }
+
+        collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
+            when (status) {
+                PlayerStatus.INITIALIZE -> {
+
+                }
+                PlayerStatus.PREPARE -> {
+                    exoPlayer.apply {
+                        prepare()
+                        layout.playerAction.setOnClickListener {
+                            when (isPlaying) {
+                                true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                                else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                            }
+                        }
+                    }
+                    playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                }
+                PlayerStatus.PLAY -> {
+                    exoPlayer.apply {
+                        playWhenReady = true
+                        play()
+                    }
+                }
+                PlayerStatus.PAUSE -> {
+                    exoPlayer.apply {
+                        playWhenReady = false
+                        pause()
+                    }
+                }
+                PlayerStatus.RETRY -> {
+                    layout.playerAction.apply {
+                        setImageResource(R.drawable.icon_retry)
+                        setOnClickListener {
+                            playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+                        }
+                    }
+                }
+                PlayerStatus.RELEASE -> {
+                    exoPlayer.apply {
+                        removeListener(playerListener)
+                        clearMediaItems()
+                    }
+                }
+            }
+        }
+
+        layout.replay.setOnClickListener {
+            exoPlayer.apply {
+                if (currentPosition <= Config.PLAYER_REPLAY_DURATION) seekTo(0)
+                else seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
+            }
+        }
+
+        layout.forward.setOnClickListener {
+            exoPlayer.seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
+        }
+
+        layout.exoPlayer.findViewById<ImageView>(R.id.fullscreen_mode).apply {
+            visibility = View.GONE
+        }
+    }
+
     private var playerListener = object: Player.Listener {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                exoPlayer.playWhenReady = true
-                layout.playIcon.setImageResource(R.drawable.icon_pause_filled)
+                layout.playerAction.setImageResource(R.drawable.icon_pause_filled)
             } else {
-                exoPlayer.playWhenReady
-                layout.playIcon.setImageResource(R.drawable.icon_play_filled)
+                layout.playerAction.setImageResource(R.drawable.icon_play_filled)
             }
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -146,47 +225,41 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                 Player.STATE_BUFFERING -> {
                     layout.apply {
                         playerProgressbar.visibility = View.VISIBLE
-                        playIcon.visibility = View.GONE
+                        playerAction.visibility = View.INVISIBLE
                     }
                 }
                 else -> {
                     layout.apply {
-                        playerProgressbar.visibility = View.GONE
-                        playIcon.visibility = View.VISIBLE
+                        playerProgressbar.visibility = View.INVISIBLE
+                        playerAction.visibility = View.VISIBLE
                     }
                 }
             }
         }
-    }
-
-    private fun releasePlayer() {
-        exoPlayer.apply {
-            stop()
-            clearMediaItems()
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
+            super.onPlayerErrorChanged(error)
+            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                exoPlayer.apply {
-                    layout.exoPlayer.showController()
-                    seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
-                }
+                exoPlayer.seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
             }
             KeyEvent.KEYCODE_DPAD_CENTER -> {
                 exoPlayer.apply {
-                    layout.exoPlayer.showController()
-                    if (!isPlaying) play() else pause()
+                    if (!isPlaying) {
+                        playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                    } else {
+                        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                    }
                 }
             }
             KeyEvent.KEYCODE_DPAD_LEFT -> {
                 exoPlayer.apply {
-                    layout.exoPlayer.showController()
-                    if (currentPosition <= Config.PLAYER_REPLAY_DURATION)
-                        seekTo(0)
-                    else
-                        seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
+                    if (currentPosition <= Config.PLAYER_REPLAY_DURATION) seekTo(0)
+                    else seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
                 }
             }
             KeyEvent.KEYCODE_ESCAPE,
@@ -201,33 +274,31 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         return false
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            Helper.hideSystemUI(window, layout.root)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-
-        Helper.restrictVpn(this@TelevisionMoviePlayerActivity)
-
-        exoPlayer.apply {
-            playWhenReady = true
-            play()
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
     }
 
     override fun onPause() {
         super.onPause()
-        exoPlayer.pause()
+        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
     }
 
     override fun onStop() {
         super.onStop()
-        exoPlayer.pause()
+        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        exoPlayer.apply {
-            removeListener(playerListener)
-            releasePlayer()
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }

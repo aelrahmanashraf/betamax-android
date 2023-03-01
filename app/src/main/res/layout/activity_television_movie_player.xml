@@ -15,99 +15,60 @@
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@id/exo_player"
             android:layout_width="match_parent"
-            app:controller_layout_id="@layout/movie_custom_controller_view"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            app:controller_layout_id="@layout/movie_custom_controller_view" />
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@id/controller_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_centerInParent="true">
+            <ImageView
+                android:id="@id/replay"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/player_action_background_rounded"
+                android:padding="12dp"
+                android:src="@drawable/icon_replay_sec"
+                app:tint="?color_dark"
+                tools:ignore="ContentDescription" />
 
-                <androidx.cardview.widget.CardView
-                    android:id="@id/replay"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    app:cardCornerRadius="30dp"
-                    android:alpha=".5"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="?color_background">
+            <ImageView
+                android:id="@id/player_action"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:background="@drawable/player_action_background_rounded"
+                android:padding="28dp"
+                android:src="@drawable/icon_pause_filled"
+                app:tint="?color_dark"
+                tools:ignore="ContentDescription" />
 
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/icon_replay_sec"
-                        android:layout_gravity="center"
-                        app:tint="?color_dark"
-                        tools:ignore="ContentDescription,TooDeepLayout" />
+            <ImageView
+                android:id="@id/forward"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="@drawable/player_action_background_rounded"
+                android:padding="12dp"
+                android:src="@drawable/icon_forward_sec"
+                app:tint="?color_dark"
+                tools:ignore="ContentDescription" />
 
-                </androidx.cardview.widget.CardView>
+        </LinearLayout>
 
-                <androidx.cardview.widget.CardView
-                    android:id="@id/play"
-                    android:layout_width="110dp"
-                    android:layout_height="110dp"
-                    app:cardCornerRadius="55dp"
-                    android:layout_marginEnd="40dp"
-                    android:layout_marginStart="40dp"
-                    android:alpha=".5"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="?color_background">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerInParent="true"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:id="@id/play_icon"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_centerInParent="true"
-                            android:src="@drawable/icon_pause_filled"
-                            app:tint="?color_dark"
-                            tools:ignore="ContentDescription,TooDeepLayout" />
-
-                        <ProgressBar
-                            android:id="@id/player_progressbar"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_centerInParent="true"
-                            android:visibility="gone"
-                            android:indeterminateTint="@color/color_white" />
-
-                    </RelativeLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@id/forward"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    app:cardCornerRadius="30dp"
-                    android:alpha=".5"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="?color_background">
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/icon_forward_sec"
-                        android:layout_gravity="center"
-                        app:tint="?color_dark"
-                        tools:ignore="ContentDescription,TooDeepLayout" />
-
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
-
-        </RelativeLayout>
+        <ProgressBar
+            android:id="@id/player_progressbar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/player_action_background_rounded"
+            android:indeterminateTint="@color/color_white"
+            android:padding="30dp"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

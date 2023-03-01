@@ -23,6 +23,7 @@ import com.picassos.betamax.android.domain.model.Account
 import com.picassos.betamax.android.domain.usecase.form_validation.ValidateEmail
 import com.picassos.betamax.android.presentation.app.auth.register.RegisterActivity
 import com.picassos.betamax.android.presentation.app.auth.verify_code.VerifyCodeActivity
+import com.picassos.betamax.android.presentation.television.main.TelevisionMainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlin.system.exitProcess
@@ -67,7 +68,7 @@ class SigninActivity : AppCompatActivity() {
                         }
                         Intent().also { intent ->
                             when (Helper.isTelevision(this@SigninActivity)) {
-                                true -> intent.setClass(this@SigninActivity, MainActivity::class.java)
+                                true -> intent.setClass(this@SigninActivity, TelevisionMainActivity::class.java)
                                 false -> intent.setClass(this@SigninActivity, MainActivity::class.java)
                             }
                             startActivity(intent)

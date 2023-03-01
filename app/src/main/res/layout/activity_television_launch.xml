@@ -14,8 +14,8 @@
         android:orientation="vertical">
 
         <ImageView
-            android:layout_width="350dp"
-            android:layout_height="350dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_gravity="center"
             android:scaleType="fitCenter"
             android:src="@drawable/launch_logo"

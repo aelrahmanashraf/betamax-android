@@ -14,20 +14,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultAllocator
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
+import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
@@ -39,6 +37,8 @@ import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.model.Genres
 import com.picassos.betamax.android.domain.model.TelevisionPlayerContent
 import com.picassos.betamax.android.domain.model.TvChannels
+import com.picassos.betamax.android.presentation.app.player.PlayerStatus
+import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.television.genre.tvchannels_genres.TelevisionTvChannelsGenresAdapter
 import com.picassos.betamax.android.presentation.television.tvchannel.tvchannel_player.TelevisionTvChannelPlayerActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,8 +47,9 @@ import dagger.hilt.android.AndroidEntryPoint
 class TelevisionTvChannelsActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionTvchannelsBinding
     private val televisionTvChannelsViewModel: TelevisionTvChannelsViewModel by viewModels()
+    private val playerViewModel: PlayerViewModel by viewModels()
 
-    private var exoPlayer: SimpleExoPlayer? = null
+    private var exoPlayer: ExoPlayer? = null
 
     private lateinit var tvChannelsList: List<TvChannels.TvChannel>
     private var tvChannel: TvChannels.TvChannel? = null
@@ -135,11 +136,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
 
         collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.viewTvChannel) { state ->
             if (state.isLoading) {
-                exoPlayer.apply {
-                    this?.let { player ->
-                        player.stop()
-                        player.clearMediaItems()
-                    }
+                exoPlayer?.apply {
+                    playWhenReady = false
+                    pause()
+                    clearMediaItems()
                 }
             }
             if (state.response != null) {
@@ -161,10 +161,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                     saveTvchannelIcon.apply {
                         when (state.response.tvChannelSaved) {
                             1 -> {
-                                setImageDrawable(getDrawable(R.drawable.icon_star_filled))
+                                setImageResource(R.drawable.icon_star_filled)
                             }
                             else -> {
-                                setImageDrawable(getDrawable(R.drawable.icon_star_outline))
+                                setImageResource(R.drawable.icon_star_outline)
                             }
                         }
                     }
@@ -178,8 +178,8 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.saveTvChannel) { state ->
             if (state.responseCode != null) {
                 when (state.responseCode) {
-                    "1" -> layout.saveTvchannelIcon.setImageDrawable(getDrawable(R.drawable.icon_star_filled))
-                    "0" -> layout.saveTvchannelIcon.setImageDrawable(getDrawable(R.drawable.icon_star_outline))
+                    "1" -> layout.saveTvchannelIcon.setImageResource(R.drawable.icon_star_filled)
+                    "0" -> layout.saveTvchannelIcon.setImageResource(R.drawable.icon_star_outline)
                     else -> showToast(this@TelevisionTvChannelsActivity, getString(R.string.unknown_issue_occurred), 0, 1)
                 }
             }
@@ -250,28 +250,59 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     }
 
     private fun initializePlayer(url: String, userAgent: String, position: Long = 0) {
+        val loadControl: LoadControl = DefaultLoadControl.Builder()
+            .setAllocator(DefaultAllocator(true, 16))
+            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setTargetBufferBytes(-1)
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
         val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(this@TelevisionTvChannelsActivity, Util.getUserAgent(this@TelevisionTvChannelsActivity, userAgent))
-        val mediaSource = HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        val httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@TelevisionTvChannelsActivity, userAgent))
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
-        exoPlayer = SimpleExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
+        exoPlayer = ExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
             .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource)
-                prepare()
             }
+        playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
         layout.exoPlayer.apply {
             player = exoPlayer
         }
 
-        exoPlayer?.apply {
-            seekTo(position)
-            play()
+        collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
+            when (status) {
+                PlayerStatus.INITIALIZE -> {
+
+                }
+                PlayerStatus.PREPARE -> {
+                    exoPlayer?.prepare()
+                    playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                }
+                PlayerStatus.PLAY -> {
+                    exoPlayer?.apply {
+                        playWhenReady = true
+                        seekTo(position)
+                        play()
+                    }
+                }
+                PlayerStatus.PAUSE -> {
+                    exoPlayer?.apply {
+                        playWhenReady = false
+                        pause()
+                    }
+                }
+                PlayerStatus.RETRY -> { }
+                PlayerStatus.RELEASE -> {
+                    releasePlayer()
+                }
+            }
         }
     }
 
@@ -289,26 +320,24 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     private fun releasePlayer() {
         exoPlayer?.apply {
             stop()
+            removeListener(playerListener)
             clearMediaItems()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        exoPlayer?.apply { pause() }
+        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
     }
 
     override fun onStop() {
         super.onStop()
-        exoPlayer?.apply { pause() }
+        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        exoPlayer?.apply {
-            removeListener(playerListener)
-            releasePlayer()
-        }
+        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }

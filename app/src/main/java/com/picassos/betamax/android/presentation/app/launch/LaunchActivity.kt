@@ -10,14 +10,14 @@ import android.view.Gravity
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
-import com.picassos.betamax.android.core.utilities.Connectivity
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Response.CREDENTIALS_NOT_SET
@@ -26,6 +26,7 @@ import com.picassos.betamax.android.databinding.ActivityLaunchBinding
 import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.presentation.app.auth.signin.SigninActivity
 import com.picassos.betamax.android.presentation.app.main.MainActivity
+import com.picassos.betamax.android.presentation.television.main.TelevisionMainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
@@ -46,15 +47,9 @@ class LaunchActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_launch)
 
-        if (intent.action == Intent.ACTION_VIEW) {
-            intent.data?.let { data ->
-                val subscriptionState = data.getQueryParameter("state")
-                if (subscriptionState.isNullOrBlank().not()) {
-                    when (subscriptionState) {
-                        "subscribed" -> showToast(this@LaunchActivity, getString(R.string.thank_you_for_subscribing), 1, 0)
-                        "failed" -> showToast(this@LaunchActivity, getString(R.string.failed_to_subscribe), 1, 1)
-                    }
-                }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@LaunchActivity)
             }
         }
 
@@ -73,12 +68,11 @@ class LaunchActivity : AppCompatActivity() {
                                     else -> {
                                         when (Helper.isTelevision(this@LaunchActivity)) {
                                             true -> {
-                                                /*if (Config.MOCK_TV) {
+                                                if (Config.MOCK_TV) {
                                                     startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
                                                 } else {
                                                     startActivity(Intent(this@LaunchActivity, TelevisionMainActivity::class.java))
-                                                }*/
-                                                startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
+                                                }
                                             }
                                             false -> startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
                                         }
@@ -121,13 +115,5 @@ class LaunchActivity : AppCompatActivity() {
             }
         }
         dialog.show()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (Connectivity.instance.isOnline()) {
-            Helper.restrictVpn(this@LaunchActivity)
-        }
     }
 }
