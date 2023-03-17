@@ -20,7 +20,7 @@ import com.picassos.betamax.android.databinding.ActivityMainBinding
 import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.presentation.app.home.HomeFragment
 import com.picassos.betamax.android.presentation.app.movie.movies.MoviesFragment
-import com.picassos.betamax.android.presentation.app.movie.series.SeriesFragment
+import com.picassos.betamax.android.presentation.app.series.SeriesFragment
 import com.picassos.betamax.android.presentation.app.search.SearchFragment
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import com.picassos.betamax.android.presentation.app.tvchannel.TvFragment

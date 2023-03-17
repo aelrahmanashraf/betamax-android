@@ -1,12 +1,17 @@
 package com.picassos.betamax.android.presentation.app.movie.movie_player
 
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -14,13 +19,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.ExoTrackSelection
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.ui.SubtitleView
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
@@ -33,13 +39,16 @@ import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityMoviePlayerBinding
 import com.picassos.betamax.android.domain.model.PlayerContent
+import com.picassos.betamax.android.domain.model.TracksGroup
 import com.picassos.betamax.android.presentation.app.App
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
+import com.picassos.betamax.android.presentation.app.track.tracks.TracksAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
+import java.util.*
 
 @DelicateCoroutinesApi
 @AndroidEntryPoint
@@ -142,7 +151,13 @@ class MoviePlayerActivity : AppCompatActivity() {
             .setTargetBufferBytes(-1)
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
-        val trackSelector = DefaultTrackSelector(this@MoviePlayerActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
+        val trackSelector = DefaultTrackSelector(this@MoviePlayerActivity)
+        val renderersFactory = DefaultRenderersFactory(this@MoviePlayerActivity).apply {
+            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+        }
+        val parameters = trackSelector.buildUponParameters()
+            .setPreferredAudioLanguage("spa")
+            .build()
         val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
         val cacheDataSource = CacheDataSource.Factory()
             .setCache(cache)
@@ -154,10 +169,13 @@ class MoviePlayerActivity : AppCompatActivity() {
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))
+            .setRenderersFactory(renderersFactory)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
+        exoPlayer.trackSelectionParameters = parameters
+
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
         layout.exoPlayer.apply {
@@ -169,6 +187,9 @@ class MoviePlayerActivity : AppCompatActivity() {
                         View.GONE -> animate().alpha(0F).duration = 400
                     }
                 }
+            }
+            subtitleView?.apply {
+                setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * 1.2f)
             }
         }
 
@@ -184,7 +205,7 @@ class MoviePlayerActivity : AppCompatActivity() {
                 PlayerStatus.PREPARE -> {
                     exoPlayer.apply {
                         prepare()
-                        layout.playerAction.setOnClickListener {
+                        layout.exoPlayer.findViewById<ImageView>(R.id.player_action).setOnClickListener {
                             when (isPlaying) {
                                 true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
                                 else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
@@ -206,7 +227,7 @@ class MoviePlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    layout.playerAction.apply {
+                    layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
                         setImageResource(R.drawable.icon_retry)
                         setOnClickListener {
                             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
@@ -222,30 +243,36 @@ class MoviePlayerActivity : AppCompatActivity() {
             }
         }
 
-        layout.replay.setOnClickListener {
+        layout.exoPlayer.findViewById<ImageView>(R.id.replay).setOnClickListener {
             exoPlayer.apply {
                 if (currentPosition <= Config.PLAYER_REPLAY_DURATION) seekTo(0)
                 else seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
             }
         }
 
-        layout.forward.setOnClickListener {
+        layout.exoPlayer.findViewById<ImageView>(R.id.forward).setOnClickListener {
             exoPlayer.seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
         }
 
-        layout.exoPlayer.apply exoplayer@ {
-            findViewById<ImageView>(R.id.fullscreen_mode).apply fullscreen@ {
-                this@fullscreen.setOnClickListener {
-                    when (this@exoplayer.resizeMode) {
+        layout.exoPlayer.apply {
+            findViewById<ImageView>(R.id.fullscreen_mode).apply {
+                setOnClickListener {
+                    resizeMode = when (resizeMode) {
                         AspectRatioFrameLayout.RESIZE_MODE_FIT -> {
-                            this@fullscreen.setImageResource(R.drawable.icon_fit_to_width_filled)
-                            this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+                            setImageResource(R.drawable.icon_fit_to_width_filled)
+                            AspectRatioFrameLayout.RESIZE_MODE_FILL
                         }
                         AspectRatioFrameLayout.RESIZE_MODE_FILL -> {
-                            this@fullscreen.setImageResource(R.drawable.icon_fullscreen_filled)
-                            this@exoplayer.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                            setImageResource(R.drawable.icon_fullscreen_filled)
+                            AspectRatioFrameLayout.RESIZE_MODE_FIT
                         }
+                        else -> resizeMode
                     }
+                }
+            }
+            findViewById<ImageView>(R.id.tracks).apply {
+                setOnClickListener {
+                    showTracksDialog()
                 }
             }
         }
@@ -255,9 +282,13 @@ class MoviePlayerActivity : AppCompatActivity() {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                layout.playerAction.setImageResource(R.drawable.icon_pause_filled)
+                layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                    setImageResource(R.drawable.icon_pause_filled)
+                }
             } else {
-                layout.playerAction.setImageResource(R.drawable.icon_play_filled)
+                layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                    setImageResource(R.drawable.icon_play_filled)
+                }
             }
         }
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -268,15 +299,15 @@ class MoviePlayerActivity : AppCompatActivity() {
                         contentId = playerContent.id)
                 }
                 Player.STATE_BUFFERING -> {
-                    layout.apply {
-                        playerProgressbar.visibility = View.VISIBLE
-                        playerAction.visibility = View.INVISIBLE
+                    layout.exoPlayer.apply {
+                        findViewById<ProgressBar>(R.id.player_progressbar).visibility = View.VISIBLE
+                        findViewById<ImageView>(R.id.player_action).visibility = View.INVISIBLE
                     }
                 }
                 else -> {
-                    layout.apply {
-                        playerProgressbar.visibility = View.INVISIBLE
-                        playerAction.visibility = View.VISIBLE
+                    layout.exoPlayer.apply {
+                        findViewById<ProgressBar>(R.id.player_progressbar).visibility = View.INVISIBLE
+                        findViewById<ImageView>(R.id.player_action).visibility = View.VISIBLE
                     }
                 }
             }
@@ -285,6 +316,104 @@ class MoviePlayerActivity : AppCompatActivity() {
             super.onPlayerErrorChanged(error)
             playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
         }
+    }
+
+    private fun showTracksDialog() {
+        val dialog = Dialog(this@MoviePlayerActivity).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_tracks)
+            setCancelable(true)
+            setOnCancelListener {
+                dismiss()
+            }
+        }
+
+        dialog.findViewById<ImageView>(R.id.dialog_close).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        val audioTracks = mutableListOf<String>()
+        val subtitleTracks = mutableListOf<String>()
+        val audioTracksGroup = mutableListOf<TracksGroup.Track>()
+        val subtitleTracksGroup = mutableListOf<TracksGroup.Track>()
+
+        for (i in 0 until exoPlayer.currentTracks.groups.size) {
+            val format = exoPlayer.currentTracks.groups[i].getTrackFormat(0)
+            when {
+                format.sampleMimeType?.startsWith("audio/") == true && format.language != null -> {
+                    audioTracks.add(format.language!!)
+                }
+                (format.sampleMimeType?.startsWith("text/") == true || format.sampleMimeType?.startsWith("application/") == true) && format.language != null -> {
+                    subtitleTracks.add(format.language!!)
+                }
+            }
+        }
+
+        audioTracks.distinct().forEachIndexed { index, language ->
+            val trackTitle = Locale(language).getDisplayLanguage(Locale.getDefault())
+            val track = TracksGroup.Track(id = index + 1, code = language, title = trackTitle)
+            audioTracksGroup.add(track)
+        }
+
+        subtitleTracksGroup.add(TracksGroup.Track(id = 0, code = "", title = getString(R.string.disable_subtitles)))
+        subtitleTracks.distinct().forEachIndexed { index, language ->
+            val trackTitle = Locale(language).getDisplayLanguage(Locale.getDefault())
+            val track = TracksGroup.Track(id = index + 1, code = language, title = trackTitle)
+            subtitleTracksGroup.add(track)
+        }
+
+        val audioTracksAdapter = TracksAdapter(listener = object : TracksAdapter.OnTrackClickListener {
+            override fun onItemClick(track: TracksGroup.Track) {
+                val parameters = exoPlayer.trackSelectionParameters
+                    .buildUpon()
+                    .setPreferredAudioLanguage(track.code)
+                    .build()
+                exoPlayer.trackSelectionParameters = parameters
+
+                dialog.dismiss()
+            }
+        })
+        dialog.findViewById<RecyclerView>(R.id.recycler_audio_tracks).apply {
+            layoutManager = LinearLayoutManager(this@MoviePlayerActivity)
+            adapter = audioTracksAdapter
+        }
+        audioTracksAdapter.differ.submitList(audioTracksGroup)
+
+        val subtitlesTracksAdapter = TracksAdapter(listener = object : TracksAdapter.OnTrackClickListener {
+            override fun onItemClick(track: TracksGroup.Track) {
+                if (track.code.isNotEmpty()) {
+                    val parameters = exoPlayer.trackSelectionParameters
+                        .buildUpon()
+                        .setPreferredTextLanguage(track.code)
+                        .build()
+                    exoPlayer.trackSelectionParameters = parameters
+                } else {
+                    val parameters = exoPlayer.trackSelectionParameters
+                        .buildUpon()
+                        .setPreferredTextLanguage(null)
+                        .build()
+                    exoPlayer.trackSelectionParameters = parameters
+                }
+
+                dialog.dismiss()
+            }
+        })
+        dialog.findViewById<RecyclerView>(R.id.recycler_subtitles_tracks).apply {
+            layoutManager = LinearLayoutManager(this@MoviePlayerActivity)
+            adapter = subtitlesTracksAdapter
+        }
+        subtitlesTracksAdapter.differ.submitList(subtitleTracksGroup)
+
+        dialog.window?.let { window ->
+            window.apply {
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                attributes.gravity = Gravity.START
+                setLayout(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.MATCH_PARENT)
+            }
+        }
+        dialog.show()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

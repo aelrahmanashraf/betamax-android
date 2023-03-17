@@ -1,4 +1,4 @@
-package com.picassos.betamax.android.presentation.app.movie.series
+package com.picassos.betamax.android.presentation.app.series
 
 import android.content.Intent
 import android.content.res.Configuration

@@ -3,6 +3,7 @@
     <item name="toolbar" type="id" />
     <item name="refresh_layout" type="id" />
     <item name="go_back" type="id" />
+    <item name="movie_options" type="id" />
     <item name="toolbar_title" type="id" />
     <item name="no_items" type="id" />
     <item name="movie_genre" type="id" />
@@ -20,6 +21,7 @@
     <item name="my_tvchannels" type="id" />
     <item name="player_options" type="id" />
     <item name="tvchannels_genres" type="id" />
+    <item name="language_title" type="id" />
     <item name="branding_text" type="id" />
     <item name="view_all_trending" type="id" />
     <item name="launch_video" type="id" />
@@ -95,6 +97,7 @@
     <item name="actor_thumbnail" type="id" />
     <item name="genre_thumbnail" type="id" />
     <item name="genre_title" type="id" />
+    <item name="track_title" type="id" />
     <item name="genre_container" type="id" />
     <item name="recycler_cast" type="id" />
     <item name="episode_duration" type="id" />
@@ -135,6 +138,7 @@
     <item name="recycler_tv" type="id" />
     <item name="recycler_related_tv" type="id" />
     <item name="controller_container" type="id" />
+    <item name="subtitle_view" type="id" />
     <item name="current_password" type="id" />
     <item name="mylist_title" type="id" />
     <item name="progressbar" type="id" />
@@ -153,8 +157,11 @@
     <item name="notification_title" type="id" />
     <item name="notification_body" type="id" />
     <item name="fhd_quality" type="id" />
+    <item name="dialog_root" type="id" />
     <item name="dialog_close" type="id" />
     <item name="privacy_policy" type="id" />
+    <item name="recycler_audio_tracks" type="id" />
+    <item name="recycler_subtitles_tracks" type="id" />
     <item name="search" type="id" />
     <item name="try_again" type="id" />
     <item name="root" type="id" />
@@ -173,6 +180,7 @@
     <item name="material_genres_container" type="id" />
     <item name="featured_container" type="id" />
     <item name="recycler_seasons" type="id" />
+    <item name="recycler_languages" type="id" />
     <item name="recycler_related_movies" type="id" />
     <item name="account_settings" type="id" />
     <item name="subscribe" type="id" />
@@ -187,6 +195,9 @@
     <item name="diamond_package_price" type="id" />
     <item name="payment" type="id" />
     <item name="edit_profile_info" type="id" />
+    <item name="languages" type="id" />
+    <item name="tracks" type="id" />
+    <item name="subtitles" type="id" />
     <item name="cancel" type="id" />
     <item name="toast_text" type="id" />
     <item name="verify" type="id" />
