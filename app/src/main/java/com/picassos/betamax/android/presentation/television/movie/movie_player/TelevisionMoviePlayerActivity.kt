@@ -18,10 +18,7 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -31,7 +28,6 @@ import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionMoviePlayerBinding
 import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.domain.model.TracksGroup
-import com.picassos.betamax.android.presentation.app.App
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
@@ -49,7 +45,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
     private lateinit var exoPlayer: ExoPlayer
-    private val cache: SimpleCache = App.cache
 
     private lateinit var playerContent: PlayerContent
     private var isRetry = false
@@ -109,12 +104,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
     @SuppressLint("SwitchIntDef")
     private fun initializePlayer(url: String) {
-        val loadControl = DefaultLoadControl.Builder()
-            .setAllocator(DefaultAllocator(true, 16))
-            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
-            .setTargetBufferBytes(-1)
-            .setPrioritizeTimeOverSizeThresholds(true)
-            .build()
         val trackSelector = DefaultTrackSelector(this@TelevisionMoviePlayerActivity)
         val renderersFactory = DefaultRenderersFactory(this@TelevisionMoviePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -123,16 +112,12 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             .setPreferredAudioLanguage("spa")
             .build()
         val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
-        val cacheDataSource = CacheDataSource.Factory()
-            .setCache(cache)
-            .setUpstreamDataSourceFactory(httpDataSource)
-            .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+
+        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
         exoPlayer = ExoPlayer.Builder(this@TelevisionMoviePlayerActivity)
             .setTrackSelector(trackSelector)
-            .setLoadControl(loadControl)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))
+            .setMediaSourceFactory(DefaultMediaSourceFactory(httpDataSource))
             .setRenderersFactory(renderersFactory)
             .build().apply {
                 addListener(playerListener)

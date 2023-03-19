@@ -154,7 +154,7 @@ dependencies {
     implementation "androidx.browser:browser:$browser_version"
 
     // exo player
-    def exoplayer_version = "2.18.3"
+    def exoplayer_version = "2.18.4"
     implementation "com.google.android.exoplayer:exoplayer:$exoplayer_version"
     implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
 
