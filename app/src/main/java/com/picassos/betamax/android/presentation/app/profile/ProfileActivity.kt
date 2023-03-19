@@ -31,7 +31,7 @@ import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.core.view.dialog.TelevisionSubscriptionDialog
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
 import com.picassos.betamax.android.presentation.app.auth.account_settings.AccountSettingsBottomSheetModal
-import com.picassos.betamax.android.presentation.app.video_quality.manage_video_quality.ManageVideoQualityBottomSheetModal
+import com.picassos.betamax.android.presentation.app.quality.manage_video_quality.ManageVideoQualityBottomSheetModal
 import com.picassos.betamax.android.presentation.app.info.about.AboutActivity
 import com.picassos.betamax.android.presentation.app.launch.LaunchActivity
 import com.picassos.betamax.android.presentation.app.subscription.manage_subscription.ManageSubscriptionActivity

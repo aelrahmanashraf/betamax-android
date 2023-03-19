@@ -34,6 +34,7 @@
     <item name="copyright" type="id" />
     <item name="movie_meta_container" type="id" />
     <item name="exo_player" type="id" />
+    <item name="tvchannels_nav_container" type="id" />
     <item name="player_container" type="id" />
     <item name="telegram_link" type="id" />
     <item name="fullscreen_mode" type="id" />
@@ -92,12 +93,14 @@
     <item name="episode_thumbnail" type="id" />
     <item name="episode_title" type="id" />
     <item name="tvchannel_order" type="id" />
+    <item name="tvchannels_favorites" type="id" />
     <item name="actor_name" type="id" />
     <item name="actor_role" type="id" />
     <item name="actor_thumbnail" type="id" />
     <item name="genre_thumbnail" type="id" />
     <item name="genre_title" type="id" />
     <item name="track_title" type="id" />
+    <item name="quality_title" type="id" />
     <item name="genre_container" type="id" />
     <item name="recycler_cast" type="id" />
     <item name="episode_duration" type="id" />
@@ -160,6 +163,7 @@
     <item name="dialog_root" type="id" />
     <item name="dialog_close" type="id" />
     <item name="privacy_policy" type="id" />
+    <item name="recycler_quality" type="id" />
     <item name="recycler_audio_tracks" type="id" />
     <item name="recycler_subtitles_tracks" type="id" />
     <item name="search" type="id" />

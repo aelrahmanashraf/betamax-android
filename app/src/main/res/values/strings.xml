@@ -156,4 +156,8 @@
     <string name="subtitles">Subtitles</string>
     <string name="audio">Audio</string>
     <string name="disable_subtitles">Disable Subtitles</string>
+    <string name="favorites">Favorites</string>
+    <string name="quality">Quality</string>
+    <string name="tvchannel_add_to_favorites">Tv channel added to favorites.</string>
+    <string name="tvchannel_removed_from_favorites">Tv channel removed from favorites</string>
 </resources>

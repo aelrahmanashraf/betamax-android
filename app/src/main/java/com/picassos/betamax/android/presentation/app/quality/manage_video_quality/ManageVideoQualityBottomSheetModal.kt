@@ -1,4 +1,4 @@
-package com.picassos.betamax.android.presentation.app.video_quality.manage_video_quality
+package com.picassos.betamax.android.presentation.app.quality.manage_video_quality
 
 import android.os.Bundle
 import android.view.LayoutInflater

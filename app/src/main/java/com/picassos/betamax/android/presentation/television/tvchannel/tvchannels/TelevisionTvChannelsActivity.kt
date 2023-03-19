@@ -1,14 +1,11 @@
 package com.picassos.betamax.android.presentation.television.tvchannel.tvchannels
 
 import android.app.Dialog
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
-import android.widget.LinearLayout
-import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -28,19 +25,19 @@ import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
-import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.core.view.Toasto.showToast
 import com.picassos.betamax.android.databinding.ActivityTelevisionTvchannelsBinding
 import com.picassos.betamax.android.domain.listener.OnGenreClickListener
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
+import com.picassos.betamax.android.domain.listener.OnTvChannelLongClickListener
 import com.picassos.betamax.android.domain.model.Genres
-import com.picassos.betamax.android.domain.model.TelevisionPlayerContent
+import com.picassos.betamax.android.domain.model.QualityGroup
 import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.television.genre.tvchannels_genres.TelevisionTvChannelsGenresAdapter
-import com.picassos.betamax.android.presentation.television.tvchannel.tvchannel_player.TelevisionTvChannelPlayerActivity
+import com.picassos.betamax.android.presentation.app.quality.QualityAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -50,8 +47,6 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
 
     private var exoPlayer: ExoPlayer? = null
-
-    private lateinit var tvChannelsList: List<TvChannels.TvChannel>
     private var tvChannel: TvChannels.TvChannel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,53 +61,59 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
 
         layout.apply {
-            brandingText.text = getString(R.string.app_name).lowercase()
-        }
-
-        layout.apply {
-            tvchannelsGenres.setOnClickListener {
-                showTvChannelsGenres()
-            }
-        }
-
-        getSerializable(this@TelevisionTvChannelsActivity, "tvChannel", TvChannels.TvChannel::class.java).also { tvChannel ->
-            if (tvChannel != null) {
+            tvchannelsFavorites.setOnClickListener {
                 televisionTvChannelsViewModel.apply {
-                    this@TelevisionTvChannelsActivity.tvChannel = tvChannel
-                    requestTvChannel(tvChannel.tvChannelId)
+                    setSelectedNavigation(navigation = Navigations.FavoritesNavigation)
+                    requestSavedTvChannels()
+                }
+            }
+            allTvchannels.setOnClickListener {
+                televisionTvChannelsViewModel.apply {
+                    setSelectedNavigation(navigation = Navigations.HomeNavigation)
+                    requestTvChannels()
                 }
             }
         }
 
-        val tvChannelsAdapter = TelevisionTvChannelsAdapter(listener = object: OnTvChannelClickListener {
+        val genresAdapter = TelevisionTvChannelsGenresAdapter(onClickListener = object: OnGenreClickListener {
+            override fun onItemClick(genre: Genres.Genre) {
+                televisionTvChannelsViewModel.apply {
+                    setSelectedNavigation(navigation = Navigations.HomeNavigation)
+                    requestTvChannelsByGenre(genre.genreId)
+                }
+            }
+        })
+        layout.recyclerGenres.apply {
+            layoutManager = LinearLayoutManager(this@TelevisionTvChannelsActivity)
+            adapter = genresAdapter
+        }
+
+        televisionTvChannelsViewModel.apply {
+            requestTvGenres()
+            collectLatestOnLifecycleStarted(tvGenres) { state ->
+                if (state.isLoading) {
+                    layout.genresProgressbar.visibility = View.VISIBLE
+                }
+                if (state.response != null) {
+                    layout.genresProgressbar.visibility = View.GONE
+
+                    genresAdapter.differ.submitList(state.response.genres)
+                }
+            }
+        }
+
+        val tvChannelsAdapter = TelevisionTvChannelsAdapter(onClickListener = object: OnTvChannelClickListener {
             override fun onItemClick(tvChannel: TvChannels.TvChannel) {
-                this@TelevisionTvChannelsActivity.tvChannel?.let { channel ->
-                    if (channel.tvChannelId != tvChannel.tvChannelId) {
-                        televisionTvChannelsViewModel.apply {
-                            this@TelevisionTvChannelsActivity.tvChannel = tvChannel
-                            requestTvChannel(tvChannel.tvChannelId)
-                        }
-                    } else {
-                        exoPlayer?.apply {
-                            if (isPlaying) {
-                                Intent(this@TelevisionTvChannelsActivity, TelevisionTvChannelPlayerActivity::class.java).also { intent ->
-                                    intent.putExtra("playerContent", TelevisionPlayerContent(
-                                        url = tvChannel.hdUrl,
-                                        userAgent = tvChannel.userAgent,
-                                        currentTvChannelPosition = tvChannel.position,
-                                        tvChannelsList = tvChannelsList))
-                                    startActivity(intent)
-                                }
-                            } else {
-                                play()
-                            }
-                        }
-                    }
-                } ?: run {
-                    televisionTvChannelsViewModel.apply {
-                        this@TelevisionTvChannelsActivity.tvChannel = tvChannel
-                        requestTvChannel(tvChannel.tvChannelId)
-                    }
+                televisionTvChannelsViewModel.apply {
+                    this@TelevisionTvChannelsActivity.tvChannel = tvChannel
+                    requestTvChannel(tvChannel.tvChannelId)
+                }
+                layout.tvchannelsNavContainer.visibility = View.GONE
+            }
+        }, onLongClickListener = object: OnTvChannelLongClickListener {
+            override fun onItemLongClick(tvChannel: TvChannels.TvChannel) {
+                televisionTvChannelsViewModel.apply {
+                    requestSaveTvChannel(tvChannelId = tvChannel.tvChannelId)
                 }
             }
         })
@@ -121,15 +122,17 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             adapter = tvChannelsAdapter
         }
 
-        televisionTvChannelsViewModel.requestTvChannels()
+        televisionTvChannelsViewModel.apply {
+            setSelectedNavigation(navigation = Navigations.HomeNavigation)
+            requestTvChannels()
+        }
         collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.tvChannels) { state ->
             if (state.isLoading) {
                 layout.tvchannelsProgressbar.visibility = View.VISIBLE
             }
             if (state.response != null) {
-                tvChannelsList = state.response.tvChannels
-
                 layout.tvchannelsProgressbar.visibility = View.GONE
+
                 tvChannelsAdapter.differ.submitList(state.response.tvChannels)
             }
         }
@@ -145,44 +148,35 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             if (state.response != null) {
                 val tvChannelDetails = state.response.tvChannelDetails.tvChannels[0]
 
+                val tvChannelUrl = when (televisionTvChannelsViewModel.selectedQuality.value) {
+                    VideoQuality.QUALITY_SD -> tvChannelDetails.sdUrl
+                    VideoQuality.QUALITY_HD -> tvChannelDetails.hdUrl
+                    VideoQuality.QUALITY_FHD -> tvChannelDetails.fhdUrl
+                }
+
                 initializePlayer(
-                    url = tvChannelDetails.hdUrl,
+                    url = tvChannelUrl,
                     userAgent = tvChannelDetails.userAgent)
-
-                layout.tvchannelTitle.text = tvChannelDetails.title
-                layout.tvchannelDetails.apply {
-                    visibility = View.VISIBLE
-                }
-
-                layout.apply {
-                    saveTvchannel.setOnClickListener {
-                        televisionTvChannelsViewModel.requestSaveTvChannel(tvChannelDetails.tvChannelId)
-                    }
-                    saveTvchannelIcon.apply {
-                        when (state.response.tvChannelSaved) {
-                            1 -> {
-                                setImageResource(R.drawable.icon_star_filled)
-                            }
-                            else -> {
-                                setImageResource(R.drawable.icon_star_outline)
-                            }
-                        }
-                    }
-                }
-            }
-            if (state.error != null) {
-
             }
         }
 
         collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.saveTvChannel) { state ->
             if (state.responseCode != null) {
                 when (state.responseCode) {
-                    "1" -> layout.saveTvchannelIcon.setImageResource(R.drawable.icon_star_filled)
-                    "0" -> layout.saveTvchannelIcon.setImageResource(R.drawable.icon_star_outline)
-                    else -> showToast(this@TelevisionTvChannelsActivity, getString(R.string.unknown_issue_occurred), 0, 1)
+                    "1" -> {
+                        showToast(this@TelevisionTvChannelsActivity, getString(R.string.tvchannel_add_to_favorites), 0, 0)
+                    }
+                    "0" -> {
+                        showToast(this@TelevisionTvChannelsActivity, getString(R.string.tvchannel_removed_from_favorites), 0, 2)
+                    }
+                }
+                televisionTvChannelsViewModel.apply {
+                    if (selectedNavigation.value == Navigations.FavoritesNavigation) {
+                        requestSavedTvChannels()
+                    }
                 }
             }
+
             if (state.error != null) {
                 when (state.error) {
                     Response.NETWORK_FAILURE_EXCEPTION -> {
@@ -200,56 +194,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
     }
 
-    private fun showTvChannelsGenres() {
-        val dialog = Dialog(this@TelevisionTvChannelsActivity).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE)
-            setContentView(R.layout.dialog_television_tvchannels_genres)
-            setCancelable(true)
-            setOnCancelListener {
-                dismiss()
-            }
-        }
-
-        dialog.findViewById<LinearLayout>(R.id.all_tvchannels).setOnClickListener {
-            televisionTvChannelsViewModel.requestTvChannels()
-            dialog.dismiss()
-        }
-
-        val genresAdapter = TelevisionTvChannelsGenresAdapter(listener = object: OnGenreClickListener {
-            override fun onItemClick(genre: Genres.Genre) {
-                televisionTvChannelsViewModel.requestTvChannelsByGenre(genre.genreId)
-                dialog.dismiss()
-            }
-        })
-        dialog.findViewById<RecyclerView>(R.id.recycler_genres).apply {
-            layoutManager = LinearLayoutManager(this@TelevisionTvChannelsActivity)
-            adapter = genresAdapter
-        }
-
-        televisionTvChannelsViewModel.requestTvGenres()
-        collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.tvGenres) { state ->
-            if (state.isLoading) {
-                dialog.findViewById<ProgressBar>(R.id.genres_progressbar).visibility = View.VISIBLE
-            }
-            if (state.response != null) {
-                dialog.findViewById<ProgressBar>(R.id.genres_progressbar).visibility = View.GONE
-                genresAdapter.differ.submitList(state.response.genres)
-            }
-        }
-
-        dialog.window?.let { window ->
-            window.apply {
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                attributes.gravity = Gravity.START
-                setLayout(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.MATCH_PARENT)
-            }
-        }
-        dialog.show()
-    }
-
-    private fun initializePlayer(url: String, userAgent: String, position: Long = 0) {
+    private fun initializePlayer(url: String, userAgent: String) {
         val loadControl: LoadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
             .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
@@ -288,7 +233,6 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 PlayerStatus.PLAY -> {
                     exoPlayer?.apply {
                         playWhenReady = true
-                        seekTo(position)
                         play()
                     }
                 }
@@ -300,7 +244,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 }
                 PlayerStatus.RETRY -> { }
                 PlayerStatus.RELEASE -> {
-                    releasePlayer()
+                    exoPlayer?.apply {
+                        removeListener(playerListener)
+                        clearMediaItems()
+                    }
                 }
             }
         }
@@ -317,12 +264,74 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
     }
 
-    private fun releasePlayer() {
-        exoPlayer?.apply {
-            stop()
-            removeListener(playerListener)
-            clearMediaItems()
+    private fun showChannelOptionsDialog(tvChannel: TvChannels.TvChannel) {
+        val dialog = Dialog(this@TelevisionTvChannelsActivity).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_television_tvchannel_options)
+            setCancelable(true)
+            setOnCancelListener {
+                dismiss()
+            }
         }
+
+        val qualityGroup = mutableListOf<QualityGroup.Quality>().apply {
+            add(QualityGroup.Quality(id = 1, prefix = "sd", title = getString(R.string.sd)))
+            add(QualityGroup.Quality(id = 1, prefix = "hd", title = getString(R.string.hd)))
+            add(QualityGroup.Quality(id = 1, prefix = "fhd", title = getString(R.string.fhd)))
+        }
+
+        val qualityAdapter = QualityAdapter(listener = object : QualityAdapter.OnQualityClickListener {
+            override fun onItemClick(quality: QualityGroup.Quality) {
+                televisionTvChannelsViewModel.apply {
+                    when (quality.prefix) {
+                        "sd" -> setSelectedQuality(quality = VideoQuality.QUALITY_SD)
+                        "hd" -> setSelectedQuality(quality = VideoQuality.QUALITY_HD)
+                        "fhd" -> setSelectedQuality(quality = VideoQuality.QUALITY_FHD)
+                    }
+                    requestTvChannel(tvChannelId = tvChannel.tvChannelId)
+                }
+
+                dialog.dismiss()
+            }
+        })
+        dialog.findViewById<RecyclerView>(R.id.recycler_quality).apply {
+            layoutManager = LinearLayoutManager(this@TelevisionTvChannelsActivity)
+            adapter = qualityAdapter
+        }
+        qualityAdapter.differ.submitList(qualityGroup)
+
+        dialog.window?.let { window ->
+            window.apply {
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                attributes.gravity = Gravity.START
+                setLayout(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.MATCH_PARENT)
+            }
+        }
+        dialog.show()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (layout.tvchannelsNavContainer.visibility == View.GONE) {
+                    tvChannel?.let { tvChannel ->
+                        showChannelOptionsDialog(tvChannel)
+                    }
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_CENTER -> {
+                layout.tvchannelsNavContainer.apply {
+                    if (visibility == View.GONE) visibility = View.VISIBLE
+                }
+            }
+            KeyEvent.KEYCODE_ESCAPE,
+            KeyEvent.KEYCODE_BACK -> {
+                finish()
+            }
+        }
+        return false
     }
 
     override fun onPause() {

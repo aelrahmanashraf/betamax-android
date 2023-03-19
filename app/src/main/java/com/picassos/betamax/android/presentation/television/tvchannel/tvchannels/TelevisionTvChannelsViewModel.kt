@@ -15,8 +15,33 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+enum class Navigations {
+    HomeNavigation,
+    FavoritesNavigation
+}
+
+enum class VideoQuality {
+    QUALITY_SD,
+    QUALITY_HD,
+    QUALITY_FHD
+}
+
 @HiltViewModel
 class TelevisionTvChannelsViewModel @Inject constructor(app: Application, private val televisionTvChannelsUseCases: TelevisionTvChannelsUseCases): AndroidViewModel(app) {
+    private val _selectedNavigation = MutableStateFlow(Navigations.HomeNavigation)
+    val selectedNavigation = _selectedNavigation.asStateFlow()
+
+    fun setSelectedNavigation(navigation: Navigations) {
+        _selectedNavigation.tryEmit(navigation)
+    }
+
+    private val _selectedQuality = MutableStateFlow(VideoQuality.QUALITY_HD)
+    val selectedQuality = _selectedQuality.asStateFlow()
+
+    fun setSelectedQuality(quality: VideoQuality) {
+        _selectedQuality.tryEmit(quality)
+    }
+
     private val _viewTvChannel = MutableStateFlow(ViewTvChannelState())
     val viewTvChannel = _viewTvChannel.asStateFlow()
 
@@ -106,6 +131,29 @@ class TelevisionTvChannelsViewModel @Inject constructor(app: Application, privat
                     is Resource.Error -> {
                         _tvChannels.emit(TvChannelsState(
                             error = result.message))
+                    }
+                }
+            }
+        }
+    }
+
+    fun requestSavedTvChannels() {
+        viewModelScope.launch {
+            televisionTvChannelsUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                televisionTvChannelsUseCases.getSavedTvChannelsUseCase.invoke(account.token).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _tvChannels.emit(TvChannelsState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _tvChannels.emit(TvChannelsState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _tvChannels.emit(TvChannelsState(
+                                error = result.message))
+                        }
                     }
                 }
             }

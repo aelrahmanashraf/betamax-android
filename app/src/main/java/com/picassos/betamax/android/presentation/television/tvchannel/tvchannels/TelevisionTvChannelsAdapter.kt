@@ -1,6 +1,5 @@
 package com.picassos.betamax.android.presentation.television.tvchannel.tvchannels
 
-import android.annotation.SuppressLint
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.TextView
 import com.picassos.betamax.android.R
@@ -12,28 +11,34 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
-import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
+import com.picassos.betamax.android.domain.listener.OnTvChannelLongClickListener
+import com.picassos.betamax.android.domain.model.TvChannels
 
-class TelevisionTvChannelsAdapter(private val listener: OnTvChannelClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-     internal class TvChannelsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class TelevisionTvChannelsAdapter(private val onClickListener: OnTvChannelClickListener, private val onLongClickListener: OnTvChannelLongClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    internal class TvChannelsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val container: LinearLayout = itemView.findViewById(R.id.tvchannel_container)
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.tvchannel_thumbnail)
-        private val order: TextView = itemView.findViewById(R.id.tvchannel_order)
         val title: TextView = itemView.findViewById(R.id.tvchannel_title)
 
-        @SuppressLint("SetTextI18n")
         fun setData(data: TvChannels.TvChannel) {
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)
                 .setUri(data.banner)
                 .build()
-            order.text = (absoluteAdapterPosition + 1).toString()
             title.text = data.title
         }
 
-        fun bind(item: TvChannels.TvChannel, listener: OnTvChannelClickListener) {
-            itemView.setOnClickListener {  listener.onItemClick(item) }
+        fun bind(item: TvChannels.TvChannel, onClickListener: OnTvChannelClickListener, onLongClickListener: OnTvChannelLongClickListener) {
+            itemView.apply {
+                setOnClickListener {
+                    onClickListener.onItemClick(item)
+                }
+                setOnLongClickListener {
+                    onLongClickListener.onItemLongClick(item)
+                    return@setOnLongClickListener true
+                }
+            }
         }
     }
 
@@ -58,9 +63,10 @@ class TelevisionTvChannelsAdapter(private val listener: OnTvChannelClickListener
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tvChannels = differ.currentList[position]
-        val tvChannelsHolder = holder as TvChannelsHolder
-        tvChannelsHolder.setData(tvChannels)
-        tvChannelsHolder.bind(tvChannels, listener)
+        (holder as TvChannelsHolder).apply {
+            setData(tvChannels)
+            bind(tvChannels, onClickListener, onLongClickListener)
+        }
     }
 
     override fun getItemCount(): Int {

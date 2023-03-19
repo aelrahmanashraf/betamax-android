@@ -1,12 +1,12 @@
-package com.picassos.betamax.android.presentation.app.video_quality.manage_video_quality
+package com.picassos.betamax.android.presentation.app.quality.manage_video_quality
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.usecase.video_quality.VideoQualityUseCases
-import com.picassos.betamax.android.presentation.app.video_quality.update_video_quality.UpdateVideoQualityState
-import com.picassos.betamax.android.presentation.app.video_quality.VideoQualityState
+import com.picassos.betamax.android.presentation.app.quality.update_video_quality.UpdateVideoQualityState
+import com.picassos.betamax.android.presentation.app.quality.QualityState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ManageVideoQualityViewModel @Inject constructor(app: Application, private val videoQualityUseCases: VideoQualityUseCases): AndroidViewModel(app) {
-    private val _videoQuality = MutableStateFlow(VideoQualityState())
+    private val _videoQuality = MutableStateFlow(QualityState())
     val videoQuality = _videoQuality.asStateFlow()
 
     fun requestVideoQuality() {
@@ -25,19 +25,19 @@ class ManageVideoQualityViewModel @Inject constructor(app: Application, private 
                     when (result) {
                         is Resource.Loading -> {
                             _videoQuality.emit(
-                                VideoQualityState(
+                                QualityState(
                                 isLoading = result.isLoading)
                             )
                         }
                         is Resource.Success -> {
                             _videoQuality.emit(
-                                VideoQualityState(
+                                QualityState(
                                 response = result.data)
                             )
                         }
                         is Resource.Error -> {
                             _videoQuality.emit(
-                                VideoQualityState(
+                                QualityState(
                                 error = result.message)
                             )
                         }

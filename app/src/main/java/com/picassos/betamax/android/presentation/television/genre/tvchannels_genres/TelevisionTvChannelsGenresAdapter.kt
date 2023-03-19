@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.picassos.betamax.android.domain.model.Genres
 import com.picassos.betamax.android.domain.listener.OnGenreClickListener
 
-class TelevisionTvChannelsGenresAdapter(private val listener: OnGenreClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TelevisionTvChannelsGenresAdapter(private val onClickListener: OnGenreClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal inner class TvGenresHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.genre_title)
 
@@ -19,13 +19,15 @@ class TelevisionTvChannelsGenresAdapter(private val listener: OnGenreClickListen
             title.text = data.title
         }
 
-        fun bind(item: Genres.Genre, listener: OnGenreClickListener) {
-            itemView.setOnClickListener {  listener.onItemClick(item) }
+        fun bind(item: Genres.Genre, onClickListener: OnGenreClickListener) {
+            itemView.setOnClickListener {
+                onClickListener.onItemClick(item)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_television_genre, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_television_tvchannel_genre, parent, false)
         return TvGenresHolder(view)
     }
 
@@ -45,9 +47,10 @@ class TelevisionTvChannelsGenresAdapter(private val listener: OnGenreClickListen
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val genres = differ.currentList[position]
-        val tvGenresHolder = holder as TvGenresHolder
-        tvGenresHolder.setData(genres)
-        tvGenresHolder.bind(genres, listener)
+        (holder as TvGenresHolder).apply {
+            setData(genres)
+            bind(genres, onClickListener)
+        }
     }
 
     override fun getItemCount(): Int {

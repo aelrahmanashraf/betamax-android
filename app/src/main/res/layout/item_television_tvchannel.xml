@@ -15,30 +15,13 @@
     android:paddingEnd="0dp"
     android:paddingBottom="6dp">
 
-    <TextView
-        android:id="@id/tvchannel_order"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:alpha=".9"
-        android:ellipsize="end"
-        android:fontFamily="@font/poppins_regular"
-        android:maxLines="1"
-        android:text="1"
-        android:textColor="?color_dark"
-        android:textSize="14sp"
-        tools:ignore="HardcodedText" />
-
-
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/tvchannel_thumbnail"
         android:layout_width="55dp"
         android:layout_height="30dp"
         app:placeholderImageScaleType="centerCrop"
-        fresco:actualImageScaleType="centerCrop"
         app:roundedCornerRadius="5dp"
+        fresco:actualImageScaleType="centerCrop"
         fresco:placeholderImage="?color_dark" />
 
     <TextView
@@ -46,14 +29,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:alpha=".9"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="10dp"
+        android:alpha=".8"
         android:ellipsize="end"
         android:fontFamily="@font/poppins_regular"
         android:maxLines="1"
         android:text="@string/tv"
         android:textColor="?color_dark"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
 </LinearLayout>

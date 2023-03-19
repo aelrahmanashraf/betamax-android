@@ -1,4 +1,4 @@
-package com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser
+package com.picassos.betamax.android.presentation.app.quality.video_quality_chooser
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

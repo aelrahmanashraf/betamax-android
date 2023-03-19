@@ -44,11 +44,10 @@ import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.app.tvchannel.related_tvchannels.RelatedTvChannelsAdapter
-import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserBottomSheetModal
-import com.picassos.betamax.android.presentation.app.video_quality.video_quality_chooser.VideoQualityChooserViewModel
+import com.picassos.betamax.android.presentation.app.quality.video_quality_chooser.VideoQualityChooserBottomSheetModal
+import com.picassos.betamax.android.presentation.app.quality.video_quality_chooser.VideoQualityChooserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @DelicateCoroutinesApi
@@ -152,7 +151,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
             if (state.response != null) {
                 layout.progressbar.visibility = View.GONE
 
-                val relatedTvChannelsAdapter = RelatedTvChannelsAdapter(tvChannel.tvChannelId, listener = object: OnTvChannelClickListener {
+                val relatedTvChannelsAdapter = RelatedTvChannelsAdapter(tvChannel.tvChannelId, onClickListener = object: OnTvChannelClickListener {
                     override fun onItemClick(tvChannel: TvChannels.TvChannel) {
                         viewTvChannelViewModel.apply {
                             this@ViewTvChannelActivity.tvChannel = tvChannel

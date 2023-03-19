@@ -239,10 +239,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
         }
 
-        dialog.findViewById<ImageView>(R.id.dialog_close).setOnClickListener {
-            dialog.dismiss()
-        }
-
         val audioTracks = mutableListOf<String>()
         val subtitleTracks = mutableListOf<String>()
         val audioTracksGroup = mutableListOf<TracksGroup.Track>()

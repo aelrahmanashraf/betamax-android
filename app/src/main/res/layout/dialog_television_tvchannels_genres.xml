@@ -21,7 +21,7 @@
             android:id="@id/all_tvchannels"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/item_television_genre_selectable"
+            android:background="@drawable/item_television_movie_genre_selectable"
             android:focusable="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"

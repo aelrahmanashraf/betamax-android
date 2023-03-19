@@ -10,10 +10,10 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
-import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
+import com.picassos.betamax.android.domain.model.TvChannels
 
-class TvChannelsAdapter(private val listener: OnTvChannelClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TvChannelsAdapter(private val onClickListener: OnTvChannelClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class TvChannelsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.tvchannel_thumbnail)
         val title: TextView = itemView.findViewById(R.id.tvchannel_title)
@@ -26,8 +26,10 @@ class TvChannelsAdapter(private val listener: OnTvChannelClickListener) : Recycl
             title.text = data.title
         }
 
-        fun bind(item: TvChannels.TvChannel, listener: OnTvChannelClickListener) {
-            itemView.setOnClickListener {  listener.onItemClick(item) }
+        fun bind(item: TvChannels.TvChannel, onClickListener: OnTvChannelClickListener) {
+            itemView.setOnClickListener {
+                onClickListener.onItemClick(item)
+            }
         }
     }
 
@@ -52,9 +54,10 @@ class TvChannelsAdapter(private val listener: OnTvChannelClickListener) : Recycl
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tvChannels = differ.currentList[position]
-        val tvChannelsHolder = holder as TvChannelsHolder
-        tvChannelsHolder.setData(tvChannels)
-        tvChannelsHolder.bind(tvChannels, listener)
+        (holder as TvChannelsHolder).apply {
+            setData(tvChannels)
+            bind(tvChannels, onClickListener)
+        }
     }
 
     override fun getItemCount(): Int {

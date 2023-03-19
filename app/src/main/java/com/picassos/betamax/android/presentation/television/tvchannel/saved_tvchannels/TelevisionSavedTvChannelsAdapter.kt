@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
-import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
+import com.picassos.betamax.android.domain.model.TvChannels
 
 class TelevisionSavedTvChannelsAdapter(private val listener: OnTvChannelClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
      internal class TvChannelsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

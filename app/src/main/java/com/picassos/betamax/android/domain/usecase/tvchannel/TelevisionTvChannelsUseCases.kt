@@ -10,4 +10,5 @@ data class TelevisionTvChannelsUseCases @Inject constructor(
     val getTvGenresUseCase: GetTvGenresUseCase,
     val getTvChannelsUseCase: GetTvChannelsUseCase,
     val getTvChannelsByGenreUseCase: GetTvChannelsByGenreUseCase,
+    val getSavedTvChannelsUseCase: GetSavedTvChannelsUseCase,
     val saveTvChannelUseCase: SaveTvChannelUseCase)

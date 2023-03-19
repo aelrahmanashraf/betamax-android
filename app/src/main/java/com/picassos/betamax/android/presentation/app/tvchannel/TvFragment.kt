@@ -60,7 +60,7 @@ class TvFragment : Fragment() {
             }
         }
 
-        val tvAdapter = TvChannelsAdapter(listener = object: OnTvChannelClickListener {
+        val tvAdapter = TvChannelsAdapter(onClickListener = object: OnTvChannelClickListener {
             override fun onItemClick(tvChannel: TvChannels.TvChannel) {
                 tvViewModel.requestCheckSubscription()
                 lifecycleScope.launch {

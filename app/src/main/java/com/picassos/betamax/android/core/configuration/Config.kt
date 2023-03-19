@@ -3,7 +3,6 @@ package com.picassos.betamax.android.core.configuration
 import com.picassos.betamax.android.BuildConfig
 
 object Config {
-
     // configuration
     const val LAUNCH_TIMEOUT = 1000L
     const val TV_LAUNCH_TIMEOUT = 3800L
