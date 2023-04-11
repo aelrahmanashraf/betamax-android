@@ -49,9 +49,6 @@
             android:name="com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity"
             android:exported="true" />
         <activity
-            android:name="com.picassos.betamax.android.presentation.television.tvchannel.tvchannel_player.TelevisionTvChannelPlayerActivity"
-            android:exported="true" />
-        <activity
             android:name="com.picassos.betamax.android.presentation.television.mylist.TelevisionMyListActivity"
             android:exported="true" />
         <activity

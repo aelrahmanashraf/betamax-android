@@ -6,17 +6,17 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="25dp"
-    android:padding="1.4dp"
     android:background="@drawable/item_television_movie_selectable"
     android:focusable="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="1.4dp">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/movie_thumbnail"
         android:layout_width="140dp"
         android:layout_height="200dp"
-        app:placeholderImageScaleType="centerCrop"
         app:overlayImage="@drawable/television_movie_overlay"
+        app:placeholderImageScaleType="centerCrop"
         app:roundedCornerRadius="10dp"
         fresco:actualImageScaleType="centerCrop"
         fresco:placeholderImage="?color_light_separate" />

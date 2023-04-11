@@ -10,14 +10,15 @@
     android:layout_marginBottom="20dp"
     android:background="@drawable/item_television_movie_selectable"
     android:focusable="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="1.4dp">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/movie_thumbnail"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        app:placeholderImageScaleType="centerCrop"
         app:overlayImage="@drawable/television_movie_overlay"
+        app:placeholderImageScaleType="centerCrop"
         app:roundedCornerRadius="10dp"
         fresco:actualImageScaleType="centerCrop"
         fresco:placeholderImage="?color_light_separate" />

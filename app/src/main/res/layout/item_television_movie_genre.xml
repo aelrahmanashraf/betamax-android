@@ -16,11 +16,12 @@
         android:id="@id/genre_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
         android:alpha=".8"
         android:fontFamily="@font/poppins_regular"
         android:text="Title"
         android:textColor="?color_dark"
-        android:textSize="15sp"
+        android:textSize="14sp"
         fresco:ignore="HardcodedText" />
 
 </LinearLayout>

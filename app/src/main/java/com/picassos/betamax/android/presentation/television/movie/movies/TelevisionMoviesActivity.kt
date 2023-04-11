@@ -81,7 +81,7 @@ class TelevisionMoviesActivity : AppCompatActivity() {
             adapter = genresAdapter
         }
 
-        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = false, onClickListener = object: OnMovieClickListener {
             override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@TelevisionMoviesActivity, TelevisionViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)

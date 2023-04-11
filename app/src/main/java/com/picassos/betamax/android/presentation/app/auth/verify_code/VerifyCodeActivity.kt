@@ -1,5 +1,6 @@
 package com.picassos.betamax.android.presentation.app.auth.verify_code
 
+import android.annotation.SuppressLint
 import com.picassos.betamax.android.core.view.Toasto.showToast
 import androidx.appcompat.app.AppCompatActivity
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
@@ -31,6 +32,7 @@ class VerifyCodeActivity : AppCompatActivity() {
     private lateinit var account: Account
     private var request = ""
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -91,7 +93,6 @@ class VerifyCodeActivity : AppCompatActivity() {
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -153,6 +154,7 @@ class VerifyCodeActivity : AppCompatActivity() {
     private fun startTimer() {
         layout.resendAgain.visibility = View.GONE
         object : CountDownTimer(60000, 1000) {
+            @SuppressLint("SetTextI18n")
             override fun onTick(millisUntilFinished: Long) {
                 layout.resendAgainTimer.text = getString(R.string.resend_code_in) + millisUntilFinished / 1000
             }

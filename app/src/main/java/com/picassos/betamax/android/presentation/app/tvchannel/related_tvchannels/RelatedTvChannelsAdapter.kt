@@ -30,7 +30,7 @@ class RelatedTvChannelsAdapter(private var selectedPosition: Int = RecyclerView.
 
         fun bind(item: TvChannels.TvChannel, onClickListener: OnTvChannelClickListener) {
             container.setBackgroundResource(
-                if (absoluteAdapterPosition == adapter.selectedPosition) R.drawable.item_television_background_selected
+                if (absoluteAdapterPosition == adapter.selectedPosition) R.drawable.item_tvchannel_background_selected
                 else R.drawable.item_television_background)
 
             itemView.setOnClickListener {

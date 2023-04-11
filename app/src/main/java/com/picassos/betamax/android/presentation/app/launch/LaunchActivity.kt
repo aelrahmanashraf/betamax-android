@@ -66,15 +66,10 @@ class LaunchActivity : AppCompatActivity() {
                                         startActivity(Intent(this@LaunchActivity, SigninActivity::class.java))
                                     }
                                     else -> {
-                                        when (Helper.isTelevision(this@LaunchActivity)) {
-                                            true -> {
-                                                if (Config.MOCK_TV) {
-                                                    startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
-                                                } else {
-                                                    startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
-                                                }
-                                            }
-                                            false -> startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
+                                        if (Config.MOCK_TV) {
+                                            startActivity(Intent(this@LaunchActivity, TelevisionMainActivity::class.java))
+                                        } else {
+                                            startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
                                         }
                                     }
                                 }
