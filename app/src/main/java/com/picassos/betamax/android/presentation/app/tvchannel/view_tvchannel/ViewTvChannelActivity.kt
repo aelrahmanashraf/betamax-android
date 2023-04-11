@@ -61,7 +61,6 @@ class ViewTvChannelActivity : AppCompatActivity() {
     private var exoPlayer: ExoPlayer? = null
 
     private lateinit var tvChannel: TvChannels.TvChannel
-    private var selectedGenre = 0
     private var selectedUrl = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,7 +85,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
         layout.goBack.setOnClickListener { finish() }
 
-        getSerializable(this@ViewTvChannelActivity, "tv_channel", TvChannels.TvChannel::class.java).also { tvChannel ->
+        getSerializable(this@ViewTvChannelActivity, "tvchannel", TvChannels.TvChannel::class.java).also { tvChannel ->
             viewTvChannelViewModel.apply {
                 this@ViewTvChannelActivity.tvChannel = tvChannel
                 requestTvChannel(tvChannel.tvChannelId)
@@ -121,9 +120,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
                         viewTvChannelViewModel.apply {
                             requestTvChannel(tvChannel.tvChannelId)
                             requestTvGenres()
-                            when (selectedGenre) {
+                            when (selectedGenre.value) {
                                 0 -> requestTvChannels()
-                                else -> requestTvChannelsByGenre(selectedGenre)
+                                else -> requestTvChannelsByGenre(selectedGenre.value)
                             }
                         }
                     }
@@ -137,8 +136,16 @@ class ViewTvChannelActivity : AppCompatActivity() {
         viewTvChannelViewModel.requestTvGenres()
         collectLatestOnLifecycleStarted(viewTvChannelViewModel.tvGenres) { state ->
             if (state.response != null) {
-                state.response.genres.forEach { genre ->
-                    layout.genresList.addView(createGenreChip(genre))
+                layout.genresList.apply {
+                    removeAllViews()
+                    addView(createGenreChip(Genres.Genre(
+                        id = 0,
+                        genreId = 0,
+                        title = getString(R.string.all),
+                        special = 0), isChecked = true))
+                    state.response.genres.forEach { genre ->
+                        addView(createGenreChip(genre))
+                    }
                 }
             }
         }
@@ -151,16 +158,12 @@ class ViewTvChannelActivity : AppCompatActivity() {
             if (state.response != null) {
                 layout.progressbar.visibility = View.GONE
 
-                val relatedTvChannelsAdapter = RelatedTvChannelsAdapter(tvChannel.tvChannelId, onClickListener = object: OnTvChannelClickListener {
+                val tvChannels = state.response.tvChannels
+                val relatedTvChannelsAdapter = RelatedTvChannelsAdapter(selectedPosition = tvChannels.indexOfId(tvChannel.tvChannelId), onClickListener = object: OnTvChannelClickListener {
                     override fun onItemClick(tvChannel: TvChannels.TvChannel) {
                         viewTvChannelViewModel.apply {
                             this@ViewTvChannelActivity.tvChannel = tvChannel
                             requestTvChannel(tvChannel.tvChannelId)
-
-                            when (selectedGenre) {
-                                0 -> requestTvChannels()
-                                else -> requestTvChannelsByGenre(selectedGenre)
-                            }
                         }
                     }
                 })
@@ -168,9 +171,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     layoutManager = LinearLayoutManager(this@ViewTvChannelActivity)
                     adapter = relatedTvChannelsAdapter
                 }
-                relatedTvChannelsAdapter.differ.submitList(state.response.tvChannels)
+                relatedTvChannelsAdapter.differ.submitList(tvChannels)
 
-                if (state.response.tvChannels.isEmpty()) {
+                if (tvChannels.isEmpty()) {
                     layout.noItems.visibility = View.VISIBLE
                 } else {
                     layout.noItems.visibility = View.GONE
@@ -341,17 +344,21 @@ class ViewTvChannelActivity : AppCompatActivity() {
     }
 
     @SuppressLint("InflateParams")
-    private fun createGenreChip(genre: Genres.Genre): Chip {
+    private fun createGenreChip(genre: Genres.Genre, isChecked: Boolean = false): Chip {
         val chip = this@ViewTvChannelActivity.layoutInflater.inflate(R.layout.item_genre_selectable, null, false) as Chip
         return chip.apply {
             id = ViewCompat.generateViewId()
             text = genre.title
             setOnCheckedChangeListener { _, _ ->
-                selectedGenre = genre.genreId
                 viewTvChannelViewModel.apply {
-                    requestTvChannelsByGenre(selectedGenre)
+                    setSelectedGenre(genre.genreId)
+                    when (genre.genreId) {
+                        0 -> requestTvChannels()
+                        else -> requestTvChannelsByGenre(selectedGenre.value)
+                    }
                 }
             }
+            this.isChecked = isChecked
         }
     }
 
@@ -376,6 +383,15 @@ class ViewTvChannelActivity : AppCompatActivity() {
                 Helper.hideSystemUI(window, root)
             }
         }
+    }
+
+    private fun List<TvChannels.TvChannel>.indexOfId(id: Int): Int {
+        for (i in indices) {
+            if (this[i].tvChannelId == id) {
+                return i
+            }
+        }
+        return -1
     }
 
     override fun onResume() {

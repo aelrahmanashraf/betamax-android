@@ -28,8 +28,8 @@
             <RelativeLayout
                 android:id="@id/controller_container"
                 android:layout_width="match_parent"
-                android:animateLayoutChanges="true"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -139,11 +139,20 @@
                     android:id="@id/genres_list"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingEnd="15dp"
                     android:theme="@style/Theme.MaterialComponents.NoActionBar"
                     app:selectionRequired="true"
                     app:singleSelection="true" />
 
             </HorizontalScrollView>
+
+            <ProgressBar
+                android:id="@id/progressbar"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="15dp"
+                android:indeterminateTint="?color_dark" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@id/recycler_related_tv"
@@ -179,14 +188,6 @@
                         android:textColor="?color_dark" />
 
                 </androidx.cardview.widget.CardView>
-
-                <ProgressBar
-                    android:id="@id/progressbar"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_centerHorizontal="true"
-                    android:indeterminateTint="?color_dark"
-                    android:visibility="gone" />
 
             </RelativeLayout>
 

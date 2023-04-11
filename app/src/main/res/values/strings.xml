@@ -90,6 +90,7 @@
     <string name="sd">SD</string>
     <string name="hd">HD</string>
     <string name="fhd">FHD</string>
+    <string name="live_tv">Live Tv</string>
     <string name="video_preferences">Video Preferences</string>
     <string name="manage_video_quality">Manage Video Quality</string>
     <string name="go_premium">Go Premium</string>
@@ -160,4 +161,5 @@
     <string name="quality">Quality</string>
     <string name="tvchannel_add_to_favorites">Tv channel added to favorites.</string>
     <string name="tvchannel_removed_from_favorites">Tv channel removed from favorites</string>
+    <string name="all">All</string>
 </resources>

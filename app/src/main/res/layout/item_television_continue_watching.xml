@@ -3,10 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="200dp"
-    android:layout_height="110dp"
-    android:layout_marginEnd="20dp"
-    android:layout_marginBottom="5dp"
+    android:layout_width="220dp"
+    android:layout_height="120dp"
+    android:layout_marginEnd="25dp"
+    android:padding="1.4dp"
+    android:background="@drawable/item_television_movie_selectable"
+    android:focusable="true"
     android:gravity="center_horizontal">
 
     <com.facebook.drawee.view.SimpleDraweeView
@@ -36,19 +38,5 @@
             tools:ignore="ContentDescription" />
 
     </androidx.cardview.widget.CardView>
-
-    <ImageView
-        android:id="@id/continue_watching_more_options"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:paddingStart="12dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="0dp"
-        android:paddingBottom="12dp"
-        android:src="@drawable/icon_menu_vertical_filled"
-        app:tint="?color_dark"
-        tools:ignore="ContentDescription" />
 
 </RelativeLayout>

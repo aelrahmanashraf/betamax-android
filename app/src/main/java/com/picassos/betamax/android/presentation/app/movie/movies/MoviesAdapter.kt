@@ -14,7 +14,7 @@ import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 
-class MoviesAdapter(private val isHorizontal: Boolean = false, private val listener: OnMovieClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MoviesAdapter(private val isHorizontal: Boolean = false, private val onClickListener: OnMovieClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class MoviesHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.movie_title)
         val date: TextView = itemView.findViewById(R.id.movie_date)
@@ -29,8 +29,8 @@ class MoviesAdapter(private val isHorizontal: Boolean = false, private val liste
                 .build()
         }
 
-        fun bind(item: Movies.Movie?, listener: OnMovieClickListener) {
-            itemView.setOnClickListener {  listener.onItemClick(item) }
+        fun bind(item: Movies.Movie, onClickListener: OnMovieClickListener) {
+            itemView.setOnClickListener {  onClickListener.onItemClick(item) }
         }
     }
 
@@ -58,9 +58,10 @@ class MoviesAdapter(private val isHorizontal: Boolean = false, private val liste
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val movies = differ.currentList[position]
-        val moviesHolder = holder as MoviesHolder
-        moviesHolder.setData(movies)
-        moviesHolder.bind(movies, listener)
+        (holder as MoviesHolder).apply {
+            setData(movies)
+            bind(movies, onClickListener)
+        }
     }
 
     override fun getItemCount(): Int {

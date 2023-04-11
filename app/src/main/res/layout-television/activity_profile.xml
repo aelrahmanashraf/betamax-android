@@ -4,9 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="com.picassos.betamax.android.core.utilities.Helper" />
+
         <import type="com.picassos.betamax.android.core.configuration.Config" />
+
         <import type="com.picassos.betamax.android.BuildConfig" />
+
         <variable
             name="viewModel"
             type="com.picassos.betamax.android.presentation.app.profile.ProfileViewModel" />
@@ -21,8 +25,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:gravity="center_horizontal"
+            android:orientation="vertical"
             android:padding="30dp">
 
             <RelativeLayout
@@ -68,10 +72,10 @@
             </RelativeLayout>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 app:cardBackgroundColor="?color_grey"
-                app:cardCornerRadius="60dp"
+                app:cardCornerRadius="50dp"
                 app:cardElevation="0dp">
 
                 <TextView
@@ -84,7 +88,7 @@
                     android:textAllCaps="true"
                     android:textColor="?color_dark"
                     android:textColorHint="?color_dark"
-                    android:textSize="35sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     tools:ignore="HardcodedText" />
 
@@ -106,7 +110,7 @@
                     android:textAlignment="center"
                     android:textColor="?color_dark"
                     android:textColorHint="?color_dark"
-                    android:textSize="26sp" />
+                    android:textSize="20sp" />
 
                 <TextView
                     android:id="@id/email"
@@ -119,7 +123,7 @@
                     android:textAlignment="center"
                     android:textColor="?color_dark"
                     android:textColorHint="?color_dark"
-                    android:textSize="17sp" />
+                    android:textSize="16sp" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@id/premium_badge"
@@ -141,8 +145,8 @@
                         tools:ignore="UseCompoundDrawables">
 
                         <ImageView
-                            android:layout_width="35dp"
-                            android:layout_height="35dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
                             android:padding="5dp"
                             android:src="@drawable/icon_diamond_outline"
                             app:tint="?color_light_separate"
@@ -156,7 +160,7 @@
                             android:fontFamily="@font/open_sans_italic"
                             android:text="@string/premium"
                             android:textColor="?color_light_separate"
-                            android:textSize="17sp" />
+                            android:textSize="15sp" />
 
                     </LinearLayout>
 
@@ -168,24 +172,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="35dp"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@id/manage_subscription"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:layout_weight=".33"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="45dp"
-                        android:layout_height="45dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
                         android:src="@drawable/icon_bag_filled"
                         app:tint="?color_dark"
@@ -197,8 +201,9 @@
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
                         android:text="@string/manage_subscription"
+                        android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
@@ -208,16 +213,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_weight=".33"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
                         android:src="@drawable/icon_eye_filled"
                         app:tint="?color_dark"
@@ -229,66 +234,28 @@
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
                         android:text="@string/manage_video_quality"
+                        android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:id="@id/account_settings"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight=".33"
-                    android:background="@drawable/item_television_background_selectable"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="30dp">
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:alpha=".8"
-                        android:src="@drawable/icon_account_filled"
-                        app:tint="?color_dark"
-                        tools:ignore="ContentDescription" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:alpha=".8"
-                        android:text="@string/account_settings"
-                        android:textColor="?color_dark"
-                        android:textSize="17sp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
 
                 <LinearLayout
                     android:id="@id/send_feedback"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_weight=".33"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
                         android:src="@drawable/icon_send_filled"
                         app:tint="?color_dark"
@@ -300,29 +267,29 @@
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
                         android:text="@string/send_feedback"
+                        android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@id/privacy_policy"
+                    android:id="@id/account_settings"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_weight=".33"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
-                        android:src="@drawable/icon_document_filled"
+                        android:src="@drawable/icon_profile_filled"
                         app:tint="?color_dark"
                         tools:ignore="ContentDescription" />
 
@@ -331,27 +298,37 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
-                        android:text="@string/privacy_policy"
+                        android:text="@string/account_settings"
+                        android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@id/help_centre"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight=".33"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
                         android:src="@drawable/icon_help_filled"
                         app:tint="?color_dark"
@@ -363,35 +340,61 @@
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
                         android:text="@string/help"
+                        android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
-            </LinearLayout>
+                <LinearLayout
+                    android:id="@id/privacy_policy"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight=".25"
+                    android:background="@drawable/item_television_background_selectable"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
+                    <ImageView
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:alpha=".8"
+                        android:src="@drawable/icon_document_filled"
+                        app:tint="?color_dark"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:alpha=".8"
+                        android:text="@string/privacy_policy"
+                        android:textAlignment="center"
+                        android:textColor="?color_dark"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@id/about"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:layout_weight=".33"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
                         android:src="@drawable/icon_info_filled"
                         app:tint="?color_dark"
@@ -403,8 +406,9 @@
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
                         android:text="@string/about"
+                        android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
@@ -413,17 +417,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_weight=".33"
+                    android:layout_weight=".25"
                     android:background="@drawable/item_television_background_selectable"
                     android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="30dp">
+                    android:padding="20dp">
 
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:alpha=".8"
                         android:src="@drawable/icon_signout_filled"
                         app:tint="@color/color_red"
@@ -435,18 +438,11 @@
                         android:layout_marginTop="15dp"
                         android:alpha=".8"
                         android:text="@string/signout"
+                        android:textAlignment="center"
                         android:textColor="@color/color_red"
-                        android:textSize="17sp" />
+                        android:textSize="16sp" />
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:visibility="invisible"
-                    android:layout_weight=".33"
-                    tools:ignore="UselessLeaf" />
 
             </LinearLayout>
 

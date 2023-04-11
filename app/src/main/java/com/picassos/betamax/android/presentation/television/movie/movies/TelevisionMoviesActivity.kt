@@ -21,6 +21,7 @@ import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.databinding.ActivityTelevisionMoviesBinding
 import com.picassos.betamax.android.domain.listener.OnGenreClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
+import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.model.Genres
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.presentation.television.genre.genres.TelevisionGenresAdapter
@@ -80,12 +81,16 @@ class TelevisionMoviesActivity : AppCompatActivity() {
             adapter = genresAdapter
         }
 
-        val moviesAdapter = TelevisionMoviesAdapter(this@TelevisionMoviesActivity, false, object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@TelevisionMoviesActivity, TelevisionViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivity(intent)
                 }
+            }
+        }, onFocusListener = object: OnMovieFocusListener {
+            override fun onItemFocus(movie: Movies.Movie) {
+
             }
         })
         layout.recyclerMovies.apply {

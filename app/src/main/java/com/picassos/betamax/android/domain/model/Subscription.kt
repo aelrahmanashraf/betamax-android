@@ -4,7 +4,6 @@ import java.io.Serializable
 
 data class Subscription(
     val subscriptionPackage: Int,
-    val subscriptionStart: String,
     val subscriptionEnd: String,
     val daysLeft: Int,
     val responseCode: Int): Serializable

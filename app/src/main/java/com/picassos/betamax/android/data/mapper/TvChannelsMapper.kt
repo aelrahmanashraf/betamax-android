@@ -15,7 +15,7 @@ fun TvChannelsDto.toTvChannels(): TvChannels {
                 userAgent = tvChannel.userAgent,
                 title = tvChannel.title,
                 banner = tvChannel.banner,
-                position = tvChannel.position)
+                order = tvChannel.position)
         }
     )
 }

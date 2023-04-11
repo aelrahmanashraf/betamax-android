@@ -156,22 +156,10 @@
                             android:textSize="28sp" />
 
                         <TextView
-                            android:id="@id/subscription_start"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/poppins_regular"
-                            android:layout_marginTop="10dp"
-                            android:text="@string/started_at"
-                            android:textAlignment="center"
-                            android:textColor="?color_dark"
-                            android:textSize="12sp" />
-
-                        <TextView
                             android:id="@id/subscription_end"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_regular"
-                            android:layout_marginTop="5dp"
                             android:text="@string/ends_at"
                             android:textAlignment="center"
                             android:textColor="?color_dark"

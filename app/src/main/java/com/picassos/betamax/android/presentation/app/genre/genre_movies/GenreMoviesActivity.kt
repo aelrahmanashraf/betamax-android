@@ -61,8 +61,8 @@ class GenreMoviesActivity : AppCompatActivity() {
             }
         }
 
-        val moviesAdapter = MoviesAdapter(listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val moviesAdapter = MoviesAdapter(onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@GenreMoviesActivity, ViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivity(intent)

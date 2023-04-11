@@ -30,6 +30,7 @@ import com.picassos.betamax.android.databinding.ActivityTelevisionViewMovieBindi
 import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
+import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.model.*
 import com.picassos.betamax.android.presentation.app.cast.CastAdapter
 import com.picassos.betamax.android.presentation.television.episode.episodes.TelevisionEpisodesAdapter
@@ -83,12 +84,16 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
             adapter = castAdapter
         }
 
-        val moviesAdapter = TelevisionMoviesAdapter(this@TelevisionViewMovieActivity, isHorizontal = true, listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@TelevisionViewMovieActivity, TelevisionViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivity(intent)
                 }
+            }
+        }, onFocusListener = object: OnMovieFocusListener {
+            override fun onItemFocus(movie: Movies.Movie) {
+
             }
         })
         layout.recyclerRelatedMovies.apply {

@@ -1,5 +1,6 @@
 package com.picassos.betamax.android.presentation.television.main
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -7,35 +8,48 @@ import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager.widget.ViewPager
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.facebook.drawee.backends.pipeline.Fresco
 import com.picassos.betamax.android.R
-import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
+import com.picassos.betamax.android.core.utilities.Helper
+import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionMainBinding
+import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
+import com.picassos.betamax.android.domain.listener.OnContinueWatchingFocusListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
+import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
+import com.picassos.betamax.android.domain.model.ContinueWatching
 import com.picassos.betamax.android.domain.model.Movies
+import com.picassos.betamax.android.domain.model.PlayerContent
+import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
+import com.picassos.betamax.android.presentation.television.continue_watching.TelevisionContinueWatchingAdapter
+import com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity
 import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesActivity
-import com.picassos.betamax.android.presentation.television.movie.movies_slider.TelevisionMoviesSliderAdapter
+import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesAdapter
 import com.picassos.betamax.android.presentation.television.movie.view_movie.TelevisionViewMovieActivity
 import com.picassos.betamax.android.presentation.television.mylist.TelevisionMyListActivity
 import com.picassos.betamax.android.presentation.television.tvchannel.tvchannels.TelevisionTvChannelsActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class TelevisionMainActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionMainBinding
     private val televisionMainViewModel: TelevisionMainViewModel by viewModels()
+    private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,50 +57,199 @@ class TelevisionMainActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_television_main)
 
-        layout.apply {
-            movies.setOnClickListener {
-                Intent(this@TelevisionMainActivity, TelevisionMoviesActivity::class.java).also { intent ->
-                    intent.putExtra("request", "movies")
-                    startActivity(intent)
+        val requestDialog = RequestDialog(this)
+
+        televisionMainViewModel.apply {
+            layout.navigationMovies.apply {
+                setOnFocusChangeListener { _, isFocused ->
+                    setNavigationMoviesFocusState(focused = isFocused)
+                }
+                setOnClickListener {
+                    Intent(this@TelevisionMainActivity, TelevisionMoviesActivity::class.java).also { intent ->
+                        intent.putExtra("request", "movies")
+                        startActivity(intent)
+                    }
                 }
             }
-            series.setOnClickListener {
-                Intent(this@TelevisionMainActivity, TelevisionMoviesActivity::class.java).also { intent ->
-                    intent.putExtra("request", "series")
-                    startActivity(intent)
+            layout.navigationSeries.apply {
+                setOnFocusChangeListener { _, isFocused ->
+                    setNavigationSeriesFocusState(focused = isFocused)
+                }
+                setOnClickListener {
+                    Intent(this@TelevisionMainActivity, TelevisionMoviesActivity::class.java).also { intent ->
+                        intent.putExtra("request", "series")
+                        startActivity(intent)
+                    }
                 }
             }
-            tv.setOnClickListener {
-                startActivity(Intent(this@TelevisionMainActivity, TelevisionTvChannelsActivity::class.java))
+            layout.navigationLiveTv.apply {
+                setOnFocusChangeListener { _, isFocused ->
+                    setNavigationLiveTvFocusState(focused = isFocused)
+                }
+                setOnClickListener {
+                    startActivity(Intent(this@TelevisionMainActivity, TelevisionTvChannelsActivity::class.java))
+                }
             }
-            mylist.setOnClickListener {
-                startActivity(Intent(this@TelevisionMainActivity, TelevisionMyListActivity::class.java))
+            layout.navigationMylist.apply {
+                setOnFocusChangeListener { _, isFocused ->
+                    setNavigationMyListFocusState(focused = isFocused)
+                }
+                setOnClickListener {
+                    startActivity(Intent(this@TelevisionMainActivity, TelevisionMyListActivity::class.java))
+                }
             }
-            configuration.setOnClickListener {
-                startActivity(Intent(this@TelevisionMainActivity, ProfileActivity::class.java))
+            layout.navigationProfile.apply {
+                setOnFocusChangeListener { _, isFocused ->
+                    setNavigationProfileFocusState(focused = isFocused)
+                }
+                setOnClickListener {
+                    startActivity(Intent(this@TelevisionMainActivity, ProfileActivity::class.java))
+                }
             }
         }
 
-        televisionMainViewModel.requestFeaturedMovies()
-        collectLatestOnLifecycleStarted(televisionMainViewModel.moviesSlider) { state ->
-            if (state.response != null) {
-                val movies = state.response.movies
+        collectLatestOnLifecycleStarted(televisionMainViewModel.navigation) { state ->
+            if (state.isNavigationMoviesFocused || state.isNavigationSeriesFocused ||
+                state.isNavigationLiveTvFocused || state.isNavigationMyListFocused || state.isNavigationProfileFocused) {
+                toggleNavigationTitles(visibility = View.VISIBLE)
+            }
+            if (!state.isNavigationMoviesFocused && !state.isNavigationSeriesFocused &&
+                !state.isNavigationLiveTvFocused && !state.isNavigationMyListFocused && !state.isNavigationProfileFocused) {
+                toggleNavigationTitles(visibility = View.GONE)
+            }
+        }
 
-                val featuredMoviesSliderAdapter = TelevisionMoviesSliderAdapter(this@TelevisionMainActivity, movies, listener = object: OnMovieClickListener {
-                    override fun onItemClick(movie: Movies.Movie?) {
-                        Intent(this@TelevisionMainActivity, TelevisionViewMovieActivity::class.java).also { intent ->
-                            intent.putExtra("movie", movie)
-                            startActivity(intent)
-                        }
-                    }
-                })
-                layout.viewpagerFeatured.adapter = featuredMoviesSliderAdapter
-
-                if (movies.isNotEmpty()) {
-                    layout.viewpagerFeatured.autoScroll(
-                        lifecycleScope = lifecycleScope,
-                        interval = Config.TV_SLIDER_INTERVAL)
+        val continueWatchingAdapter = TelevisionContinueWatchingAdapter(onClickListener = object: OnContinueWatchingClickListener {
+            override fun onItemClick(continueWatching: ContinueWatching.ContinueWatching) {
+                Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                    intent.putExtra("playerContent", PlayerContent(
+                        id = continueWatching.contentId,
+                        url = continueWatching.url,
+                        thumbnail = continueWatching.thumbnail,
+                        currentPosition = continueWatching.currentPosition))
+                    startActivity(intent)
                 }
+            }
+        }, onFocusListener = object: OnContinueWatchingFocusListener {
+            override fun onItemFocus(continueWatching: ContinueWatching.ContinueWatching) {
+                layout.genreTitle.text = getString(R.string.continue_watching)
+            }
+        })
+        layout.recyclerContinueWatching.apply {
+            layoutManager = LinearLayoutManager(this@TelevisionMainActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = continueWatchingAdapter
+        }
+
+        val newlyReleaseAdapter = TelevisionMoviesAdapter(isPoster = true, isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
+                Intent(this@TelevisionMainActivity, TelevisionViewMovieActivity::class.java).also { intent ->
+                    intent.putExtra("movie", movie)
+                    startActivity(intent)
+                }
+            }
+        }, onFocusListener = object: OnMovieFocusListener {
+            override fun onItemFocus(movie: Movies.Movie) {
+                layout.genreTitle.text = getString(R.string.newly_release)
+                setPreviewMovie(movie = movie)
+            }
+        })
+        layout.recyclerNewlyRelease.apply {
+            layoutManager = LinearLayoutManager(this@TelevisionMainActivity, LinearLayoutManager.HORIZONTAL, false)
+            isNestedScrollingEnabled = false
+            adapter = newlyReleaseAdapter
+        }
+
+        val trendingAdapter = TelevisionMoviesAdapter(isPoster = true, isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
+                Intent(this@TelevisionMainActivity, TelevisionViewMovieActivity::class.java).also { intent ->
+                    intent.putExtra("movie", movie)
+                    startActivity(intent)
+                }
+            }
+        }, onFocusListener = object: OnMovieFocusListener {
+            override fun onItemFocus(movie: Movies.Movie) {
+                layout.genreTitle.text = getString(R.string.trending)
+                setPreviewMovie(movie = movie)
+            }
+        })
+        layout.recyclerTrending.apply {
+            layoutManager = LinearLayoutManager(this@TelevisionMainActivity, LinearLayoutManager.HORIZONTAL, false)
+            isNestedScrollingEnabled = false
+            adapter = trendingAdapter
+        }
+
+        televisionMainViewModel.requestHomeContent()
+        collectLatestOnLifecycleStarted(televisionMainViewModel.home) { state ->
+            if (state.isLoading) {
+                layout.apply {
+                    moviesProgressbar.visibility = View.VISIBLE
+                    homeContainer.visibility = View.GONE
+                    internetConnection.root.visibility = View.GONE
+                }
+            }
+            if (state.response != null) {
+                layout.apply {
+                    moviesProgressbar.visibility = View.GONE
+                    homeContainer.visibility = View.VISIBLE
+                }
+
+                val newlyRelease = state.response.newlyRelease.movies
+                newlyReleaseAdapter.differ.submitList(newlyRelease)
+                if (newlyRelease.isNotEmpty()) {
+                    setPreviewMovie(newlyRelease[0])
+                }
+                val trending = state.response.trendingMovies.movies
+                trendingAdapter.differ.submitList(trending)
+            }
+            if (state.error != null) {
+                layout.apply {
+                    moviesProgressbar.visibility = View.GONE
+                    homeContainer.visibility = View.GONE
+                    internetConnection.root.visibility = View.VISIBLE
+                    internetConnection.tryAgain.setOnClickListener {
+                        televisionMainViewModel.requestHomeContent()
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                continueWatchingViewModel.requestContinueWatching()
+            }
+        }
+
+        collectLatestOnLifecycleStarted(continueWatchingViewModel.continueWatching) { state ->
+            if (state.response != null) {
+                val continueWatching = state.response.continueWatching
+
+                continueWatchingAdapter.differ.submitList(continueWatching)
+                if (continueWatching.isEmpty()) {
+                    layout.apply {
+                        genreTitle.text = getString(R.string.newly_release)
+                        recyclerContinueWatching.visibility = View.GONE
+                    }
+                } else {
+                    layout.apply {
+                        genreTitle.text = getString(R.string.continue_watching)
+                        recyclerContinueWatching.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+
+        collectLatestOnLifecycleStarted(continueWatchingViewModel.deleteContinueWatching) { state ->
+            if (state.isLoading) {
+                requestDialog.show()
+            }
+            if (state.responseCode != null) {
+                requestDialog.dismiss()
+                when (state.responseCode) {
+                    200 -> continueWatchingViewModel.requestContinueWatching()
+                }
+            }
+            if (state.error != null) {
+                requestDialog.dismiss()
             }
         }
 
@@ -128,19 +291,28 @@ class TelevisionMainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun ViewPager.autoScroll(lifecycleScope: LifecycleCoroutineScope, interval: Long) {
-        lifecycleScope.launchWhenResumed {
-            scrollIndefinitely(interval)
+    @SuppressLint("SetTextI18n")
+    private fun setPreviewMovie(movie: Movies.Movie) {
+        layout.apply {
+            movieTitle.text = movie.title
+            movieDescription.text = movie.description
+            movieDate.text = Helper.getFormattedDateString(movie.date, "yyyy")
+            movieDuration.text = Helper.convertMinutesToHoursAndMinutes(movie.duration)
+            movieRating.text = "${getString(R.string.rating)}: ${movie.rating} / 10"
+            movieBanner.controller = Fresco.newDraweeControllerBuilder()
+                .setTapToRetryEnabled(true)
+                .setUri(movie.banner)
+                .build()
         }
     }
 
-    private suspend fun ViewPager.scrollIndefinitely(interval: Long) {
-        delay(interval)
-        val numberOfItems = adapter?.count ?: 0
-        val lastIndex = if (numberOfItems > 0) numberOfItems - 1 else 0
-        val nextItem = if (currentItem == lastIndex) 0 else currentItem + 1
-        setCurrentItem(nextItem, true)
-
-        scrollIndefinitely(interval)
+    private fun toggleNavigationTitles(visibility: Int) {
+        layout.apply {
+            navigationMoviesTitle.visibility = visibility
+            navigationSeriesTitle.visibility = visibility
+            navigationLiveTvTitle.visibility = visibility
+            navigationMylistTitle.visibility = visibility
+            navigationProfileTitle.visibility = visibility
+        }
     }
 }

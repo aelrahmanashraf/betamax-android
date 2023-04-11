@@ -29,7 +29,6 @@ class TelevisionMoviesSliderAdapter(private val context: Context, private val mo
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val view: View =  (context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.item_television_movie_slider, null)
         val thumbnailContainer: SimpleDraweeView = view.findViewById(R.id.movie_thumbnail_container)
-        val thumbnail: SimpleDraweeView = view.findViewById(R.id.movie_thumbnail)
         val title: TextView = view.findViewById(R.id.movie_title)
         val date: TextView = view.findViewById(R.id.movie_date)
         val duration: TextView = view.findViewById(R.id.movie_duration)
@@ -46,10 +45,6 @@ class TelevisionMoviesSliderAdapter(private val context: Context, private val mo
             thumbnailContainer.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)
                 .setUri(movie.banner)
-                .build()
-            thumbnail.controller = Fresco.newDraweeControllerBuilder()
-                .setTapToRetryEnabled(true)
-                .setUri(movie.thumbnail)
                 .build()
         }
         play.setOnClickListener {

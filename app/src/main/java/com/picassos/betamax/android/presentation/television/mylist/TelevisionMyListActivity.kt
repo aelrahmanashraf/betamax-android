@@ -16,6 +16,7 @@ import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLif
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.databinding.ActivityTelevisionMylistBinding
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
+import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.domain.model.TvChannels
@@ -57,12 +58,16 @@ class TelevisionMyListActivity : AppCompatActivity() {
             }
         }
 
-        val moviesAdapter = TelevisionMoviesAdapter(this@TelevisionMyListActivity, false, object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@TelevisionMyListActivity, TelevisionViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivity(intent)
                 }
+            }
+        }, onFocusListener = object: OnMovieFocusListener {
+            override fun onItemFocus(movie: Movies.Movie) {
+
             }
         })
         layout.recyclerMovies.apply {

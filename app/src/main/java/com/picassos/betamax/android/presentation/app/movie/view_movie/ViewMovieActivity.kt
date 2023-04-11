@@ -112,8 +112,8 @@ class ViewMovieActivity : AppCompatActivity() {
             adapter = castAdapter
         }
 
-        val moviesAdapter = MoviesAdapter(isHorizontal = true, listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val moviesAdapter = MoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@ViewMovieActivity, ViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivity(intent)

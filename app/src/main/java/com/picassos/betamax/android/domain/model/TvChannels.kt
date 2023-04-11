@@ -7,6 +7,7 @@ data class TvChannels(
 
     data class TvChannel(
         val id: Int,
+        val order: Int = 0,
         val tvChannelId: Int,
         val sdUrl: String = "",
         val hdUrl: String = "",
@@ -14,5 +15,11 @@ data class TvChannels(
         val userAgent: String = "",
         val title: String,
         val banner: String,
-        val position: Int = 0): Serializable
+        var position: Int = 0): Serializable
+
+    init {
+        tvChannels.forEachIndexed { index, tvChannels ->
+            tvChannels.position = index
+        }
+    }
 }

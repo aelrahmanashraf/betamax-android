@@ -210,7 +210,7 @@
                         android:paddingEnd="35dp"
                         android:text="@string/newly_release"
                         android:textColor="?color_dark"
-                        android:textSize="26sp" />
+                        android:textSize="22sp" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"

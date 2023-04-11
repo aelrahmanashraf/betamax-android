@@ -3,17 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="180dp"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginEnd="25dp"
-    android:background="@drawable/item_television_related_movie_selectable"
+    android:padding="1.4dp"
+    android:background="@drawable/item_television_movie_selectable"
     android:focusable="true"
     android:orientation="vertical">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/movie_thumbnail"
-        android:layout_width="180dp"
-        android:layout_height="245dp"
+        android:layout_width="140dp"
+        android:layout_height="200dp"
         app:placeholderImageScaleType="centerCrop"
         app:overlayImage="@drawable/television_movie_overlay"
         app:roundedCornerRadius="10dp"
@@ -21,6 +22,7 @@
         fresco:placeholderImage="?color_light_separate" />
 
     <LinearLayout
+        android:id="@id/movie_meta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"

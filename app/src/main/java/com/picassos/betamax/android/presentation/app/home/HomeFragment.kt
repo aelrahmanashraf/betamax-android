@@ -106,7 +106,7 @@ class HomeFragment : Fragment() {
             adapter = genresAdapter
         }
 
-        val continueWatchingAdapter = ContinueWatchingAdapter(listener = object: OnContinueWatchingClickListener {
+        val continueWatchingAdapter = ContinueWatchingAdapter(onClickListener = object: OnContinueWatchingClickListener {
             override fun onItemClick(continueWatching: ContinueWatching.ContinueWatching) {
                 Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
                     intent.putExtra("playerContent", PlayerContent(
@@ -132,8 +132,8 @@ class HomeFragment : Fragment() {
             adapter = continueWatchingAdapter
         }
 
-        val myListAdapter = MoviesAdapter(isHorizontal = true, listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val myListAdapter = MoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(requireContext(), ViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivityForResult.launch(intent)
@@ -145,8 +145,8 @@ class HomeFragment : Fragment() {
             adapter = myListAdapter
         }
 
-        val trendingAdapter = MoviesAdapter(isHorizontal = true, listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val trendingAdapter = MoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(requireContext(), ViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivityForResult.launch(intent)
@@ -158,8 +158,8 @@ class HomeFragment : Fragment() {
             adapter = trendingAdapter
         }
 
-        val newlyReleaseAdapter = MoviesAdapter(isHorizontal = true, listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val newlyReleaseAdapter = MoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(requireContext(), ViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivityForResult.launch(intent)
@@ -192,7 +192,7 @@ class HomeFragment : Fragment() {
 
                 state.response.featuredMovies.movies.let { movies ->
                     val featuredMoviesSliderAdapter = MoviesSliderAdapter(requireContext(), movies, listener = object: OnMovieClickListener {
-                        override fun onItemClick(movie: Movies.Movie?) {
+                        override fun onItemClick(movie: Movies.Movie) {
                             Intent(requireContext(), ViewMovieActivity::class.java).also { intent ->
                                 intent.putExtra("movie", movie)
                                 startActivityForResult.launch(intent)
@@ -293,7 +293,6 @@ class HomeFragment : Fragment() {
                 requestDialog.dismiss()
             }
         }
-
 
         layout.refreshLayout.apply {
             elevation = 0f

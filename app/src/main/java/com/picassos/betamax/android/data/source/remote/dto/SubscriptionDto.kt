@@ -16,8 +16,6 @@ data class SubscriptionDto(
         data class Details(
             @SerializedName("subscription_package")
             val subscriptionPackage: Int,
-            @SerializedName("subscription_start")
-            val subscriptionStart: String,
             @SerializedName("subscription_end")
             val subscriptionEnd: String,
             @SerializedName("days_left")

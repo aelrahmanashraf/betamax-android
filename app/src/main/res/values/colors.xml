@@ -20,8 +20,10 @@
     <color name="color_white_alpha40">#66FFFFFF</color>
     <color name="color_white_alpha70">#B3FFFFFF</color>
     <color name="color_white_alpha90">#E6FFFFFF</color>
+    <color name="color_dark_alpha30">#4D141723</color>
     <color name="color_dark_alpha40">#66141723</color>
     <color name="color_dark_alpha50">#80141723</color>
+    <color name="color_dark_alpha60">#99141723</color>
     <color name="color_dark_alpha70">#B3141723</color>
     <color name="color_dark_alpha80">#CC141723</color>
     <color name="color_dark_alpha90">#E6141723</color>

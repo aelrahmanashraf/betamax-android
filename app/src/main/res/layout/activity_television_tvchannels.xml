@@ -28,11 +28,11 @@
                 android:id="@id/player_progressbar"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
-                android:visibility="gone"
+                android:layout_alignParentBottom="true"
                 android:layout_margin="25dp"
-                android:indeterminateTint="?color_dark" />
+                android:indeterminateTint="?color_dark"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@id/tvchannels_nav_container"
@@ -49,10 +49,10 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="@color/color_dark_alpha50"
                         android:orientation="vertical"
-                        android:background="@color/color_dark_alpha80"
-                        android:paddingTop="20dp"
                         android:paddingStart="10dp"
+                        android:paddingTop="20dp"
                         android:paddingEnd="10dp"
                         android:paddingBottom="20dp">
 
@@ -65,26 +65,26 @@
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
                             android:paddingStart="15dp"
-                            android:paddingEnd="15dp"
                             android:paddingTop="5dp"
+                            android:paddingEnd="15dp"
                             android:paddingBottom="5dp">
 
                             <ImageView
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
-                                android:src="@drawable/icon_star_outline"
-                                android:padding="5dp"
-                                android:alpha=".8"
                                 android:layout_marginEnd="7dp"
+                                android:alpha=".8"
+                                android:padding="5dp"
+                                android:src="@drawable/icon_star_outline"
                                 app:tint="?color_dark"
                                 tools:ignore="ContentDescription" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
                                 android:alpha=".8"
                                 android:fontFamily="@font/poppins_regular"
-                                android:layout_marginTop="1dp"
                                 android:text="@string/favorites"
                                 android:textColor="?color_dark"
                                 android:textSize="15sp" />
@@ -97,26 +97,26 @@
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
                             android:paddingStart="15dp"
-                            android:paddingEnd="15dp"
                             android:paddingTop="5dp"
+                            android:paddingEnd="15dp"
                             android:paddingBottom="5dp">
 
                             <ImageView
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
-                                android:src="@drawable/icon_menu"
-                                android:padding="5dp"
-                                android:alpha=".8"
                                 android:layout_marginEnd="7dp"
+                                android:alpha=".8"
+                                android:padding="5dp"
+                                android:src="@drawable/icon_menu"
                                 app:tint="?color_dark"
                                 tools:ignore="ContentDescription" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
                                 android:alpha=".8"
                                 android:fontFamily="@font/poppins_regular"
-                                android:layout_marginTop="1dp"
                                 android:text="@string/genres"
                                 android:textColor="?color_dark"
                                 android:textSize="15sp" />
@@ -133,16 +133,16 @@
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
                             android:paddingStart="52dp"
-                            android:paddingEnd="15dp"
                             android:paddingTop="5dp"
+                            android:paddingEnd="15dp"
                             android:paddingBottom="5dp">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
                                 android:alpha=".8"
                                 android:fontFamily="@font/poppins_regular"
-                                android:layout_marginTop="1dp"
                                 android:text="@string/all_tv_channels"
                                 android:textColor="?color_dark"
                                 android:textSize="14sp" />
@@ -166,7 +166,6 @@
 
                 </androidx.core.widget.NestedScrollView>
 
-
                 <androidx.core.widget.NestedScrollView
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -176,8 +175,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="@color/color_dark_alpha40"
                         android:orientation="vertical"
-                        android:background="@color/color_dark_alpha70"
                         android:paddingTop="20dp"
                         android:paddingBottom="20dp">
 

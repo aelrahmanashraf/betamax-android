@@ -55,8 +55,8 @@ class SeriesFragment : Fragment() {
             }
         }
 
-        val seriesAdapter = MoviesAdapter(listener = object: OnMovieClickListener {
-            override fun onItemClick(movie: Movies.Movie?) {
+        val seriesAdapter = MoviesAdapter(onClickListener = object: OnMovieClickListener {
+            override fun onItemClick(movie: Movies.Movie) {
                 Intent(requireContext(), ViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
                     startActivity(intent)

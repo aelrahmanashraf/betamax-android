@@ -30,7 +30,7 @@
                 <com.facebook.drawee.view.SimpleDraweeView
                     android:id="@id/movie_thumbnail_container"
                     android:layout_width="match_parent"
-                    android:layout_height="370dp"
+                    android:layout_height="300dp"
                     app:overlayImage="@drawable/television_movie_cover_overlay"
                     app:placeholderImageScaleType="centerCrop"
                     app:roundedCornerRadius="10dp"
@@ -47,8 +47,8 @@
 
                     <com.facebook.drawee.view.SimpleDraweeView
                         android:id="@id/movie_thumbnail"
-                        android:layout_width="190dp"
-                        android:layout_height="270dp"
+                        android:layout_width="170dp"
+                        android:layout_height="230dp"
                         app:placeholderImageScaleType="centerCrop"
                         app:roundedCornerRadius="10dp"
                         fresco:actualImageScaleType="centerCrop"
@@ -70,7 +70,7 @@
                             android:maxLines="1"
                             android:textColor="?color_dark"
                             android:textColorHint="?color_dark"
-                            android:textSize="32sp"
+                            android:textSize="28sp"
                             tools:ignore="HardcodedText" />
 
                         <LinearLayout
@@ -92,7 +92,7 @@
                                     android:hint="0000"
                                     android:textColor="?color_dark"
                                     android:textColorHint="?color_dark"
-                                    android:textSize="16sp"
+                                    android:textSize="15sp"
                                     tools:ignore="HardcodedText,TooDeepLayout" />
 
                                 <LinearLayout
@@ -108,9 +108,9 @@
                                         android:layout_marginStart="5dp"
                                         android:layout_marginEnd="5dp"
                                         android:fontFamily="@font/poppins_medium"
-                                        android:text="•"
+                                        android:text="|"
                                         android:textColor="?color_dark"
-                                        android:textSize="16sp"
+                                        android:textSize="15sp"
                                         tools:ignore="HardcodedText,TooDeepLayout" />
 
                                     <TextView
@@ -121,7 +121,7 @@
                                         android:hint="00h 00m"
                                         android:textColor="?color_dark"
                                         android:textColorHint="?color_dark"
-                                        android:textSize="16sp"
+                                        android:textSize="15sp"
                                         tools:ignore="HardcodedText" />
 
                                 </LinearLayout>
@@ -142,7 +142,7 @@
                                     android:hint="Genre"
                                     android:textColor="?color_dark"
                                     android:textColorHint="?color_dark"
-                                    android:textSize="16sp"
+                                    android:textSize="15sp"
                                     tools:ignore="HardcodedText" />
 
                                 <TextView
@@ -151,15 +151,15 @@
                                     android:layout_marginStart="5dp"
                                     android:layout_marginEnd="5dp"
                                     android:fontFamily="@font/poppins_medium"
-                                    android:text="•"
+                                    android:text="|"
                                     android:textColor="?color_dark"
-                                    android:textSize="16sp"
+                                    android:textSize="15sp"
                                     tools:ignore="HardcodedText" />
 
                                 <ImageView
                                     android:layout_width="19dp"
                                     android:layout_height="19dp"
-                                    android:layout_marginBottom="1dp"
+                                    android:layout_marginBottom="2dp"
                                     android:src="@drawable/icon_star_color"
                                     tools:ignore="ContentDescription,TooDeepLayout" />
 
@@ -171,7 +171,7 @@
                                     android:fontFamily="@font/poppins_medium"
                                     android:text="Rating: 0.0/10"
                                     android:textColor="?color_dark"
-                                    android:textSize="16sp"
+                                    android:textSize="15sp"
                                     tools:ignore="HardcodedText" />
 
                             </LinearLayout>
@@ -193,10 +193,10 @@
                                 android:focusable="true"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingStart="20dp"
-                                android:paddingTop="3dp"
-                                android:paddingEnd="20dp"
-                                android:paddingBottom="3dp"
+                                android:paddingStart="15dp"
+                                android:paddingTop="2dp"
+                                android:paddingEnd="15dp"
+                                android:paddingBottom="2dp"
                                 android:visibility="gone"
                                 tools:ignore="UseCompoundDrawables">
 
@@ -227,10 +227,10 @@
                                 android:focusable="true"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingStart="20dp"
-                                android:paddingTop="3dp"
-                                android:paddingEnd="20dp"
-                                android:paddingBottom="3dp"
+                                android:paddingStart="15dp"
+                                android:paddingTop="2dp"
+                                android:paddingEnd="15dp"
+                                android:paddingBottom="2dp"
                                 tools:ignore="UseCompoundDrawables">
 
                                 <ImageView
@@ -275,7 +275,7 @@
                     android:fontFamily="@font/poppins_bold"
                     android:text="@string/story"
                     android:textColor="?color_dark"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@id/movie_description"
@@ -288,7 +288,7 @@
                     android:hint="Movie Description"
                     android:textColor="?color_dark"
                     android:textColorHint="?color_dark"
-                    android:textSize="16sp"
+                    android:textSize="15sp"
                     tools:ignore="HardcodedText" />
 
                 <LinearLayout
@@ -379,7 +379,7 @@
                         android:fontFamily="@font/poppins_bold"
                         android:text="@string/related_movies"
                         android:textColor="?color_dark"
-                        android:textSize="18sp" />
+                        android:textSize="16sp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@id/recycler_related_movies"

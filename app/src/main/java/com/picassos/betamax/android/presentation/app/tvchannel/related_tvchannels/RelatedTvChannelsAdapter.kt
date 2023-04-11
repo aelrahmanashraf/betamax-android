@@ -14,16 +14,13 @@ import com.facebook.drawee.view.SimpleDraweeView
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.model.TvChannels
 
-class RelatedTvChannelsAdapter(private val selectedChannel: Int, private val onClickListener: OnTvChannelClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    internal class TvChannelsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class RelatedTvChannelsAdapter(private var selectedPosition: Int = RecyclerView.NO_POSITION, private val onClickListener: OnTvChannelClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    internal class TvChannelsHolder(itemView: View, private val adapter: RelatedTvChannelsAdapter) : RecyclerView.ViewHolder(itemView) {
         val container: LinearLayout = itemView.findViewById(R.id.tvchannel_container)
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.tvchannel_thumbnail)
         val title: TextView = itemView.findViewById(R.id.tvchannel_title)
 
-        fun setData(activeChannel: Int, data: TvChannels.TvChannel) {
-            if (activeChannel == data.tvChannelId) container.setBackgroundResource(R.drawable.item_tvchannel_backround_selected)
-            else container.setBackgroundResource(R.drawable.item_tvchannel_background)
-
+        fun setData(data: TvChannels.TvChannel) {
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)
                 .setUri(data.banner)
@@ -32,7 +29,17 @@ class RelatedTvChannelsAdapter(private val selectedChannel: Int, private val onC
         }
 
         fun bind(item: TvChannels.TvChannel, onClickListener: OnTvChannelClickListener) {
+            container.setBackgroundResource(
+                if (absoluteAdapterPosition == adapter.selectedPosition) R.drawable.item_television_background_selected
+                else R.drawable.item_television_background)
+
             itemView.setOnClickListener {
+                val oldPosition = adapter.selectedPosition
+                adapter.apply {
+                    selectedPosition = absoluteAdapterPosition
+                    notifyItemChanged(oldPosition)
+                    notifyItemChanged(selectedPosition)
+                }
                 onClickListener.onItemClick(item)
             }
         }
@@ -40,7 +47,7 @@ class RelatedTvChannelsAdapter(private val selectedChannel: Int, private val onC
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_related_tvchannel, parent, false)
-        return TvChannelsHolder(view)
+        return TvChannelsHolder(view, this)
     }
 
     val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<TvChannels.TvChannel>() {
@@ -60,7 +67,7 @@ class RelatedTvChannelsAdapter(private val selectedChannel: Int, private val onC
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tvChannels = differ.currentList[position]
         (holder as TvChannelsHolder).apply {
-            setData(selectedChannel, tvChannels)
+            setData(tvChannels)
             bind(tvChannels, onClickListener)
         }
     }

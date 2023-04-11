@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.cardview.widget.CardView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -15,11 +17,12 @@ import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.listener.OnTvChannelLongClickListener
 import com.picassos.betamax.android.domain.model.TvChannels
 
-class TelevisionTvChannelsAdapter(private val onClickListener: OnTvChannelClickListener, private val onLongClickListener: OnTvChannelLongClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    internal class TvChannelsHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class TelevisionTvChannelsAdapter(private var selectedPosition: Int = RecyclerView.NO_POSITION, private val onClickListener: OnTvChannelClickListener, private val onLongClickListener: OnTvChannelLongClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    internal class TvChannelsHolder(itemView: View, private val adapter: TelevisionTvChannelsAdapter) : RecyclerView.ViewHolder(itemView) {
         val container: LinearLayout = itemView.findViewById(R.id.tvchannel_container)
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.tvchannel_thumbnail)
         val title: TextView = itemView.findViewById(R.id.tvchannel_title)
+        private val playing: CardView = itemView.findViewById(R.id.tvchannel_playing)
 
         fun setData(data: TvChannels.TvChannel) {
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
@@ -30,8 +33,16 @@ class TelevisionTvChannelsAdapter(private val onClickListener: OnTvChannelClickL
         }
 
         fun bind(item: TvChannels.TvChannel, onClickListener: OnTvChannelClickListener, onLongClickListener: OnTvChannelLongClickListener) {
+            playing.isVisible = absoluteAdapterPosition == adapter.selectedPosition
+
             itemView.apply {
                 setOnClickListener {
+                    val oldPosition = adapter.selectedPosition
+                    adapter.apply {
+                        selectedPosition = absoluteAdapterPosition
+                        notifyItemChanged(oldPosition)
+                        notifyItemChanged(selectedPosition)
+                    }
                     onClickListener.onItemClick(item)
                 }
                 setOnLongClickListener {
@@ -44,7 +55,7 @@ class TelevisionTvChannelsAdapter(private val onClickListener: OnTvChannelClickL
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_television_tvchannel, parent, false)
-        return TvChannelsHolder(view)
+        return TvChannelsHolder(view, this)
     }
 
     val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<TvChannels.TvChannel>() {

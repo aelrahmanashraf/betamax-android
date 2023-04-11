@@ -19,157 +19,139 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="70dp"
-        android:layout_marginEnd="70dp"
-        android:layout_marginTop="60dp"
-        android:orientation="horizontal">
+        android:layout_alignParentTop="true"
+        android:padding="70dp"
+        android:orientation="vertical">
 
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@id/movie_thumbnail"
-            android:layout_width="200dp"
-            android:layout_height="280dp"
-            app:placeholderImageScaleType="centerCrop"
-            app:roundedCornerRadius="10dp"
-            fresco:actualImageScaleType="centerCrop"
-            fresco:placeholderImage="?color_light_separate" />
+        <TextView
+            android:id="@id/movie_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:hint="Movie Title"
+            android:textColor="@color/color_theme"
+            android:textColorHint="@color/color_theme"
+            android:textSize="26sp"
+            tools:ignore="HardcodedText" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@id/movie_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_medium"
+                android:hint="0000"
+                android:textColor="?color_dark"
+                android:textColorHint="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="•"
+                android:textColor="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@id/movie_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_medium"
+                android:hint="00h 00m"
+                android:textColor="?color_dark"
+                android:textColorHint="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="•"
+                android:textColor="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:layout_marginBottom="1dp"
+                android:src="@drawable/icon_star_color"
+                tools:ignore="ContentDescription,TooDeepLayout" />
+
+            <TextView
+                android:id="@id/movie_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Rating: 0.0/10"
+                android:textColor="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@id/movie_description"
+            android:layout_width="400dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:alpha=".8"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins_regular"
+            android:hint="Movie Description"
+            android:maxLines="2"
+            android:textColor="?color_dark"
+            android:textColorHint="?color_dark"
+            android:textSize="15sp"
+            tools:ignore="HardcodedText" />
+
+        <LinearLayout
+            android:id="@id/play_movie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/item_television_background_primary_rounded_selectable"
+            android:focusable="true"
             android:layout_marginTop="20dp"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="3dp"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="2dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_play_outline"
+                app:tint="?color_dark"
+                tools:ignore="ContentDescription,TooDeepLayout" />
 
             <TextView
-                android:id="@id/movie_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:hint="Movie Title"
+                android:layout_marginEnd="12dp"
+                android:text="@string/watch_now"
                 android:textColor="?color_dark"
-                android:textColorHint="?color_dark"
-                android:textSize="32sp"
-                tools:ignore="HardcodedText" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@id/movie_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
-                    android:hint="0000"
-                    android:textColor="?color_dark"
-                    android:textColorHint="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="•"
-                    android:textColor="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:id="@id/movie_duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
-                    android:hint="00h 00m"
-                    android:textColor="?color_dark"
-                    android:textColorHint="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="•"
-                    android:textColor="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-
-                <ImageView
-                    android:layout_width="19dp"
-                    android:layout_height="19dp"
-                    android:layout_marginBottom="1dp"
-                    android:src="@drawable/icon_star_color"
-                    tools:ignore="ContentDescription,TooDeepLayout" />
-
-                <TextView
-                    android:id="@id/movie_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="Rating: 0.0/10"
-                    android:textColor="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="HardcodedText" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@id/movie_description"
-                android:layout_width="400dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:alpha=".8"
-                android:ellipsize="end"
-                android:fontFamily="@font/poppins_regular"
-                android:hint="Movie Description"
-                android:maxLines="2"
-                android:textColor="?color_dark"
-                android:textColorHint="?color_dark"
-                android:textSize="15sp"
-                tools:ignore="HardcodedText" />
-
-            <LinearLayout
-                android:id="@id/play_movie"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/item_television_background_selectable"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="4dp"
-                tools:ignore="UseCompoundDrawables">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="2dp"
-                    android:padding="10dp"
-                    android:src="@drawable/icon_play_filled"
-                    app:tint="?color_dark"
-                    tools:ignore="ContentDescription,TooDeepLayout" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:text="@string/watch_now"
-                    android:textColor="?color_dark"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
+                android:textSize="15sp" />
 
         </LinearLayout>
 

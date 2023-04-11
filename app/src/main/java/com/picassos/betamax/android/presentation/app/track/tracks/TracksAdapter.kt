@@ -45,9 +45,10 @@ class TracksAdapter(private val listener: OnTrackClickListener) : RecyclerView.A
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val tracks = differ.currentList[position]
-        val tracksHolder = holder as TracksHolder
-        tracksHolder.setData(tracks)
-        tracksHolder.bind(tracks, listener)
+        (holder as TracksHolder).apply {
+            setData(tracks)
+            bind(tracks, listener)
+        }
     }
 
     override fun getItemCount(): Int {

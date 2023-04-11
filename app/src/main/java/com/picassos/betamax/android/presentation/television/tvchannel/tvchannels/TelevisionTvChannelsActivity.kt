@@ -16,13 +16,11 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
-import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Response
@@ -102,26 +100,6 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             }
         }
 
-        val tvChannelsAdapter = TelevisionTvChannelsAdapter(onClickListener = object: OnTvChannelClickListener {
-            override fun onItemClick(tvChannel: TvChannels.TvChannel) {
-                televisionTvChannelsViewModel.apply {
-                    this@TelevisionTvChannelsActivity.tvChannel = tvChannel
-                    requestTvChannel(tvChannel.tvChannelId)
-                }
-                layout.tvchannelsNavContainer.visibility = View.GONE
-            }
-        }, onLongClickListener = object: OnTvChannelLongClickListener {
-            override fun onItemLongClick(tvChannel: TvChannels.TvChannel) {
-                televisionTvChannelsViewModel.apply {
-                    requestSaveTvChannel(tvChannelId = tvChannel.tvChannelId)
-                }
-            }
-        })
-        layout.recyclerTv.apply {
-            layoutManager = LinearLayoutManager(this@TelevisionTvChannelsActivity)
-            adapter = tvChannelsAdapter
-        }
-
         televisionTvChannelsViewModel.apply {
             setSelectedNavigation(navigation = Navigations.HomeNavigation)
             requestTvChannels()
@@ -133,7 +111,29 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             if (state.response != null) {
                 layout.tvchannelsProgressbar.visibility = View.GONE
 
-                tvChannelsAdapter.differ.submitList(state.response.tvChannels)
+                val tvChannels = state.response.tvChannels
+                val selectedPosition = tvChannel?.let { tvChannels.indexOfId(it.tvChannelId) } ?: run { 0 }
+
+                val tvChannelsAdapter = TelevisionTvChannelsAdapter(selectedPosition = selectedPosition, onClickListener = object: OnTvChannelClickListener {
+                    override fun onItemClick(tvChannel: TvChannels.TvChannel) {
+                        televisionTvChannelsViewModel.apply {
+                            this@TelevisionTvChannelsActivity.tvChannel = tvChannel
+                            requestTvChannel(tvChannel.tvChannelId)
+                        }
+                        layout.tvchannelsNavContainer.visibility = View.GONE
+                    }
+                }, onLongClickListener = object: OnTvChannelLongClickListener {
+                    override fun onItemLongClick(tvChannel: TvChannels.TvChannel) {
+                        televisionTvChannelsViewModel.apply {
+                            requestSaveTvChannel(tvChannelId = tvChannel.tvChannelId)
+                        }
+                    }
+                })
+                layout.recyclerTv.apply {
+                    layoutManager = LinearLayoutManager(this@TelevisionTvChannelsActivity)
+                    adapter = tvChannelsAdapter
+                }
+                tvChannelsAdapter.differ.submitList(tvChannels)
             }
         }
 
@@ -195,12 +195,6 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     }
 
     private fun initializePlayer(url: String, userAgent: String) {
-        val loadControl: LoadControl = DefaultLoadControl.Builder()
-            .setAllocator(DefaultAllocator(true, 16))
-            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
-            .setTargetBufferBytes(-1)
-            .setPrioritizeTimeOverSizeThresholds(true)
-            .build()
         val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -210,7 +204,6 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
 
         exoPlayer = ExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
             .setTrackSelector(trackSelector)
-            .setLoadControl(loadControl)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource)
@@ -328,10 +321,21 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             }
             KeyEvent.KEYCODE_ESCAPE,
             KeyEvent.KEYCODE_BACK -> {
-                finish()
+                layout.tvchannelsNavContainer.apply {
+                    if (visibility == View.VISIBLE) visibility = View.GONE else finish()
+                }
             }
         }
         return false
+    }
+
+    private fun List<TvChannels.TvChannel>.indexOfId(id: Int): Int {
+        for (i in indices) {
+            if (this[i].tvChannelId == id) {
+                return i
+            }
+        }
+        return -1
     }
 
     override fun onPause() {

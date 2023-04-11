@@ -1,20 +1,26 @@
 package com.picassos.betamax.android.presentation.app.subscription.manage_subscription
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.R
+import com.picassos.betamax.android.R.string.ends_at
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityManageSubscriptionBinding
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
 import com.picassos.betamax.android.core.utilities.Response
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ManageSubscriptionActivity : AppCompatActivity() {
@@ -23,6 +29,7 @@ class ManageSubscriptionActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = SharedPreferences(this)
@@ -30,6 +37,12 @@ class ManageSubscriptionActivity : AppCompatActivity() {
         Helper.darkMode(this)
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_manage_subscription)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@ManageSubscriptionActivity)
+            }
+        }
 
         val requestDialog = RequestDialog(this)
 
@@ -57,9 +70,8 @@ class ManageSubscriptionActivity : AppCompatActivity() {
                         3 -> getString(R.string.diamond)
                         else -> getString(R.string.regular)
                     }
-                    daysLeft.text = "${subscription.daysLeft} " + getString(R.string.days)
-                    subscriptionStart.text = getString(R.string.started_at) + " " + Helper.getFormattedDateString(subscription.subscriptionStart, "dd MMM yy, hh:mm a")
-                    subscriptionEnd.text = getString(R.string.ends_at) + " " + Helper.getFormattedDateString(subscription.subscriptionEnd, "dd MMM yy, hh:mm a")
+                    daysLeft.text = "${subscription.daysLeft} ${getString(R.string.days)}"
+                    subscriptionEnd.text = getString(ends_at) + " " + Helper.getFormattedDateString(subscription.subscriptionEnd, "dd MMM yy, hh:mm a")
                 }
             }
             if (state.error != null) {
@@ -77,10 +89,5 @@ class ManageSubscriptionActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@ManageSubscriptionActivity)
     }
 }

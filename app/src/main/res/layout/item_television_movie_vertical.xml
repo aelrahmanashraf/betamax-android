@@ -15,7 +15,7 @@
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/movie_thumbnail"
         android:layout_width="match_parent"
-        android:layout_height="245dp"
+        android:layout_height="200dp"
         app:placeholderImageScaleType="centerCrop"
         app:overlayImage="@drawable/television_movie_overlay"
         app:roundedCornerRadius="10dp"

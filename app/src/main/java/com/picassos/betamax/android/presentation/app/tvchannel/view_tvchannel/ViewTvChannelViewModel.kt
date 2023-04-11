@@ -41,6 +41,13 @@ class ViewTvChannelViewModel @Inject constructor(app: Application, private val v
         }
     }
 
+    private val _selectedGenre = MutableStateFlow(0)
+    val selectedGenre = _selectedGenre.asStateFlow()
+
+    fun setSelectedGenre(genreId: Int) {
+        _selectedGenre.tryEmit(genreId)
+    }
+
     private val _tvGenres = MutableStateFlow(GenresState())
     val tvGenres = _tvGenres.asStateFlow()
 

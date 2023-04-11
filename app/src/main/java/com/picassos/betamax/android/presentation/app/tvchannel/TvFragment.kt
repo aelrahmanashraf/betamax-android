@@ -76,7 +76,7 @@ class TvFragment : Fragment() {
                                 0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
                                 else -> {
                                     Intent(requireContext(), ViewTvChannelActivity::class.java).also { intent ->
-                                        intent.putExtra("tv_channel", tvChannel)
+                                        intent.putExtra("tvchannel", tvChannel)
                                         startActivity(intent)
                                     }
                                 }

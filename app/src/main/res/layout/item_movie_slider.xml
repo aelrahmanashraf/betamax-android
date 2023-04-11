@@ -1,18 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="180dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:fresco="http://schemas.android.com/tools">
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="380dp">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/movie_thumbnail_container"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="match_parent"
         app:overlayImage="@drawable/slider_overlay"
-        app:roundedCornerRadius="15dp"
-        fresco:actualImageScaleType="centerCrop"
         app:placeholderImageScaleType="centerCrop"
+        fresco:actualImageScaleType="centerCrop"
         fresco:placeholderImage="?color_light_separate" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="50dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@id/movie_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha=".9"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="?color_dark"
+            android:textSize="18sp"
+            tools:ignore="HardcodedText" />
+
+        <LinearLayout
+            android:id="@id/movie_meta_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@id/movie_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha=".9"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="?color_dark"
+                android:textSize="13sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:alpha=".9"
+                android:fontFamily="@font/poppins_medium"
+                android:text="|"
+                android:textColor="?color_dark"
+                android:textSize="13sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@id/movie_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha=".9"
+                android:fontFamily="@font/poppins_medium"
+                android:textColor="?color_dark"
+                android:textSize="13sp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@id/movie_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:alpha=".8"
+            android:ellipsize="end"
+            android:fontFamily="@font/poppins_regular"
+            android:maxLines="3"
+            android:textColor="?color_dark"
+            android:textSize="13sp"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -68,7 +68,7 @@ class SigninActivity : AppCompatActivity() {
                         }
                         Intent().also { intent ->
                             when (Helper.isTelevision(this@SigninActivity)) {
-                                true -> intent.setClass(this@SigninActivity, TelevisionMainActivity::class.java)
+                                true -> intent.setClass(this@SigninActivity, MainActivity::class.java)
                                 false -> intent.setClass(this@SigninActivity, MainActivity::class.java)
                             }
                             startActivity(intent)

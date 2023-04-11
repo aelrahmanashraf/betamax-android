@@ -4,120 +4,115 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.picassos.betamax.android.presentation.app.auth.verify_code.VerifyCodeViewModel" />
     </data>
 
-    <RelativeLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?color_background">
+        android:background="?color_background"
+        android:fillViewport="true">
 
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="30dp"
+            android:paddingTop="70dp"
+            android:paddingEnd="30dp"
+            android:paddingBottom="30dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/we_sent_email"
+                android:textColor="?color_dark"
+                android:textSize="22sp" />
+
+            <TextView
+                android:id="@id/email_verification"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="25dp"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/please_enter_the_6_digit_code_sent_to_you_at"
+                android:textAlignment="center"
+                android:textColor="?color_dark"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@id/verification_code"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_height"
+                android:afterTextChanged="@{(text) -> viewModel.onVerificationCodeChange(text)}"
+                android:background="@drawable/input_rectangle_background"
+                android:gravity="center_vertical"
+                android:hint="@string/verification_code"
+                android:importantForAutofill="no"
+                android:inputType="number"
+                android:layoutDirection="ltr"
+                android:maxLines="1"
+                android:paddingStart="20dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="10dp"
+                android:text="@{viewModel.verifyCodeFormState.verificationCode}"
+                android:textColor="?color_dark"
+                android:textColorHint="?color_dark"
+                android:textSize="@dimen/input_text_size" />
+
+            <Button
+                android:id="@id/verify"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/input_height"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/button_primary"
+                android:onClick="@{() -> viewModel.onSubmit()}"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:text="@string/verify"
+                android:textAllCaps="false"
+                android:textColor="@color/color_white"
+                android:textSize="@dimen/input_text_size"
+                app:enabled="@{viewModel.verifyCodeFormState.verificationCodeError}"
+                tools:ignore="PrivateResource" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="30dp">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
 
                 <TextView
+                    android:id="@id/resend_again_timer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="1dp"
-                    android:fontFamily="@font/poppins_semibold"
-                    android:text="@string/we_sent_email"
-                    android:textAllCaps="true"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:text="@string/resend_code_in"
                     android:textColor="?color_dark"
-                    android:textSize="15sp"
-                    tools:ignore="RelativeOverlap" />
+                    android:textSize="@dimen/link_text_size" />
 
                 <TextView
-                    android:id="@id/email_verification"
+                    android:id="@id/resend_again"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="25dp"
-                    android:fontFamily="@font/poppins_regular"
-                    android:text="@string/please_enter_the_6_digit_code_sent_to_you_at"
-                    android:textAlignment="center"
-                    android:textColor="?color_dark"
-                    android:textSize="12sp" />
-
-                <EditText
-                    android:id="@id/verification_code"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/input_height"
-                    android:afterTextChanged="@{(text) -> viewModel.onVerificationCodeChange(text)}"
-                    android:background="@drawable/input_rectangle_background"
-                    android:gravity="center_vertical"
-                    android:hint="@string/verification_code"
-                    android:importantForAutofill="no"
-                    android:inputType="number"
-                    android:layoutDirection="ltr"
-                    android:maxLines="1"
-                    android:paddingStart="20dp"
-                    android:paddingTop="10dp"
-                    android:paddingEnd="20dp"
-                    android:text="@{viewModel.verifyCodeFormState.verificationCode}"
-                    android:paddingBottom="10dp"
-                    android:textColor="?color_dark"
-                    android:textColorHint="?color_dark"
-                    android:textSize="@dimen/input_text_size" />
-
-                <Button
-                    android:id="@id/verify"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/input_height"
-                    android:layout_marginTop="15dp"
-                    android:background="@drawable/button_primary"
-                    android:onClick="@{() -> viewModel.onSubmit()}"
-                    android:paddingStart="20dp"
-                    android:paddingEnd="20dp"
-                    android:text="@string/verify"
-                    android:textAllCaps="false"
-                    android:textColor="@color/color_white"
-                    android:textSize="@dimen/input_text_size"
-                    app:enabled="@{viewModel.verifyCodeFormState.verificationCodeError}"
-                    tools:ignore="PrivateResource" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@id/resend_again_timer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="5dp"
-                        android:paddingBottom="5dp"
-                        android:text="@string/resend_code_in"
-                        android:textColor="?color_dark"
-                        android:textSize="@dimen/link_text_size" />
-
-                    <TextView
-                        android:id="@id/resend_again"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp"
-                        android:text="@string/resend"
-                        android:textColor="@color/color_theme"
-                        android:textSize="@dimen/link_text_size"
-                        android:visibility="gone" />
-
-                </LinearLayout>
+                    android:padding="5dp"
+                    android:text="@string/resend"
+                    android:textColor="@color/color_theme"
+                    android:textSize="@dimen/link_text_size"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
-        </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
 
-    </RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </layout>

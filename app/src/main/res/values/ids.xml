@@ -58,6 +58,7 @@
     <item name="movie_title" type="id" />
     <item name="home_container" type="id" />
     <item name="save_tvchannel_icon" type="id" />
+    <item name="movie_meta" type="id" />
     <item name="save_tvchannel" type="id" />
     <item name="related_movies_header" type="id" />
     <item name="tv" type="id" />
@@ -80,14 +81,17 @@
     <item name="newly_release_container" type="id" />
     <item name="manage_video_quality" type="id" />
     <item name="view_all_genres" type="id" />
+    <item name="nested_scrollview" type="id" />
     <item name="view_all_my_list" type="id" />
     <item name="viewpager_featured" type="id" />
     <item name="indicator_featured" type="id" />
+    <item name="movie_banner" type="id" />
     <item name="movie_thumbnail_container" type="id" />
     <item name="movie_thumbnail" type="id" />
     <item name="tvchannel_title" type="id" />
     <item name="tvchannel_description" type="id" />
     <item name="tvchannel_thumbnail" type="id" />
+    <item name="tvchannel_playing" type="id" />
     <item name="tvchannel_thumbnail_container" type="id" />
     <item name="all_tvchannels" type="id" />
     <item name="episode_thumbnail" type="id" />
@@ -98,6 +102,16 @@
     <item name="actor_role" type="id" />
     <item name="actor_thumbnail" type="id" />
     <item name="genre_thumbnail" type="id" />
+    <item name="navigation_movies_title" type="id" />
+    <item name="navigation_live_tv_title" type="id" />
+    <item name="navigation_series_title" type="id" />
+    <item name="navigation_mylist_title" type="id" />
+    <item name="navigation_mylist" type="id" />
+    <item name="navigation_profile" type="id" />
+    <item name="navigation_profile_title" type="id" />
+    <item name="navigation_series" type="id" />
+    <item name="navigation_live_tv" type="id" />
+    <item name="navigation_movies" type="id" />
     <item name="genre_title" type="id" />
     <item name="track_title" type="id" />
     <item name="quality_title" type="id" />
