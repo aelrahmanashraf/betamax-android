@@ -159,9 +159,10 @@
             <ImageView
                 android:id="@id/subscription_qrcode"
                 android:layout_width="160dp"
-                android:layout_marginTop="15dp"
                 android:layout_height="160dp"
-                android:src="?color_light_separate" />
+                android:layout_marginTop="15dp"
+                android:src="?color_light_separate"
+                tools:ignore="ContentDescription" />
 
         </LinearLayout>
 

@@ -57,6 +57,7 @@
     <item name="play_episode" type="id" />
     <item name="movie_title" type="id" />
     <item name="home_container" type="id" />
+    <item name="nested_scroll_view" type="id" />
     <item name="save_tvchannel_icon" type="id" />
     <item name="movie_meta" type="id" />
     <item name="save_tvchannel" type="id" />

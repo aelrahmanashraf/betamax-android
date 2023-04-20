@@ -5,15 +5,16 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Build
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
-import android.view.Window
-import android.view.WindowManager
+import android.view.*
+import android.view.View.OnFocusChangeListener
 import android.widget.Button
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -45,12 +46,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
+
 @AndroidEntryPoint
 class TelevisionMainActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionMainBinding
     private val televisionMainViewModel: TelevisionMainViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_television_main)
@@ -132,7 +135,7 @@ class TelevisionMainActivity : AppCompatActivity() {
             }
         }, onFocusListener = object: OnContinueWatchingFocusListener {
             override fun onItemFocus(continueWatching: ContinueWatching.ContinueWatching) {
-                layout.genreTitle.text = getString(R.string.continue_watching)
+
             }
         })
         layout.recyclerContinueWatching.apply {
@@ -148,14 +151,12 @@ class TelevisionMainActivity : AppCompatActivity() {
                 }
             }
         }, onFocusListener = object: OnMovieFocusListener {
-            override fun onItemFocus(movie: Movies.Movie) {
-                layout.genreTitle.text = getString(R.string.newly_release)
+            override fun onItemFocus(movie: Movies.Movie, position: Int) {
                 setPreviewMovie(movie = movie)
             }
         })
         layout.recyclerNewlyRelease.apply {
             layoutManager = LinearLayoutManager(this@TelevisionMainActivity, LinearLayoutManager.HORIZONTAL, false)
-            isNestedScrollingEnabled = false
             adapter = newlyReleaseAdapter
         }
 
@@ -167,14 +168,12 @@ class TelevisionMainActivity : AppCompatActivity() {
                 }
             }
         }, onFocusListener = object: OnMovieFocusListener {
-            override fun onItemFocus(movie: Movies.Movie) {
-                layout.genreTitle.text = getString(R.string.trending)
+            override fun onItemFocus(movie: Movies.Movie, position: Int) {
                 setPreviewMovie(movie = movie)
             }
         })
         layout.recyclerTrending.apply {
             layoutManager = LinearLayoutManager(this@TelevisionMainActivity, LinearLayoutManager.HORIZONTAL, false)
-            isNestedScrollingEnabled = false
             adapter = trendingAdapter
         }
 
@@ -225,15 +224,9 @@ class TelevisionMainActivity : AppCompatActivity() {
 
                 continueWatchingAdapter.differ.submitList(continueWatching)
                 if (continueWatching.isEmpty()) {
-                    layout.apply {
-                        genreTitle.text = getString(R.string.newly_release)
-                        recyclerContinueWatching.visibility = View.GONE
-                    }
+                    layout.continueWatchingContainer.visibility = View.GONE
                 } else {
-                    layout.apply {
-                        genreTitle.text = getString(R.string.continue_watching)
-                        recyclerContinueWatching.visibility = View.VISIBLE
-                    }
+                    layout.continueWatchingContainer.visibility = View.VISIBLE
                 }
             }
         }

@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.picassos.betamax.android.presentation.app.auth.signin.SigninViewModel" />
@@ -30,7 +32,7 @@
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/signin"
                 android:textColor="?color_dark"
-                android:textSize="26sp" />
+                android:textSize="24sp" />
 
             <TextView
                 android:layout_width="wrap_content"

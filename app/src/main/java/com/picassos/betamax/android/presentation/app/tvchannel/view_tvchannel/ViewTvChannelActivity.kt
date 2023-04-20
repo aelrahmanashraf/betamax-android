@@ -40,6 +40,7 @@ import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.databinding.ActivityViewTvchannelBinding
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.model.Genres
+import com.picassos.betamax.android.domain.model.SupportedVideoQualities
 import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
@@ -106,10 +107,14 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
             if (state.response != null) {
                 val tvChannelDetails = state.response.tvChannelDetails.tvChannels[0]
-                when (state.response.videoQuality) {
-                    1 -> initializePlayer(url = tvChannelDetails.sdUrl)
-                    2 -> initializePlayer(url = tvChannelDetails.hdUrl)
-                    3 -> initializePlayer(url = tvChannelDetails.fhdUrl)
+                val url = when (state.response.videoQuality) {
+                    1 -> tvChannelDetails.sdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.hdUrl
+                    2 -> tvChannelDetails.hdUrl
+                    3 -> tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.hdUrl
+                    else -> null
+                }
+                if (url != null) {
+                    initializePlayer(url)
                 }
             }
             if (state.error != null) {
@@ -301,6 +306,12 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
         layout.playerOptions.setOnClickListener {
             val videoQualityChooserBottomSheetModal = VideoQualityChooserBottomSheetModal()
+            videoQualityChooserBottomSheetModal.arguments = Bundle().apply {
+                putSerializable("qualities", SupportedVideoQualities(
+                    sdQuality = tvChannel.sdUrl.isNotEmpty(),
+                    hdQuality = tvChannel.hdUrl.isNotEmpty(),
+                    fhdQuality = tvChannel.fhdUrl.isNotEmpty()))
+            }
             videoQualityChooserBottomSheetModal.show(supportFragmentManager, "TAG")
         }
     }

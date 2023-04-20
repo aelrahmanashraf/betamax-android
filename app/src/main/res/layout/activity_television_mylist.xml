@@ -91,7 +91,7 @@
                             android:fontFamily="@font/poppins_regular"
                             android:text="@string/my_movies"
                             android:textColor="?color_dark"
-                            android:textSize="15sp" />
+                            android:textSize="13sp" />
 
                     </LinearLayout>
 
@@ -114,7 +114,7 @@
                             android:fontFamily="@font/poppins_regular"
                             android:text="@string/my_tvchannels"
                             android:textColor="?color_dark"
-                            android:textSize="15sp" />
+                            android:textSize="13sp" />
 
                     </LinearLayout>
 
@@ -132,7 +132,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:paddingTop="35dp">
+                    android:paddingTop="25dp">
 
                     <TextView
                         android:id="@id/mylist_title"
@@ -144,12 +144,12 @@
                         android:paddingEnd="35dp"
                         android:text="@string/my_movies"
                         android:textColor="?color_dark"
-                        android:textSize="26sp" />
+                        android:textSize="20sp" />
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="25dp"
+                        android:layout_marginTop="20dp"
                         android:paddingStart="23dp"
                         android:paddingEnd="23dp">
 

@@ -26,7 +26,6 @@ import com.picassos.betamax.android.databinding.ActivityLaunchBinding
 import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.presentation.app.auth.signin.SigninActivity
 import com.picassos.betamax.android.presentation.app.main.MainActivity
-import com.picassos.betamax.android.presentation.television.main.TelevisionMainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
@@ -66,11 +65,7 @@ class LaunchActivity : AppCompatActivity() {
                                         startActivity(Intent(this@LaunchActivity, SigninActivity::class.java))
                                     }
                                     else -> {
-                                        if (Config.MOCK_TV) {
-                                            startActivity(Intent(this@LaunchActivity, TelevisionMainActivity::class.java))
-                                        } else {
-                                            startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
-                                        }
+                                        startActivity(Intent(this@LaunchActivity, MainActivity::class.java))
                                     }
                                 }
                                 finishAffinity()

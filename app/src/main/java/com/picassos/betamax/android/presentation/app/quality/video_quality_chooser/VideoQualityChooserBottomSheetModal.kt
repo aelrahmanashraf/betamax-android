@@ -12,7 +12,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Helper
+import com.picassos.betamax.android.core.utilities.Helper.getBundleSerializable
 import com.picassos.betamax.android.databinding.VideoQualityChooserBottomSheetModalBinding
+import com.picassos.betamax.android.domain.model.SupportedVideoQualities
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -28,18 +30,36 @@ class VideoQualityChooserBottomSheetModal : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        layout.apply {
-            sdQuality.setOnClickListener {
-                videoQualityChooserViewModel.setVideoQuality(1)
-                dismiss()
+        getBundleSerializable(requireArguments(), "qualities", SupportedVideoQualities::class.java).also { qualities ->
+            layout.sdQuality.apply {
+                visibility = when (qualities.sdQuality) {
+                    true -> View.VISIBLE
+                    else -> View.GONE
+                }
+                setOnClickListener {
+                    videoQualityChooserViewModel.setVideoQuality(1)
+                    dismiss()
+                }
             }
-            hdQuality.setOnClickListener {
-                videoQualityChooserViewModel.setVideoQuality(2)
-                dismiss()
+            layout.hdQuality.apply {
+                visibility = when (qualities.hdQuality) {
+                    true -> View.VISIBLE
+                    else -> View.GONE
+                }
+                setOnClickListener {
+                    videoQualityChooserViewModel.setVideoQuality(2)
+                    dismiss()
+                }
             }
-            fhdQuality.setOnClickListener {
-                videoQualityChooserViewModel.setVideoQuality(3)
-                dismiss()
+            layout.fhdQuality.apply {
+                visibility = when (qualities.fhdQuality) {
+                    true -> View.VISIBLE
+                    else -> View.GONE
+                }
+                setOnClickListener {
+                    videoQualityChooserViewModel.setVideoQuality(3)
+                    dismiss()
+                }
             }
         }
     }

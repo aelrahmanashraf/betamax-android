@@ -21,7 +21,7 @@
         android:fontFamily="@font/poppins_regular"
         android:text="Title"
         android:textColor="?color_dark"
-        android:textSize="14sp"
+        android:textSize="13sp"
         fresco:ignore="HardcodedText" />
 
 </LinearLayout>

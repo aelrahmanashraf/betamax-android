@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="15dp"
+    android:background="@drawable/item_television_season_selectable"
+    android:focusable="true"
+    android:gravity="center"
+    android:paddingStart="30dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="30dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@id/season_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Season Title"
+        android:textColor="?color_dark"
+        android:textSize="13sp"
+        tools:ignore="HardcodedText" />
+
+</RelativeLayout>

@@ -89,12 +89,12 @@ class TelevisionMoviesActivity : AppCompatActivity() {
                 }
             }
         }, onFocusListener = object: OnMovieFocusListener {
-            override fun onItemFocus(movie: Movies.Movie) {
+            override fun onItemFocus(movie: Movies.Movie, position: Int) {
 
             }
         })
         layout.recyclerMovies.apply {
-            layoutManager = GridLayoutManager(this@TelevisionMoviesActivity, 4)
+            layoutManager = GridLayoutManager(this@TelevisionMoviesActivity, 5)
             adapter = moviesAdapter
         }
 

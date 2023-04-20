@@ -1,6 +1,5 @@
 package com.picassos.betamax.android.presentation.television.movie.movies
 
-import android.annotation.SuppressLint
 import androidx.recyclerview.widget.RecyclerView
 import com.picassos.betamax.android.R
 import android.view.ViewGroup
@@ -23,10 +22,9 @@ class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val
         val date: TextView = itemView.findViewById(R.id.movie_date)
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.movie_thumbnail)
 
-        @SuppressLint("SetTextI18n")
         fun setData(data: Movies.Movie, isPoster: Boolean) {
             title.text = data.title
-            date.text = itemView.context.getString(R.string.released_in) + " " + Helper.getFormattedDateString(data.date, "yyyy")
+            date.text = Helper.getFormattedDateString(data.date, "yyyy")
             if (isPoster) {
                 itemView.findViewById<LinearLayout>(R.id.movie_meta).visibility = View.GONE
             }
@@ -36,14 +34,14 @@ class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val
                 .build()
         }
 
-        fun bind(item: Movies.Movie, onClickListener: OnMovieClickListener, onFocusListener: OnMovieFocusListener) {
+        fun bind(item: Movies.Movie, position: Int, onClickListener: OnMovieClickListener, onFocusListener: OnMovieFocusListener) {
             itemView.apply {
                 setOnClickListener {
                     onClickListener.onItemClick(item)
                 }
                 setOnFocusChangeListener { _, hasFocus ->
                     if (hasFocus) {
-                        onFocusListener.onItemFocus(item)
+                        onFocusListener.onItemFocus(item, position)
                     }
                 }
             }
@@ -76,7 +74,7 @@ class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val
         val movies = differ.currentList[position]
         (holder as MoviesHolder).apply {
             setData(movies, isPoster)
-            bind(movies, onClickListener, onFocusListener)
+            bind(movies, position, onClickListener, onFocusListener)
         }
     }
 

@@ -66,7 +66,7 @@ class TelevisionMyListActivity : AppCompatActivity() {
                 }
             }
         }, onFocusListener = object: OnMovieFocusListener {
-            override fun onItemFocus(movie: Movies.Movie) {
+            override fun onItemFocus(movie: Movies.Movie, position: Int) {
 
             }
         })

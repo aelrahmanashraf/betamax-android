@@ -48,7 +48,7 @@
                     <com.facebook.drawee.view.SimpleDraweeView
                         android:id="@id/movie_thumbnail"
                         android:layout_width="170dp"
-                        android:layout_height="230dp"
+                        android:layout_height="220dp"
                         app:placeholderImageScaleType="centerCrop"
                         app:roundedCornerRadius="10dp"
                         fresco:actualImageScaleType="centerCrop"
@@ -70,7 +70,7 @@
                             android:maxLines="1"
                             android:textColor="?color_dark"
                             android:textColorHint="?color_dark"
-                            android:textSize="28sp"
+                            android:textSize="24sp"
                             tools:ignore="HardcodedText" />
 
                         <LinearLayout
@@ -181,7 +181,7 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
+                            android:layout_marginTop="15dp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -193,16 +193,14 @@
                                 android:focusable="true"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingStart="15dp"
-                                android:paddingTop="2dp"
-                                android:paddingEnd="15dp"
-                                android:paddingBottom="2dp"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="10dp"
                                 android:visibility="gone"
                                 tools:ignore="UseCompoundDrawables">
 
                                 <ImageView
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="35dp"
+                                    android:layout_height="35dp"
                                     android:layout_marginStart="2dp"
                                     android:padding="8dp"
                                     android:src="@drawable/icon_play_outline"
@@ -227,16 +225,14 @@
                                 android:focusable="true"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                android:paddingStart="15dp"
-                                android:paddingTop="2dp"
-                                android:paddingEnd="15dp"
-                                android:paddingBottom="2dp"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="10dp"
                                 tools:ignore="UseCompoundDrawables">
 
                                 <ImageView
                                     android:id="@id/save_movie_icon"
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="35dp"
+                                    android:layout_height="35dp"
                                     android:layout_marginStart="2dp"
                                     android:padding="5dp"
                                     android:src="@drawable/icon_plus"
@@ -275,7 +271,7 @@
                     android:fontFamily="@font/poppins_bold"
                     android:text="@string/story"
                     android:textColor="?color_dark"
-                    android:textSize="16sp" />
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@id/movie_description"
@@ -288,7 +284,7 @@
                     android:hint="Movie Description"
                     android:textColor="?color_dark"
                     android:textColorHint="?color_dark"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     tools:ignore="HardcodedText" />
 
                 <LinearLayout
@@ -307,24 +303,13 @@
                         android:fontFamily="@font/poppins_bold"
                         android:text="@string/seasons"
                         android:textColor="?color_dark"
-                        android:textSize="18sp" />
+                        android:textSize="15sp" />
 
-                    <HorizontalScrollView
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@id/recycler_seasons"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:scrollbars="none">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@id/episodes_list"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:focusable="true"
-                            android:theme="@style/Theme.MaterialComponents.NoActionBar"
-                            app:selectionRequired="true"
-                            app:singleSelection="true" />
-
-                    </HorizontalScrollView>
+                        android:paddingTop="10dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@id/recycler_episodes"
@@ -351,7 +336,7 @@
                         android:fontFamily="@font/poppins_bold"
                         android:text="@string/cast"
                         android:textColor="?color_dark"
-                        android:textSize="18sp" />
+                        android:textSize="15sp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@id/recycler_cast"
@@ -379,13 +364,13 @@
                         android:fontFamily="@font/poppins_bold"
                         android:text="@string/related_movies"
                         android:textColor="?color_dark"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@id/recycler_related_movies"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingTop="20dp" />
+                        android:paddingTop="15dp" />
 
                 </LinearLayout>
 

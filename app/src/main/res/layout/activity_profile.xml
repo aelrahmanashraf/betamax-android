@@ -4,13 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="com.picassos.betamax.android.core.utilities.Helper" />
-
         <import type="com.picassos.betamax.android.core.configuration.Config" />
-
         <import type="com.picassos.betamax.android.BuildConfig" />
-
         <variable
             name="viewModel"
             type="com.picassos.betamax.android.presentation.app.profile.ProfileViewModel" />
@@ -232,7 +228,6 @@
 
                 <RelativeLayout
                     android:id="@id/manage_subscription"
-                    enabled="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
@@ -607,7 +602,8 @@
                     android:textAlignment="center"
                     android:textColor="?color_dark"
                     android:textColorHint="?color_dark"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText" />
 
                 <LinearLayout
                     android:id="@id/developed_by_container"

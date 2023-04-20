@@ -268,9 +268,15 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
 
         val qualityGroup = mutableListOf<QualityGroup.Quality>().apply {
-            add(QualityGroup.Quality(id = 1, prefix = "sd", title = getString(R.string.sd)))
-            add(QualityGroup.Quality(id = 1, prefix = "hd", title = getString(R.string.hd)))
-            add(QualityGroup.Quality(id = 1, prefix = "fhd", title = getString(R.string.fhd)))
+            if (tvChannel.sdUrl.isNotEmpty()) {
+                add(QualityGroup.Quality(id = 1, prefix = "sd", title = getString(R.string.sd)))
+            }
+            if (tvChannel.hdUrl.isNotEmpty()) {
+                add(QualityGroup.Quality(id = 1, prefix = "hd", title = getString(R.string.hd)))
+            }
+            if (tvChannel.fhdUrl.isNotEmpty()) {
+                add(QualityGroup.Quality(id = 1, prefix = "fhd", title = getString(R.string.fhd)))
+            }
         }
 
         val qualityAdapter = QualityAdapter(listener = object : QualityAdapter.OnQualityClickListener {

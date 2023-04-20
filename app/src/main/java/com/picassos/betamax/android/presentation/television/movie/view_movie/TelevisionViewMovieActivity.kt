@@ -1,22 +1,18 @@
 package com.picassos.betamax.android.presentation.television.movie.view_movie
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.backends.pipeline.PipelineDraweeController
 import com.facebook.imagepipeline.postprocessors.BlurPostProcessor
 import com.facebook.imagepipeline.request.ImageRequestBuilder
-import com.google.android.material.chip.Chip
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
@@ -27,20 +23,17 @@ import com.picassos.betamax.android.core.view.Toasto.showToast
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.core.view.dialog.TelevisionSubscriptionDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionViewMovieBinding
-import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
+import com.picassos.betamax.android.domain.listener.OnSeasonClickListener
 import com.picassos.betamax.android.domain.model.*
 import com.picassos.betamax.android.presentation.app.cast.CastAdapter
 import com.picassos.betamax.android.presentation.television.episode.episodes.TelevisionEpisodesAdapter
 import com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity
 import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesAdapter
+import com.picassos.betamax.android.presentation.television.season.seasons.TelevisionSeasonsAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TelevisionViewMovieActivity : AppCompatActivity() {
@@ -52,9 +45,9 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
     private var selectedSeason = Seasons.Season(level = 1)
     private var episode: Episodes.Episode? = null
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val entryPoint = EntryPointAccessors.fromApplication(this@TelevisionViewMovieActivity, AppEntryPoint::class.java)
 
         Helper.darkMode(this)
 
@@ -92,7 +85,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                 }
             }
         }, onFocusListener = object: OnMovieFocusListener {
-            override fun onItemFocus(movie: Movies.Movie) {
+            override fun onItemFocus(movie: Movies.Movie, position: Int) {
 
             }
         })
@@ -168,12 +161,8 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                     }
                     saveMovieIcon.apply {
                         when (state.response.movieSaved) {
-                            1 -> {
-                                setImageDrawable(getDrawable(R.drawable.icon_check))
-                            }
-                            else -> {
-                                setImageDrawable(getDrawable(R.drawable.icon_plus))
-                            }
+                            1 -> setImageResource(R.drawable.icon_check)
+                            else -> setImageResource(R.drawable.icon_plus)
                         }
                     }
                 }
@@ -193,6 +182,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                             relatedMoviesContainer.visibility = View.VISIBLE
                             seasonsContainer.visibility = View.GONE
                         }
+
                         val movies = state.response.relatedMovies.movies
                         moviesAdapter.differ.submitList(movies)
                         if (movies.isEmpty()) {
@@ -202,12 +192,30 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                         }
                     }
                     else -> {
-                        televisionViewMovieViewModel.requestSeasons(movieDetails.id)
                         layout.apply {
                             movieDurationContainer.visibility = View.GONE
                             relatedMoviesContainer.visibility = View.GONE
                             seasonsContainer.visibility = View.VISIBLE
                         }
+                        val seasonsAdapter = TelevisionSeasonsAdapter(onClickListener = object: OnSeasonClickListener {
+                            override fun onItemClick(season: Seasons.Season) {
+                                televisionViewMovieViewModel.requestEpisodes(
+                                    movieId = movie.id,
+                                    seasonLevel = season.level)
+                            }
+                        })
+                        layout.recyclerSeasons.apply {
+                            layoutManager = LinearLayoutManager(this@TelevisionViewMovieActivity, LinearLayoutManager.HORIZONTAL, false)
+                            adapter = seasonsAdapter
+                        }
+                        televisionViewMovieViewModel.requestSeasons(movieDetails.id)
+                        collectLatestOnLifecycleStarted(televisionViewMovieViewModel.seasons) { seasonsState ->
+                            if (seasonsState.response != null) {
+                                val seasons = seasonsState.response.seasons
+                                seasonsAdapter.differ.submitList(seasons)
+                            }
+                        }
+
                         val episodes = state.response.movieEpisodes.rendered
                         episodesAdapter.differ.submitList(episodes)
                         if (episodes.isEmpty()) {
@@ -224,19 +232,11 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
             }
         }
 
-        collectLatestOnLifecycleStarted(televisionViewMovieViewModel.seasons) { state ->
-            if (state.response != null) {
-                state.response.seasons.forEach { genre ->
-                    layout.episodesList.addView(createSeasonsChip(genre))
-                }
-            }
-        }
-
         collectLatestOnLifecycleStarted(televisionViewMovieViewModel.saveMovie) { state ->
             if (state.responseCode != null) {
                 when (state.responseCode) {
-                    "1" -> layout.saveMovieIcon.setImageDrawable(getDrawable(R.drawable.icon_check))
-                    "0" -> layout.saveMovieIcon.setImageDrawable(getDrawable(R.drawable.icon_plus))
+                    "1" -> layout.saveMovieIcon.setImageResource(R.drawable.icon_check)
+                    "0" -> layout.saveMovieIcon.setImageResource(R.drawable.icon_plus)
                     else -> showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
                 }
             }
@@ -262,70 +262,53 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(entryPoint.getAccountUseCase().invoke(), televisionViewMovieViewModel.checkSubscription) { account, subscriptionState ->
-                    if (subscriptionState.isLoading) {
-                        requestDialog.show()
-                    }
-                    if (subscriptionState.response != null) {
-                        requestDialog.dismiss()
-
-                        val subscription = subscriptionState.response
-                        when (subscription.daysLeft) {
-                            0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity, "test").show()
-                            else -> {
-                                episode?.let { episode ->
-                                    Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                        intent.putExtra("playerContent", PlayerContent(
-                                            id = episode.episodeId,
-                                            url = episode.url,
-                                            thumbnail = episode.thumbnail))
-                                        startActivity(intent)
-
-                                        this@TelevisionViewMovieActivity.episode = null
-                                    }
-                                } ?: run {
-                                    Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                        intent.putExtra("playerContent", PlayerContent(
-                                            id = movie.id,
-                                            url = movie.url,
-                                            thumbnail = movie.thumbnail))
-                                        startActivity(intent)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (subscriptionState.error != null) {
-                        requestDialog.dismiss()
-                        when (subscriptionState.error) {
-                            Response.NETWORK_FAILURE_EXCEPTION -> {
-                                showToast(this@TelevisionViewMovieActivity, getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)
-                            }
-                            Response.MALFORMED_REQUEST_EXCEPTION -> {
-                                showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
-                                Firebase.crashlytics.log("Request returned a malformed request or response.")
-                            }
-                            else -> {
-                                showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
-                            }
-                        }
-                    }
-                }.collect()
+        collectLatestOnLifecycleStarted(televisionViewMovieViewModel.checkSubscription) { subscriptionState ->
+            if (subscriptionState.isLoading) {
+                requestDialog.show()
             }
-        }
-    }
+            if (subscriptionState.response != null) {
+                requestDialog.dismiss()
 
-    private fun createSeasonsChip(season: Seasons.Season): Chip {
-        val chip = this@TelevisionViewMovieActivity.layoutInflater.inflate(R.layout.item_tv_chip_genre_selectable, null, false) as Chip
-        return chip.apply {
-            id = ViewCompat.generateViewId()
-            text = season.title
-            setOnCheckedChangeListener { _, _ ->
-                televisionViewMovieViewModel.requestEpisodes(
-                    movieId = movie.id,
-                    seasonLevel = season.level)
+                val subscription = subscriptionState.response
+                when (subscription.daysLeft) {
+                    0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity).show()
+                    else -> {
+                        episode?.let { episode ->
+                            Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                intent.putExtra("playerContent", PlayerContent(
+                                    id = episode.episodeId,
+                                    url = episode.url,
+                                    thumbnail = episode.thumbnail))
+                                startActivity(intent)
+
+                                this@TelevisionViewMovieActivity.episode = null
+                            }
+                        } ?: run {
+                            Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                intent.putExtra("playerContent", PlayerContent(
+                                    id = movie.id,
+                                    url = movie.url,
+                                    thumbnail = movie.thumbnail))
+                                startActivity(intent)
+                            }
+                        }
+                    }
+                }
+            }
+            if (subscriptionState.error != null) {
+                requestDialog.dismiss()
+                when (subscriptionState.error) {
+                    Response.NETWORK_FAILURE_EXCEPTION -> {
+                        showToast(this@TelevisionViewMovieActivity, getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)
+                    }
+                    Response.MALFORMED_REQUEST_EXCEPTION -> {
+                        showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
+                        Firebase.crashlytics.log("Request returned a malformed request or response.")
+                    }
+                    else -> {
+                        showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
+                    }
+                }
             }
         }
     }
