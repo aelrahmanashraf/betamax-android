@@ -91,8 +91,10 @@ class MoviePlayerActivity : AppCompatActivity() {
         layout.goBack.setOnClickListener {
             continueWatchingViewModel.requestUpdateContinueWatching(
                 contentId = playerContent.id,
+                title = playerContent.title,
                 url = playerContent.url,
                 thumbnail = playerContent.thumbnail,
+                duration = exoPlayer.duration.toInt(),
                 currentPosition = exoPlayer.currentPosition.toInt())
         }
 
@@ -136,8 +138,10 @@ class MoviePlayerActivity : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 continueWatchingViewModel.requestUpdateContinueWatching(
                     contentId = playerContent.id,
+                    title = playerContent.title,
                     url = playerContent.url,
                     thumbnail = playerContent.thumbnail,
+                    duration = exoPlayer.duration.toInt(),
                     currentPosition = exoPlayer.currentPosition.toInt())
             }
         })

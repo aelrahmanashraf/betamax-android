@@ -5,34 +5,39 @@ import com.picassos.betamax.android.R
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
-import com.picassos.betamax.android.domain.listener.OnContinueWatchingFocusListener
+import com.picassos.betamax.android.domain.listener.OnContinueWatchingLongClickListener
 import com.picassos.betamax.android.domain.model.ContinueWatching
 
-class TelevisionContinueWatchingAdapter(private val onClickListener: OnContinueWatchingClickListener, private val onFocusListener: OnContinueWatchingFocusListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TelevisionContinueWatchingAdapter(private val onClickListener: OnContinueWatchingClickListener, private val onLongClickListener: OnContinueWatchingLongClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class ContinueWatchingHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.continue_watching_thumbnail)
+        val progress: ProgressBar = itemView.findViewById(R.id.continue_watching_progress)
 
-        fun setData(data: ContinueWatching.ContinueWatching) {
+        fun setData(continueWatching: ContinueWatching.ContinueWatching) {
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)
-                .setUri(data.thumbnail)
+                .setUri(continueWatching.thumbnail)
                 .build()
+            progress.apply {
+                max = continueWatching.duration
+                progress = continueWatching.currentPosition
+            }
         }
 
-        fun bind(item: ContinueWatching.ContinueWatching, onClickListener: OnContinueWatchingClickListener, onFocusListener: OnContinueWatchingFocusListener) {
+        fun bind(item: ContinueWatching.ContinueWatching, onClickListener: OnContinueWatchingClickListener, onLongClickListener: OnContinueWatchingLongClickListener) {
             itemView.apply {
                 setOnClickListener {
                     onClickListener.onItemClick(item)
                 }
-                setOnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        onFocusListener.onItemFocus(item)
-                    }
+                setOnLongClickListener {
+                    onLongClickListener.onItemLongClick(item)
+                    return@setOnLongClickListener true
                 }
             }
         }
@@ -63,7 +68,7 @@ class TelevisionContinueWatchingAdapter(private val onClickListener: OnContinueW
         val movies = differ.currentList[position]
         (holder as ContinueWatchingHolder).apply {
             setData(movies)
-            bind(movies, onClickListener, onFocusListener)
+            bind(movies, onClickListener, onLongClickListener)
         }
     }
 

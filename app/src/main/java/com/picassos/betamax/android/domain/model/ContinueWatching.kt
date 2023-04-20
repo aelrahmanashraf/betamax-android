@@ -8,7 +8,9 @@ data class ContinueWatching(
     data class ContinueWatching(
         val id: Int,
         val contentId: Int,
+        val title: String,
         val url: String,
         val thumbnail: String,
+        val duration: Int,
         val currentPosition: Int): Serializable
 }

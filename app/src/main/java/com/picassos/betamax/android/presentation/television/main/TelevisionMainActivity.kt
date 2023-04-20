@@ -8,9 +8,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import android.view.View.OnFocusChangeListener
 import android.widget.Button
-import android.widget.Toast
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -21,13 +21,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.view.SimpleDraweeView
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionMainBinding
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
-import com.picassos.betamax.android.domain.listener.OnContinueWatchingFocusListener
+import com.picassos.betamax.android.domain.listener.OnContinueWatchingLongClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.model.ContinueWatching
@@ -127,15 +128,16 @@ class TelevisionMainActivity : AppCompatActivity() {
                 Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
                     intent.putExtra("playerContent", PlayerContent(
                         id = continueWatching.contentId,
+                        title = continueWatching.title,
                         url = continueWatching.url,
                         thumbnail = continueWatching.thumbnail,
                         currentPosition = continueWatching.currentPosition))
                     startActivity(intent)
                 }
             }
-        }, onFocusListener = object: OnContinueWatchingFocusListener {
-            override fun onItemFocus(continueWatching: ContinueWatching.ContinueWatching) {
-
+        }, onLongClickListener = object: OnContinueWatchingLongClickListener {
+            override fun onItemLongClick(continueWatching: ContinueWatching.ContinueWatching) {
+                showContinueWatchingOptions(continueWatching = continueWatching)
             }
         })
         layout.recyclerContinueWatching.apply {
@@ -253,6 +255,56 @@ class TelevisionMainActivity : AppCompatActivity() {
         })
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setPreviewMovie(movie: Movies.Movie) {
+        layout.apply {
+            movieTitle.text = movie.title
+            movieDescription.text = movie.description
+            movieDate.text = Helper.getFormattedDateString(movie.date, "yyyy")
+            movieDuration.text = Helper.convertMinutesToHoursAndMinutes(movie.duration)
+            movieRating.text = "${getString(R.string.rating)}: ${movie.rating} / 10"
+            movieBanner.controller = Fresco.newDraweeControllerBuilder()
+                .setTapToRetryEnabled(true)
+                .setUri(movie.banner)
+                .build()
+        }
+    }
+
+    private fun showContinueWatchingOptions(continueWatching: ContinueWatching.ContinueWatching) {
+        val dialog = Dialog(this@TelevisionMainActivity).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(R.layout.dialog_television_continue_watching_options)
+            setCancelable(true)
+            setOnCancelListener {
+                dismiss()
+            }
+        }
+
+        dialog.findViewById<SimpleDraweeView>(R.id.continue_watching_thumbnail).controller = Fresco.newDraweeControllerBuilder()
+            .setTapToRetryEnabled(true)
+            .setUri(continueWatching.thumbnail)
+            .build()
+
+        dialog.findViewById<TextView>(R.id.continue_watching_title).apply {
+            text = continueWatching.title
+        }
+
+        dialog.findViewById<LinearLayout>(R.id.remove_continue_watching).setOnClickListener {
+            continueWatchingViewModel.requestDeleteContinueWatching(contentId = continueWatching.contentId)
+            dialog.dismiss()
+        }
+
+        dialog.window?.let { window ->
+            window.apply {
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT)
+            }
+        }
+        dialog.show()
+    }
+
     private fun showExitConfirmation() {
         val dialog = Dialog(this@TelevisionMainActivity).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -282,21 +334,6 @@ class TelevisionMainActivity : AppCompatActivity() {
             }
         }
         dialog.show()
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun setPreviewMovie(movie: Movies.Movie) {
-        layout.apply {
-            movieTitle.text = movie.title
-            movieDescription.text = movie.description
-            movieDate.text = Helper.getFormattedDateString(movie.date, "yyyy")
-            movieDuration.text = Helper.convertMinutesToHoursAndMinutes(movie.duration)
-            movieRating.text = "${getString(R.string.rating)}: ${movie.rating} / 10"
-            movieBanner.controller = Fresco.newDraweeControllerBuilder()
-                .setTapToRetryEnabled(true)
-                .setUri(movie.banner)
-                .build()
-        }
     }
 
     private fun toggleNavigationTitles(visibility: Int) {

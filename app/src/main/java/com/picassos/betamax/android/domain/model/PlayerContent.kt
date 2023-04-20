@@ -4,6 +4,7 @@ import java.io.Serializable
 
 data class PlayerContent(
     val id: Int,
+    val title: String,
     val url: String,
     val thumbnail: String = "",
     val currentPosition: Int = 0): Serializable

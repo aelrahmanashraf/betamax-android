@@ -9,8 +9,10 @@ fun ContinueWatchingDto.toContinueWatching(): ContinueWatching {
             ContinueWatching.ContinueWatching(
                 id = continueWatching.id,
                 contentId = continueWatching.contentId,
+                title = continueWatching.title,
                 url = continueWatching.url,
                 thumbnail = continueWatching.thumbnail,
+                duration = continueWatching.duration,
                 currentPosition = continueWatching.currentPosition)
         }
     )

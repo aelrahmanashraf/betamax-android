@@ -340,8 +340,10 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_BACK -> {
                 continueWatchingViewModel.requestUpdateContinueWatching(
                     contentId = playerContent.id,
+                    title = playerContent.title,
                     url = playerContent.url,
                     thumbnail = playerContent.thumbnail,
+                    duration = exoPlayer.duration.toInt(),
                     currentPosition = exoPlayer.currentPosition.toInt())
             }
         }

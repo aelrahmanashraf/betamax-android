@@ -331,6 +331,7 @@ class ViewMovieActivity : AppCompatActivity() {
                         Intent(this@ViewMovieActivity, MoviePlayerActivity::class.java).also { intent ->
                             intent.putExtra("playerContent", PlayerContent(
                                 id = movie.id,
+                                title = movie.title,
                                 url = movie.url,
                                 thumbnail = movie.thumbnail))
                             startActivity(intent)

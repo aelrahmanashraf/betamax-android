@@ -1,5 +1,6 @@
 package com.picassos.betamax.android.presentation.app.episode.show_episode
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -38,6 +39,7 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
         return layout.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -81,6 +83,7 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
                         Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
                             intent.putExtra("playerContent", PlayerContent(
                                 id = episode.episodeId,
+                                title = episode.title,
                                 url = episode.url,
                                 thumbnail = episode.thumbnail))
                             startActivity(intent)

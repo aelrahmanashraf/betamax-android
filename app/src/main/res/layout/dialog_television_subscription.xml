@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?color_transparent"
-    android:fillViewport="true">
+    android:background="?color_transparent">
 
     <LinearLayout
         android:layout_width="match_parent"

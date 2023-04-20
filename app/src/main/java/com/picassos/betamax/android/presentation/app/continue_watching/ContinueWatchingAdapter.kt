@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -16,14 +17,19 @@ import com.picassos.betamax.android.domain.model.ContinueWatching
 
 class ContinueWatchingAdapter(private val onClickListener: OnContinueWatchingClickListener, private val optionsListener: OnContinueWatchingOptionsClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class ContinueWatchingHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.continue_watching_thumbnail)
+        private val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.continue_watching_thumbnail)
         private val moreOptions: ImageView = itemView.findViewById(R.id.continue_watching_more_options)
+        private val progress: ProgressBar = itemView.findViewById(R.id.continue_watching_progress)
 
-        fun setData(data: ContinueWatching.ContinueWatching) {
+        fun setData(continueWatching: ContinueWatching.ContinueWatching) {
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)
-                .setUri(data.thumbnail)
+                .setUri(continueWatching.thumbnail)
                 .build()
+            progress.apply {
+                max = continueWatching.duration
+                progress = continueWatching.currentPosition
+            }
         }
 
         fun bind(item: ContinueWatching.ContinueWatching, onClickListener: OnContinueWatchingClickListener) {

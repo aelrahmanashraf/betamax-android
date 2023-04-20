@@ -111,6 +111,7 @@ class HomeFragment : Fragment() {
                 Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
                     intent.putExtra("playerContent", PlayerContent(
                         id = continueWatching.contentId,
+                        title = continueWatching.title,
                         url = continueWatching.url,
                         thumbnail = continueWatching.thumbnail,
                         currentPosition = continueWatching.currentPosition))

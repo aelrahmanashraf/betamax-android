@@ -150,8 +150,10 @@ interface APIService {
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
         @Field("token") token: String,
         @Field("content_id") contentId: Int,
+        @Field("title") title: String,
         @Field("url") url: String,
         @Field("thumbnail") thumbnail: String,
+        @Field("duration") duration: Int,
         @Field("current_position") currentPosition: Int,
     ): Int
 

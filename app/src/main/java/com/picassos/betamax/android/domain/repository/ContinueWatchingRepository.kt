@@ -6,6 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ContinueWatchingRepository {
     suspend fun getContinueWatching(token: String): Flow<Resource<ContinueWatching>>
-    suspend fun updateContinueWatching(token: String, contentId: Int, url: String, thumbnail: String, currentPosition: Int): Flow<Resource<Int>>
+    suspend fun updateContinueWatching(token: String, contentId: Int, title: String, url: String, thumbnail: String, duration: Int, currentPosition: Int): Flow<Resource<Int>>
     suspend fun deleteContinueWatching(token: String, contentId: Int): Flow<Resource<Int>>
 }

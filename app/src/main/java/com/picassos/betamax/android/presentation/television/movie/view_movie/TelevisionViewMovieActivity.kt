@@ -277,6 +277,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                             Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
                                 intent.putExtra("playerContent", PlayerContent(
                                     id = episode.episodeId,
+                                    title = episode.title,
                                     url = episode.url,
                                     thumbnail = episode.thumbnail))
                                 startActivity(intent)
@@ -287,6 +288,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                             Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
                                 intent.putExtra("playerContent", PlayerContent(
                                     id = movie.id,
+                                    title = movie.title,
                                     url = movie.url,
                                     thumbnail = movie.thumbnail))
                                 startActivity(intent)

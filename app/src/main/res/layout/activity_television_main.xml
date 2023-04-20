@@ -253,10 +253,12 @@
 
                 <TextView
                     android:id="@id/movie_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="450dp"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_bold"
                     android:hint="Movie Title"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     android:textColor="@color/color_theme"
                     android:textColorHint="@color/color_theme"
                     android:textSize="28sp"
@@ -393,8 +395,7 @@
                                         android:id="@id/recycler_continue_watching"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_marginTop="10dp"
-                                        android:nestedScrollingEnabled="false" />
+                                        android:layout_marginTop="10dp" />
 
                                 </LinearLayout>
 
@@ -446,8 +447,7 @@
                                         android:id="@id/recycler_trending"
                                         android:layout_width="match_parent"
                                         android:layout_height="170dp"
-                                        android:layout_marginTop="10dp"
-                                        android:nestedScrollingEnabled="false" />
+                                        android:layout_marginTop="10dp" />
 
                                 </LinearLayout>
 
