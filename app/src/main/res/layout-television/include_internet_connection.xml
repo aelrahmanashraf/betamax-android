@@ -37,13 +37,13 @@
         android:text="@string/couldn_t_load_content_maybe_your_internet_connection_down_pull_to_try_again"
         android:textAlignment="center"
         android:textColor="?color_dark"
-        android:textSize="16sp" />
+        android:textSize="15sp" />
 
     <Button
         android:id="@id/try_again"
         style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="45dp"
         android:layout_marginTop="15dp"
         android:background="@drawable/item_television_background_selectable"
         android:paddingStart="40dp"

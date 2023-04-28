@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="?color_light_separate"
+        android:background="?color_background"
         android:baselineAligned="false"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -27,7 +27,7 @@
                 android:fontFamily="@font/poppins_medium"
                 android:text="@string/go_premium"
                 android:textColor="@color/color_theme"
-                android:textSize="18sp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -37,7 +37,7 @@
                 android:text="@string/benefits_of_premium"
                 android:textAlignment="center"
                 android:textColor="?color_dark"
-                android:textSize="26sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
                 android:fontFamily="@font/poppins_regular"
                 android:text="@string/subscribe_now_description"
                 android:textColor="?color_dark"
-                android:textSize="19sp" />
+                android:textSize="15sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                         android:text="@string/remove_ads"
                         android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 
@@ -109,7 +109,7 @@
                         android:text="@string/access_all_content"
                         android:textAlignment="center"
                         android:textColor="?color_dark"
-                        android:textSize="16sp" />
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 
@@ -145,7 +145,7 @@
                 android:text="@string/subscribe_now"
                 android:textAlignment="center"
                 android:textColor="?color_dark"
-                android:textSize="23sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -153,14 +153,14 @@
                 android:fontFamily="@font/poppins_regular"
                 android:text="@string/scan_the_qr_code_to_complete_your_subscription"
                 android:textColor="?color_dark"
-                android:textSize="17sp" />
+                android:textSize="15sp" />
 
             <ImageView
                 android:id="@id/subscription_qrcode"
                 android:layout_width="160dp"
                 android:layout_height="160dp"
                 android:layout_marginTop="15dp"
-                android:src="?color_light_separate"
+                android:src="?color_background"
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>

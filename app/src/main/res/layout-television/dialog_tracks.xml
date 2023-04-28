@@ -1,107 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@id/dialog_root"
     android:layout_width="550dp"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_gravity="end"
+    android:background="@color/color_dark_alpha70"
+    android:orientation="vertical"
+    android:padding="45dp">
+
+    <ImageView
+        android:id="@id/dialog_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/color_dark_alpha70"
-        android:orientation="vertical"
-        android:padding="45dp">
-
-        <ImageView
-            android:id="@id/dialog_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            tools:ignore="ContentDescription" />
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:layout_weight=".5"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="10dp"
+                android:alpha=".8"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/audio"
+                android:textColor="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="RelativeOverlap" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="10dp"
+                android:background="?color_grey" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@id/recycler_audio_tracks"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight=".5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginBottom="10dp"
-                    android:alpha=".8"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="@string/audio"
-                    android:textColor="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="RelativeOverlap" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="?color_grey" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@id/recycler_audio_tracks"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginTop="15dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="20dp"
-                android:layout_weight=".5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginBottom="10dp"
-                    android:alpha=".8"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="@string/subtitles"
-                    android:textColor="?color_dark"
-                    android:textSize="16sp"
-                    tools:ignore="RelativeOverlap" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="?color_grey" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@id/recycler_subtitles_tracks"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginTop="15dp" />
-
-            </LinearLayout>
-
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="15dp" />
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:layout_weight=".5"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="10dp"
+                android:alpha=".8"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/subtitles"
+                android:textColor="?color_dark"
+                android:textSize="16sp"
+                tools:ignore="RelativeOverlap" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:background="?color_grey" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@id/recycler_subtitles_tracks"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="15dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+</LinearLayout>

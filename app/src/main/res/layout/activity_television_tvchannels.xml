@@ -21,8 +21,8 @@
 
         <ProgressBar
             android:id="@id/player_progressbar"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_margin="25dp"
@@ -117,7 +117,6 @@
 
                     </LinearLayout>
 
-
                     <LinearLayout
                         android:id="@id/all_tvchannels"
                         android:layout_width="match_parent"
@@ -150,8 +149,8 @@
 
                     <ProgressBar
                         android:id="@id/genres_progressbar"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp"
                         android:indeterminateTint="?color_dark" />
@@ -184,8 +183,8 @@
 
                     <ProgressBar
                         android:id="@id/tvchannels_progressbar"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginTop="10dp"
                         android:indeterminateTint="?color_dark" />

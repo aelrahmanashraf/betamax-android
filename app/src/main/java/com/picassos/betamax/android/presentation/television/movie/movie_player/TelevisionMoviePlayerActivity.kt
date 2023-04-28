@@ -299,7 +299,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         dialog.window?.let { window ->
             window.apply {
                 setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                attributes.gravity = Gravity.START
+                attributes.gravity = Gravity.END
                 setLayout(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.MATCH_PARENT)

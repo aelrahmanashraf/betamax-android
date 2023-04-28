@@ -38,14 +38,14 @@
                 android:background="@drawable/item_television_background_selectable"
                 android:focusable="true"
                 android:paddingStart="40dp"
-                android:paddingTop="15dp"
+                android:paddingTop="10dp"
                 android:paddingEnd="40dp"
-                android:paddingBottom="15dp"
+                android:paddingBottom="10dp"
                 android:text="@string/cancel"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textColor="?color_dark"
-                android:textSize="16sp" />
+                android:textSize="@dimen/input_text_size_tv" />
 
             <View
                 android:layout_width="1dp"
@@ -63,14 +63,14 @@
                 android:background="@drawable/item_television_background_selectable"
                 android:focusable="true"
                 android:paddingStart="40dp"
-                android:paddingTop="15dp"
+                android:paddingTop="10dp"
                 android:paddingEnd="40dp"
-                android:paddingBottom="15dp"
+                android:paddingBottom="10dp"
                 android:text="@string/confirm"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textColor="?color_dark"
-                android:textSize="16sp" />
+                android:textSize="@dimen/input_text_size_tv" />
 
         </LinearLayout>
 
