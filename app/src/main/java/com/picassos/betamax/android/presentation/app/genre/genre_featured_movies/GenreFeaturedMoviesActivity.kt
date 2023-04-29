@@ -12,13 +12,15 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityGenreFeaturedMoviesBinding
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.presentation.app.movie.movies.MoviesAdapter
@@ -27,8 +29,11 @@ import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
+@DelicateCoroutinesApi
 class GenreFeaturedMoviesActivity : AppCompatActivity() {
     private lateinit var layout: ActivityGenreFeaturedMoviesBinding
     private val genreFeaturedMoviesViewModel: GenreFeaturedMoviesViewModel by viewModels()
@@ -43,7 +48,11 @@ class GenreFeaturedMoviesActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_genre_featured_movies)
 
-        val requestDialog = RequestDialog(this)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@GenreFeaturedMoviesActivity)
+            }
+        }
 
         layout.goBack.setOnClickListener {
             if (intent.getStringExtra("type") == "mylist") {
@@ -75,14 +84,14 @@ class GenreFeaturedMoviesActivity : AppCompatActivity() {
 
         collectLatestOnLifecycleStarted(genreFeaturedMoviesViewModel.movies) { state ->
             if (state.isLoading) {
-                requestDialog.show()
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     recyclerMovies.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 val movies = state.response.movies
                 moviesAdapter.differ.submitList(movies)
@@ -93,8 +102,8 @@ class GenreFeaturedMoviesActivity : AppCompatActivity() {
                 }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     recyclerMovies.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -123,9 +132,6 @@ class GenreFeaturedMoviesActivity : AppCompatActivity() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 intent.getStringExtra("type")?.let { type ->
                     makeRequest(type)
                 }
@@ -173,10 +179,5 @@ class GenreFeaturedMoviesActivity : AppCompatActivity() {
                 genreFeaturedMoviesViewModel.requestSavedMovies()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@GenreFeaturedMoviesActivity)
     }
 }

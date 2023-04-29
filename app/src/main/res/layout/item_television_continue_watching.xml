@@ -24,10 +24,10 @@
                 android:id="@id/continue_watching_thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:placeholderImageScaleType="centerCrop"
-                app:roundedCornerRadius="10dp"
                 fresco:actualImageScaleType="centerCrop"
-                fresco:placeholderImage="?color_light_separate" />
+                fresco:placeholderImage="?color_light_separate"
+                fresco:placeholderImageScaleType="centerCrop"
+                fresco:roundedCornerRadius="10dp" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="35dp"

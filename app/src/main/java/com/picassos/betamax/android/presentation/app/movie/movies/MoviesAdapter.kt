@@ -1,5 +1,7 @@
 package com.picassos.betamax.android.presentation.app.movie.movies
 
+import android.graphics.drawable.Animatable
+import android.net.Uri
 import androidx.recyclerview.widget.RecyclerView
 import com.picassos.betamax.android.R
 import android.view.ViewGroup
@@ -9,7 +11,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.image.ImageInfo
+import com.facebook.imagepipeline.request.ImageRequest
+import com.facebook.imagepipeline.request.ImageRequestBuilder
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
@@ -20,12 +26,22 @@ class MoviesAdapter(private val isHorizontal: Boolean = false, private val onCli
         val date: TextView = itemView.findViewById(R.id.movie_date)
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.movie_thumbnail)
 
-        fun setData(data: Movies.Movie) {
-            title.text = data.title
-            date.text = Helper.getFormattedDateString(data.date, "yyyy")
+        fun setData(movie: Movies.Movie) {
+            title.text = movie.title
+            date.text = Helper.getFormattedDateString(movie.date, "yyyy")
+
+            val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.thumbnail))
+                .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
+                .setProgressiveRenderingEnabled(true)
+                .build()
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
-                .setTapToRetryEnabled(true)
-                .setUri(data.thumbnail)
+                .setImageRequest(imageRequest)
+                .setOldController(thumbnail.controller)
+                .setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                        imageRequest.sourceUri?.let { Fresco.getImagePipeline().evictFromMemoryCache(it) }
+                    }
+                })
                 .build()
         }
 

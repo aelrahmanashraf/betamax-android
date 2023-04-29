@@ -1,5 +1,7 @@
 package com.picassos.betamax.android.presentation.app.continue_watching
 
+import android.graphics.drawable.Animatable
+import android.net.Uri
 import androidx.recyclerview.widget.RecyclerView
 import com.picassos.betamax.android.R
 import android.view.ViewGroup
@@ -10,7 +12,11 @@ import android.widget.ProgressBar
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.image.ImageInfo
+import com.facebook.imagepipeline.request.ImageRequest
+import com.facebook.imagepipeline.request.ImageRequestBuilder
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingOptionsClickListener
 import com.picassos.betamax.android.domain.model.ContinueWatching
@@ -22,14 +28,24 @@ class ContinueWatchingAdapter(private val onClickListener: OnContinueWatchingCli
         private val progress: ProgressBar = itemView.findViewById(R.id.continue_watching_progress)
 
         fun setData(continueWatching: ContinueWatching.ContinueWatching) {
-            thumbnail.controller = Fresco.newDraweeControllerBuilder()
-                .setTapToRetryEnabled(true)
-                .setUri(continueWatching.thumbnail)
-                .build()
             progress.apply {
                 max = continueWatching.duration
                 progress = continueWatching.currentPosition
             }
+
+            val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(continueWatching.thumbnail))
+                .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
+                .setProgressiveRenderingEnabled(true)
+                .build()
+            thumbnail.controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(imageRequest)
+                .setOldController(thumbnail.controller)
+                .setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                        imageRequest.sourceUri?.let { Fresco.getImagePipeline().evictFromMemoryCache(it) }
+                    }
+                })
+                .build()
         }
 
         fun bind(item: ContinueWatching.ContinueWatching, onClickListener: OnContinueWatchingClickListener) {

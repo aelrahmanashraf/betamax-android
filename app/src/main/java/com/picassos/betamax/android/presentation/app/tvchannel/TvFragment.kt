@@ -109,26 +109,21 @@ class TvFragment : Fragment() {
         tvViewModel.requestTvChannels()
         collectLatestOnLifecycleFragmentOwnerStarted(tvViewModel.tvChannels) { state ->
             if (state.isLoading) {
-                requestDialog.show()
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     recyclerTv.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 val tvChannels = state.response.tvChannels
                 tvAdapter.differ.submitList(tvChannels)
-                if (tvChannels.isEmpty()) {
-                    layout.noItems.visibility = View.VISIBLE
-                } else {
-                    layout.noItems.visibility = View.GONE
-                }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     recyclerTv.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -155,9 +150,6 @@ class TvFragment : Fragment() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 tvViewModel.requestTvChannels()
             }
         }

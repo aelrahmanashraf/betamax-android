@@ -32,10 +32,10 @@
                         android:id="@id/movie_thumbnail_container"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        app:placeholderImageScaleType="centerCrop"
                         fresco:actualImageScaleType="centerCrop"
                         fresco:overlayImage="@drawable/overlay_black"
-                        fresco:placeholderImage="?color_background" />
+                        fresco:placeholderImage="?color_background"
+                        fresco:placeholderImageScaleType="centerCrop" />
 
                     <RelativeLayout
                         android:id="@id/toolbar"
@@ -78,10 +78,10 @@
                                 android:id="@id/movie_thumbnail"
                                 android:layout_width="120dp"
                                 android:layout_height="170dp"
-                                app:placeholderImageScaleType="centerCrop"
-                                app:roundedCornerRadius="15dp"
                                 fresco:actualImageScaleType="centerCrop"
-                                fresco:placeholderImage="?color_background" />
+                                fresco:placeholderImage="?color_background"
+                                fresco:placeholderImageScaleType="centerCrop"
+                                fresco:roundedCornerRadius="15dp" />
 
                             <androidx.cardview.widget.CardView
                                 android:id="@id/play_movie"

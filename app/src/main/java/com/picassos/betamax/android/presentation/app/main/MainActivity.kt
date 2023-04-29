@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
@@ -26,10 +28,14 @@ import com.picassos.betamax.android.presentation.app.subscription.subscribe.Subs
 import com.picassos.betamax.android.presentation.app.tvchannel.TvFragment
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
 @AndroidEntryPoint
+@DelicateCoroutinesApi
 class MainActivity : AppCompatActivity() {
     private lateinit var layout: ActivityMainBinding
     private val mainViewModel: MainViewModel by viewModels()
@@ -52,10 +58,15 @@ class MainActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        collectLatestOnLifecycleStarted(entryPoint.getConfigurationUseCase().invoke()) { configuration ->
-            if (!Helper.verifyLicense(configuration.developedBy)) {
-                finishAffinity()
-                exitProcess(0)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@MainActivity)
+                entryPoint.getConfigurationUseCase().invoke().collectLatest { configuration ->
+                    if (!Helper.verifyLicense(configuration.developedBy)) {
+                        finishAffinity()
+                        exitProcess(0)
+                    }
+                }
             }
         }
 
@@ -130,10 +141,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@MainActivity)
     }
 }

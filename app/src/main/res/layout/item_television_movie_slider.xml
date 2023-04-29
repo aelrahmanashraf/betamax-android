@@ -10,18 +10,18 @@
         android:id="@id/movie_thumbnail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:overlayImage="@drawable/television_movie_slider_overlay"
-        app:placeholderImageScaleType="centerCrop"
         fresco:actualImageScaleType="centerCrop"
-        fresco:placeholderImage="?color_background" />
+        fresco:overlayImage="@drawable/television_movie_slider_overlay"
+        fresco:placeholderImage="?color_background"
+        fresco:placeholderImageScaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:padding="70dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="70dp">
 
         <TextView
             android:id="@id/movie_title"
@@ -124,10 +124,10 @@
             android:id="@id/play_movie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
             android:background="@drawable/item_television_background_primary_rounded_selectable"
             android:focusable="true"
-            android:layout_marginTop="20dp"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="20dp"

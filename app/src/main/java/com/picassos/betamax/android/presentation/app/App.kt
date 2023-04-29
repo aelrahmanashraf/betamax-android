@@ -1,7 +1,7 @@
 package com.picassos.betamax.android.presentation.app
 
 import android.app.Application
-import android.graphics.Bitmap
+import com.facebook.cache.disk.DiskCacheConfig
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.core.ImagePipelineConfig
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
@@ -14,8 +14,6 @@ import com.picassos.betamax.android.core.utilities.Connectivity
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.DelicateCoroutinesApi
 
-const val ONESIGNAL_APP_ID = BuildConfig.ONESIGNAL_APP_ID
-
 @HiltAndroidApp
 @DelicateCoroutinesApi
 class App : Application() {
@@ -23,6 +21,9 @@ class App : Application() {
         @get:Synchronized
         lateinit var instance: App
         lateinit var cache: SimpleCache
+
+        const val ONESIGNAL_APP_ID = BuildConfig.ONESIGNAL_APP_ID
+        const val MAX_DISK_CACHE_SIZE = 100 * 1024 * 1024
     }
 
     init {
@@ -36,10 +37,19 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val frescoConfig = ImagePipelineConfig.newBuilder(this)
-            .setBitmapsConfig(Bitmap.Config.ARGB_8888)
+        val config = ImagePipelineConfig.newBuilder(this)
+            .setMainDiskCacheConfig(
+                DiskCacheConfig.newBuilder(this)
+                    .setMaxCacheSize(MAX_DISK_CACHE_SIZE.toLong())
+                    .build())
+            .setSmallImageDiskCacheConfig(
+                DiskCacheConfig.newBuilder(this)
+                    .setMaxCacheSize(MAX_DISK_CACHE_SIZE.toLong())
+                    .build())
+            .setDownsampleEnabled(true)
+            .setResizeAndRotateEnabledForNetwork(true)
             .build()
-        Fresco.initialize(this, frescoConfig)
+        Fresco.initialize(this, config)
 
         Connectivity.instance.initializeWithApplicationContext(this)
 

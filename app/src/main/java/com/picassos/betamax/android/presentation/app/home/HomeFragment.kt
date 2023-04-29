@@ -175,14 +175,14 @@ class HomeFragment : Fragment() {
         homeViewModel.requestHomeContent()
         collectLatestOnLifecycleFragmentOwnerStarted(homeViewModel.home) { state ->
             if (state.isLoading) {
-                requestDialog.show()
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     homeContainer.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 genresAdapter.differ.submitList(state.response.genres.genres)
                 if (state.response.genres.genres.isEmpty()) {
@@ -247,8 +247,8 @@ class HomeFragment : Fragment() {
                 }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     homeContainer.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -308,9 +308,6 @@ class HomeFragment : Fragment() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 homeViewModel.requestHomeContent()
             }
         }
@@ -367,8 +364,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun ViewPager.autoScroll(lifecycleScope: LifecycleCoroutineScope, interval: Long) {
-        lifecycleScope.launchWhenResumed {
-            scrollIndefinitely(interval)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                scrollIndefinitely(interval)
+            }
         }
     }
 

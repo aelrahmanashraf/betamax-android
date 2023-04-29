@@ -29,10 +29,10 @@
         android:id="@id/tvchannel_thumbnail"
         android:layout_width="55dp"
         android:layout_height="30dp"
-        app:placeholderImageScaleType="centerCrop"
-        app:roundedCornerRadius="5dp"
         fresco:actualImageScaleType="centerCrop"
-        fresco:placeholderImage="?color_dark" />
+        fresco:placeholderImage="?color_dark"
+        fresco:placeholderImageScaleType="centerCrop"
+        fresco:roundedCornerRadius="5dp" />
 
     <TextView
         android:id="@id/tvchannel_title"

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="130dp"
@@ -14,11 +13,11 @@
         android:id="@id/episode_thumbnail"
         android:layout_width="130dp"
         android:layout_height="170dp"
-        app:overlayImage="@drawable/television_movie_overlay"
-        app:placeholderImageScaleType="centerCrop"
-        app:roundedCornerRadius="10dp"
         fresco:actualImageScaleType="centerCrop"
-        fresco:placeholderImage="?color_light_separate" />
+        fresco:overlayImage="@drawable/television_movie_overlay"
+        fresco:placeholderImage="?color_light_separate"
+        fresco:placeholderImageScaleType="centerCrop"
+        fresco:roundedCornerRadius="10dp" />
 
     <LinearLayout
         android:id="@id/movie_meta"
@@ -39,7 +38,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/poppins_semibold"
             android:hint="Episode Title"
-            android:maxLines="1"
+            android:maxLines="3"
             android:textAlignment="center"
             android:textColor="?color_dark"
             android:textColorHint="?color_dark"

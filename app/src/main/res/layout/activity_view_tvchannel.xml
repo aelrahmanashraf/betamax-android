@@ -139,6 +139,7 @@
                     android:id="@id/genres_list"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="0dp"
                     android:paddingEnd="15dp"
                     android:theme="@style/Theme.MaterialComponents.NoActionBar"
                     app:selectionRequired="true"

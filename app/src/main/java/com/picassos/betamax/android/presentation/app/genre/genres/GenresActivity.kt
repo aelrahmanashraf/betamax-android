@@ -8,13 +8,15 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityGenresBinding
 import com.picassos.betamax.android.domain.model.Genres
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
@@ -22,6 +24,7 @@ import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.domain.listener.OnGenreClickListener
 import com.picassos.betamax.android.presentation.app.genre.genre_movies.GenreMoviesActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class GenresActivity : AppCompatActivity() {
@@ -38,9 +41,15 @@ class GenresActivity : AppCompatActivity() {
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_genres)
 
-        val requestDialog = RequestDialog(this)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                Helper.restrictVpn(this@GenresActivity)
+            }
+        }
 
-        layout.goBack.setOnClickListener { finish() }
+        layout.goBack.setOnClickListener {
+            finish()
+        }
 
         val genresAdapter = GenresAdapter (isSpecial = false, listener = object: OnGenreClickListener {
             override fun onItemClick(genre: Genres.Genre) {
@@ -58,14 +67,14 @@ class GenresActivity : AppCompatActivity() {
         genresViewModel.requestAllGenres()
         collectLatestOnLifecycleStarted(genresViewModel.genres) { state ->
             if (state.isLoading) {
-                requestDialog.show()
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     recyclerGenres.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 val categories = state.response.genres
                 genresAdapter.differ.submitList(categories)
@@ -76,8 +85,8 @@ class GenresActivity : AppCompatActivity() {
                 }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     recyclerGenres.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -104,16 +113,8 @@ class GenresActivity : AppCompatActivity() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 genresViewModel.requestAllGenres()
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Helper.restrictVpn(this@GenresActivity)
     }
 }

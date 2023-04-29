@@ -3,7 +3,6 @@ package com.picassos.betamax.android.presentation.app.movie.movies
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.picassos.betamax.android.R
@@ -27,8 +26,10 @@ import com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieA
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 @AndroidEntryPoint
+@DelicateCoroutinesApi
 class MoviesFragment : Fragment() {
     private lateinit var layout: FragmentMoviesBinding
     private val moviesViewModel: MoviesViewModel by activityViewModels()
@@ -42,8 +43,6 @@ class MoviesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val sharedPreferences = SharedPreferences(requireContext())
         val entryPoint = EntryPointAccessors.fromApplication(requireContext(), AppEntryPoint::class.java)
-
-        val requestDialog = RequestDialog(requireContext())
 
         collectLatestOnLifecycleFragmentOwnerStarted(entryPoint.getAccountUseCase().invoke()) { account ->
             layout.profileIcon.apply {
@@ -71,26 +70,21 @@ class MoviesFragment : Fragment() {
         moviesViewModel.requestMovies()
         collectLatestOnLifecycleFragmentOwnerStarted(moviesViewModel.movies) { state ->
             if (state.isLoading) {
-                requestDialog.show()
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     recyclerMovies.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 val movies = state.response.movies
                 moviesAdapter.differ.submitList(movies)
-                if (movies.isEmpty()) {
-                    layout.noItems.visibility = View.VISIBLE
-                } else {
-                    layout.noItems.visibility = View.GONE
-                }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     recyclerMovies.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -117,9 +111,6 @@ class MoviesFragment : Fragment() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 moviesViewModel.requestMovies()
             }
         }

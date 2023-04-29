@@ -35,163 +35,149 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <androidx.core.widget.NestedScrollView
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight=".25"
-                android:fillViewport="true">
+                android:background="@color/color_dark_alpha50"
+                android:orientation="vertical"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp">
 
                 <LinearLayout
+                    android:id="@id/tvchannels_favorites"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/color_dark_alpha50"
-                    android:orientation="vertical"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="20dp">
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/item_television_movie_genre_selectable"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="15dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="15dp"
+                    android:paddingBottom="5dp">
 
-                    <LinearLayout
-                        android:id="@id/tvchannels_favorites"
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="7dp"
+                        android:alpha=".8"
+                        android:padding="5dp"
+                        android:src="@drawable/icon_star_outline"
+                        app:tint="?color_dark"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/item_television_movie_genre_selectable"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="15dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="15dp"
-                        android:paddingBottom="5dp">
-
-                        <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:layout_marginEnd="7dp"
-                            android:alpha=".8"
-                            android:padding="5dp"
-                            android:src="@drawable/icon_star_outline"
-                            app:tint="?color_dark"
-                            tools:ignore="ContentDescription" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:alpha=".8"
-                            android:fontFamily="@font/poppins_regular"
-                            android:text="@string/favorites"
-                            android:textColor="?color_dark"
-                            android:textSize="15sp" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="15dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="15dp"
-                        android:paddingBottom="5dp"
-                        tools:ignore="UseCompoundDrawables">
-
-                        <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:layout_marginEnd="7dp"
-                            android:alpha=".8"
-                            android:padding="5dp"
-                            android:src="@drawable/icon_menu"
-                            app:tint="?color_dark"
-                            tools:ignore="ContentDescription" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:alpha=".8"
-                            android:fontFamily="@font/poppins_regular"
-                            android:text="@string/genres"
-                            android:textColor="?color_dark"
-                            android:textSize="15sp" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@id/all_tvchannels"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/item_television_movie_genre_selectable"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="52dp"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="15dp"
-                        android:paddingBottom="5dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:alpha=".8"
-                            android:fontFamily="@font/poppins_regular"
-                            android:text="@string/all_tv_channels"
-                            android:textColor="?color_dark"
-                            android:textSize="14sp" />
-
-                    </LinearLayout>
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@id/recycler_genres"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <ProgressBar
-                        android:id="@id/genres_progressbar"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
-                        android:indeterminateTint="?color_dark" />
+                        android:layout_marginTop="1dp"
+                        android:alpha=".8"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="@string/favorites"
+                        android:textColor="?color_dark"
+                        android:textSize="15sp" />
 
                 </LinearLayout>
 
-            </androidx.core.widget.NestedScrollView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="15dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="15dp"
+                    android:paddingBottom="5dp"
+                    tools:ignore="UseCompoundDrawables">
 
-            <androidx.core.widget.NestedScrollView
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="7dp"
+                        android:alpha=".8"
+                        android:padding="5dp"
+                        android:src="@drawable/icon_menu"
+                        app:tint="?color_dark"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:alpha=".8"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="@string/genres"
+                        android:textColor="?color_dark"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@id/all_tvchannels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/item_television_movie_genre_selectable"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="52dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="15dp"
+                    android:paddingBottom="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:alpha=".8"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="@string/all_tv_channels"
+                        android:textColor="?color_dark"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@id/recycler_genres"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <ProgressBar
+                    android:id="@id/genres_progressbar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:indeterminateTint="?color_dark" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight=".25"
-                android:fillViewport="true">
+                android:background="@color/color_dark_alpha40"
+                android:orientation="vertical"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp">
 
-                <LinearLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@id/recycler_tv"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/color_dark_alpha40"
-                    android:orientation="vertical"
-                    android:paddingTop="20dp"
-                    android:paddingBottom="20dp">
+                    android:layout_height="wrap_content"
+                    android:paddingStart="20dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="20dp" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@id/recycler_tv"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="20dp"
-                        android:paddingTop="7dp"
-                        android:paddingEnd="20dp" />
+                <ProgressBar
+                    android:id="@id/tvchannels_progressbar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:indeterminateTint="?color_dark" />
 
-                    <ProgressBar
-                        android:id="@id/tvchannels_progressbar"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10dp"
-                        android:indeterminateTint="?color_dark" />
-
-                </LinearLayout>
-
-            </androidx.core.widget.NestedScrollView>
+            </LinearLayout>
 
             <View
                 android:layout_width="0dp"

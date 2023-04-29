@@ -1,42 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fresco="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    android:layout_marginEnd="25dp"
     android:gravity="center_horizontal"
-    xmlns:fresco="http://schemas.android.com/tools"
-    android:layout_marginEnd="25dp">
+    android:orientation="vertical">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/actor_thumbnail"
         android:layout_width="50dp"
         android:layout_height="50dp"
         fresco:actualImageScaleType="centerCrop"
-        app:roundAsCircle="true"
-        app:placeholderImageScaleType="centerCrop"
-        fresco:placeholderImage="@color/color_grey" />
+        fresco:placeholderImage="@color/color_grey"
+        fresco:placeholderImageScaleType="centerCrop"
+        fresco:roundAsCircle="true" />
 
     <TextView
         android:id="@id/actor_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Name"
         android:layout_marginTop="7dp"
         android:fontFamily="@font/poppins_medium"
-        android:textSize="14sp"
+        android:text="Name"
         android:textColor="?color_dark"
+        android:textSize="14sp"
         fresco:ignore="HardcodedText" />
 
     <TextView
         android:id="@id/actor_role"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Role"
-        android:fontFamily="@font/poppins_regular"
-        android:textSize="13sp"
         android:alpha=".8"
+        android:fontFamily="@font/poppins_regular"
+        android:text="Role"
         android:textColor="?color_dark"
+        android:textSize="13sp"
         fresco:ignore="HardcodedText" />
 
 </LinearLayout>

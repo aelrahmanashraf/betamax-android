@@ -31,11 +31,11 @@
                     android:id="@id/movie_thumbnail_container"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
-                    app:overlayImage="@drawable/television_movie_cover_overlay"
-                    app:placeholderImageScaleType="centerCrop"
-                    app:roundedCornerRadius="10dp"
                     fresco:actualImageScaleType="centerCrop"
-                    fresco:placeholderImage="?color_background" />
+                    fresco:overlayImage="@drawable/television_movie_cover_overlay"
+                    fresco:placeholderImage="?color_background"
+                    fresco:placeholderImageScaleType="centerCrop"
+                    fresco:roundedCornerRadius="10dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -49,10 +49,10 @@
                         android:id="@id/movie_thumbnail"
                         android:layout_width="170dp"
                         android:layout_height="220dp"
-                        app:placeholderImageScaleType="centerCrop"
-                        app:roundedCornerRadius="10dp"
                         fresco:actualImageScaleType="centerCrop"
-                        fresco:placeholderImage="?color_light_separate" />
+                        fresco:placeholderImage="?color_light_separate"
+                        fresco:placeholderImageScaleType="centerCrop"
+                        fresco:roundedCornerRadius="10dp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

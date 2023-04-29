@@ -4,7 +4,6 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.picassos.betamax.android.R
@@ -38,10 +37,12 @@ import com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieA
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.lang.Exception
 import java.util.*
 
 @AndroidEntryPoint
+@DelicateCoroutinesApi
 class SearchFragment : Fragment() {
     private lateinit var layout: FragmentSearchBinding
     private val searchViewModel: SearchViewModel by activityViewModels()
@@ -55,8 +56,6 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val sharedPreferences = SharedPreferences(requireContext())
         val entryPoint = EntryPointAccessors.fromApplication(requireContext(), AppEntryPoint::class.java)
-
-        val requestDialog = RequestDialog(requireContext())
 
         collectLatestOnLifecycleFragmentOwnerStarted(entryPoint.getAccountUseCase().invoke()) { account ->
             layout.profileIcon.apply {
@@ -82,14 +81,14 @@ class SearchFragment : Fragment() {
 
         collectLatestOnLifecycleFragmentOwnerStarted(searchViewModel.movies) { state ->
             if (state.isLoading) {
-                requestDialog.show()
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     recyclerSearch.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 val movies = state.response.movies
                 moviesAdapter.differ.submitList(movies)
@@ -100,8 +99,8 @@ class SearchFragment : Fragment() {
                 }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     recyclerSearch.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -152,9 +151,6 @@ class SearchFragment : Fragment() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 searchViewModel.requestSearchMovies(layout.searchBar.text.toString())
             }
         }
