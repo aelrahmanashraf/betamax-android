@@ -149,14 +149,15 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 val tvChannelDetails = state.response.tvChannelDetails.tvChannels[0]
 
                 val tvChannelUrl = when (televisionTvChannelsViewModel.selectedQuality.value) {
-                    VideoQuality.QUALITY_SD -> tvChannelDetails.sdUrl
-                    VideoQuality.QUALITY_HD -> tvChannelDetails.hdUrl
-                    VideoQuality.QUALITY_FHD -> tvChannelDetails.fhdUrl
+                    VideoQuality.QUALITY_SD -> tvChannelDetails.sdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } }
+                    VideoQuality.QUALITY_HD -> tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl
+                    VideoQuality.QUALITY_FHD -> tvChannelDetails.fhdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl }
                 }
-
-                initializePlayer(
-                    url = tvChannelUrl,
-                    userAgent = tvChannelDetails.userAgent)
+                tvChannelUrl?.let { url ->
+                    initializePlayer(
+                        url = url,
+                        userAgent = tvChannelDetails.userAgent)
+                }
             }
         }
 
