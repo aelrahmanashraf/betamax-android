@@ -107,14 +107,16 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
             if (state.response != null) {
                 val tvChannelDetails = state.response.tvChannelDetails.tvChannels[0]
-                val url = when (state.response.videoQuality) {
+                val tvChannelUrl = when (state.response.videoQuality) {
                     1 -> tvChannelDetails.sdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } }
                     2 -> tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl
                     3 -> tvChannelDetails.fhdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl }
                     else -> null
                 }
-                if (url != null) {
-                    initializePlayer(url)
+                if (tvChannelUrl != null) {
+                    initializePlayer(
+                        title = tvChannelDetails.title,
+                        url = tvChannelUrl)
                 }
             }
             if (state.error != null) {
@@ -219,7 +221,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SwitchIntDef")
-    private fun initializePlayer(url: String) {
+    private fun initializePlayer(title: String = "", url: String) {
         selectedUrl = url
 
         val loadControl: LoadControl = DefaultLoadControl.Builder()
@@ -244,6 +246,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
+        if (title.isNotEmpty()) {
+            layout.playerTitle.text = title
+        }
         layout.exoPlayer.apply {
             player = exoPlayer
             setControllerVisibilityListener { visibility ->

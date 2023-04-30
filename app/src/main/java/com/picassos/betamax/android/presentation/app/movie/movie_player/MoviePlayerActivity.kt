@@ -100,6 +100,15 @@ class MoviePlayerActivity : AppCompatActivity() {
 
         getSerializable(this@MoviePlayerActivity, "playerContent", PlayerContent::class.java).also { playerContent ->
             this@MoviePlayerActivity.playerContent = playerContent
+
+            layout.apply {
+                playerTitle.text = playerContent.title
+                if (playerContent.meta.isNotEmpty()) {
+                    playerMeta.text = playerContent.meta
+                } else {
+                    playerMeta.visibility = View.GONE
+                }
+            }
         }
 
         initializePlayer(url = playerContent.url)

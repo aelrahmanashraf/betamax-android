@@ -33,6 +33,7 @@
             android:id="@id/tvchannels_nav_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -179,10 +180,29 @@
 
             </LinearLayout>
 
-            <View
+            <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight=".5" />
+                android:layout_weight=".5">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@id/player_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/poppins_medium"
+                    android:textColor="?color_dark"
+                    android:textSize="18sp" />
+
+            </RelativeLayout>
+
 
         </LinearLayout>
 

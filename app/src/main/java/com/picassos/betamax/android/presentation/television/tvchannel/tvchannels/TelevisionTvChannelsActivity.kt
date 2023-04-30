@@ -155,6 +155,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 }
                 tvChannelUrl?.let { url ->
                     initializePlayer(
+                        title = tvChannelDetails.title,
                         url = url,
                         userAgent = tvChannelDetails.userAgent)
                 }
@@ -195,7 +196,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializePlayer(url: String, userAgent: String) {
+    private fun initializePlayer(title: String = "", url: String, userAgent: String) {
         val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -211,6 +212,9 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             }
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
+        if (title.isNotEmpty()) {
+            layout.playerTitle.text = title
+        }
         layout.exoPlayer.apply {
             player = exoPlayer
         }

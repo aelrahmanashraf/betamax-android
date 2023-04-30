@@ -11,6 +11,7 @@ fun EpisodesDto.toEpisodes(): Episodes {
                 id = episode.id,
                 episodeId = episode.episodeId,
                 movieId = episode.movieId,
+                seasonLevel = episode.seasonLevel,
                 level = episode.level,
                 url = episode.url,
                 title = episode.title,

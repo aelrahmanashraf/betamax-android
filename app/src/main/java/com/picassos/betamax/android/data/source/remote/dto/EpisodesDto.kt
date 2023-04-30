@@ -19,6 +19,8 @@ data class EpisodesDto(
             val episodeId: Int,
             @SerializedName("movie_id")
             val movieId: Int,
+            @SerializedName("season_level")
+            val seasonLevel: Int,
             @SerializedName("level")
             val level: Int,
             @SerializedName("url")

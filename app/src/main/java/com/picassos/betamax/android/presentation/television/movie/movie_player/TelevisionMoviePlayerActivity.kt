@@ -67,6 +67,15 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
         getSerializable(this@TelevisionMoviePlayerActivity, "playerContent", PlayerContent::class.java).also { playerContent ->
             this@TelevisionMoviePlayerActivity.playerContent = playerContent
+
+            layout.apply {
+                playerTitle.text = playerContent.title
+                if (playerContent.meta.isNotEmpty()) {
+                    playerMeta.text = playerContent.meta
+                } else {
+                    playerMeta.visibility = View.GONE
+                }
+            }
         }
 
         initializePlayer(url = playerContent.url)
@@ -129,6 +138,14 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
         layout.exoPlayer.apply {
             player = exoPlayer
+            setControllerVisibilityListener { visibility ->
+                layout.controllerContainer.apply {
+                    when (visibility) {
+                        View.VISIBLE -> animate().alpha(1F).duration = 400
+                        View.GONE -> animate().alpha(0F).duration = 400
+                    }
+                }
+            }
         }
 
         if (playerContent.currentPosition != 0) {

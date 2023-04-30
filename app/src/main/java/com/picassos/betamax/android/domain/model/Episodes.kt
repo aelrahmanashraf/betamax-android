@@ -8,6 +8,7 @@ data class Episodes(
         val id: Int,
         val episodeId: Int,
         val movieId: Int,
+        val seasonLevel: Int,
         val level: Int,
         val url: String,
         val title: String,
