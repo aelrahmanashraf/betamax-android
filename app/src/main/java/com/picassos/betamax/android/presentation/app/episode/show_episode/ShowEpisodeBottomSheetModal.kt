@@ -1,6 +1,7 @@
 package com.picassos.betamax.android.presentation.app.episode.show_episode
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -29,6 +30,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
+    interface OnEpisodeBottomSheetDismissedListener {
+        fun onEpisodesBottomSheetDismissed()
+    }
+
     private lateinit var layout: ShowEpisodeBottomSheetModalBinding
     private val showEpisodeViewModel: ShowEpisodeViewModel by activityViewModels()
 
@@ -86,7 +91,8 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
                                 title = episode.title,
                                 url = episode.url,
                                 meta = "${getString(R.string.season)} ${episode.seasonLevel}",
-                                thumbnail = episode.thumbnail))
+                                thumbnail = episode.thumbnail,
+                                currentPosition = episode.currentPosition ?: 0))
                             startActivity(intent)
                         }
                     }
@@ -107,6 +113,13 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        if (activity is OnEpisodeBottomSheetDismissedListener) {
+            (activity as OnEpisodeBottomSheetDismissedListener).onEpisodesBottomSheetDismissed()
         }
     }
 }

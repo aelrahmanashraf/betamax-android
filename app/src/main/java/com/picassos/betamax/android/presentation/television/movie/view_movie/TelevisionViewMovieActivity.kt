@@ -94,7 +94,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
             adapter = moviesAdapter
         }
 
-        val episodesAdapter = TelevisionEpisodesAdapter(listener = object: OnEpisodeClickListener {
+        val episodesAdapter = TelevisionEpisodesAdapter(onClickListener = object: OnEpisodeClickListener {
             override fun onItemClick(episode: Episodes.Episode?) {
                 this@TelevisionViewMovieActivity.episode = episode
                 televisionViewMovieViewModel.requestCheckSubscription()

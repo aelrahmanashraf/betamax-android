@@ -2,14 +2,12 @@ package com.picassos.betamax.android.domain.repository
 
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.model.Movies
-import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.domain.model.ViewMovie
 import kotlinx.coroutines.flow.Flow
 
 interface MovieRepository {
     suspend fun getMovies(): Flow<Resource<Movies>>
     suspend fun getMoviesByGenre(genreId: Int, filter: String): Flow<Resource<Movies>>
-    suspend fun getTvChannels(): Flow<Resource<TvChannels>>
     suspend fun getRelatedMovies(movieId: Int): Flow<Resource<Movies>>
     suspend fun getMovie(token: String, movieId: Int, seasonLevel: Int, genreId: Int): Flow<Resource<ViewMovie>>
     suspend fun getHomeMovies(): Flow<Resource<Movies>>

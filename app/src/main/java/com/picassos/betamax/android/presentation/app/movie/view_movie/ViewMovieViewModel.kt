@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.domain.usecase.movie.ViewMovieUseCases
-import com.picassos.betamax.android.presentation.app.episode.episodes.EpisodesState
 import com.picassos.betamax.android.presentation.app.movie.save_movie.SaveMovieState
 import com.picassos.betamax.android.presentation.app.subscription.check_subscription.CheckSubscriptionState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,30 +43,6 @@ class ViewMovieViewModel @Inject constructor(app: Application, private val viewM
                             _viewMovie.emit(ViewMovieState(
                                 error = result.message))
                         }
-                    }
-                }
-            }
-        }
-    }
-
-    private val _episodes = MutableStateFlow(EpisodesState())
-    val episodes = _episodes.asStateFlow()
-
-    fun requestEpisodes(movieId: Int, seasonLevel: Int) {
-        viewModelScope.launch {
-            viewMovieUseCases.getEpisodesUseCase(movieId, seasonLevel).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _episodes.emit(EpisodesState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _episodes.emit(EpisodesState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _episodes.emit(EpisodesState(
-                            error = result.message))
                     }
                 }
             }

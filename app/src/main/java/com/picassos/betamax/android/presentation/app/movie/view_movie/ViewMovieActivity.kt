@@ -15,8 +15,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.work.ExistingWorkPolicy
-import androidx.work.WorkManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.picassos.betamax.android.core.utilities.Helper
 import com.facebook.drawee.backends.pipeline.PipelineDraweeController
@@ -41,7 +39,7 @@ import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.domain.model.Seasons
-import com.picassos.betamax.android.domain.worker.VideoPreloadWorker
+import com.picassos.betamax.android.presentation.app.episode.episodes.EpisodesViewModel
 import com.picassos.betamax.android.presentation.app.episode.show_episode.ShowEpisodeBottomSheetModal
 import com.picassos.betamax.android.presentation.app.movie.movie_player.MoviePlayerActivity
 import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsBottomSheetModal
@@ -54,10 +52,11 @@ import org.json.JSONException
 
 @DelicateCoroutinesApi
 @AndroidEntryPoint
-class ViewMovieActivity : AppCompatActivity() {
+class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpisodeBottomSheetDismissedListener {
     private lateinit var layout: ActivityViewMovieBinding
     private val viewMovieViewModel: ViewMovieViewModel by viewModels()
     private val seasonsViewModel: SeasonsViewModel by viewModels()
+    private val episodesViewModel: EpisodesViewModel by viewModels()
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -102,7 +101,6 @@ class ViewMovieActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(viewMovieViewModel.movie) { isSafe ->
             isSafe?.let { movie ->
                 this.movie = movie
-                schedulePreloadWork(movie.url)
             }
         }
 
@@ -125,15 +123,14 @@ class ViewMovieActivity : AppCompatActivity() {
             adapter = moviesAdapter
         }
 
-        val episodesAdapter = EpisodesAdapter(listener = object: OnEpisodeClickListener {
+        val episodesAdapter = EpisodesAdapter(onClickListener = object: OnEpisodeClickListener {
             override fun onItemClick(episode: Episodes.Episode?) {
-                val bundle = Bundle().apply {
+                val showEpisodeBottomSheetModal = ShowEpisodeBottomSheetModal()
+                showEpisodeBottomSheetModal.arguments = Bundle().apply {
                     putSerializable("movie", movie)
                     putSerializable("episode", episode)
                 }
-                val showEpisodeBottomSheetModal = ShowEpisodeBottomSheetModal()
-                showEpisodeBottomSheetModal.arguments = bundle
-                showEpisodeBottomSheetModal.show(supportFragmentManager, "TAG")
+                showEpisodeBottomSheetModal.show(supportFragmentManager, "show_episode")
             }
         })
         layout.recyclerEpisodes.apply {
@@ -143,15 +140,14 @@ class ViewMovieActivity : AppCompatActivity() {
 
         collectLatestOnLifecycleStarted(viewMovieViewModel.viewMovie) { state ->
             if (state.isLoading) {
-                requestDialog.show()
-
                 layout.apply {
+                    refreshLayout.isRefreshing = true
                     movieContainer.visibility = View.VISIBLE
                     internetConnection.root.visibility = View.GONE
                 }
             }
             if (state.response != null) {
-                requestDialog.dismiss()
+                layout.refreshLayout.isRefreshing = false
 
                 val movieDetails = state.response.movieDetails.movies[0]
                 layout.apply {
@@ -230,36 +226,32 @@ class ViewMovieActivity : AppCompatActivity() {
                     layout.castContainer.visibility = View.VISIBLE
                 }
 
-                when (movieDetails.series) {
-                    0 -> {
-                        layout.apply {
-                            movieMetaContainer.visibility = View.VISIBLE
-                            relatedMoviesContainer.visibility = View.VISIBLE
-                            seasonsContainer.visibility = View.GONE
-                        }
-                        val movies = state.response.relatedMovies.movies
-                        moviesAdapter.differ.submitList(movies)
-                        if (movies.isEmpty()) {
-                            layout.relatedMoviesContainer.visibility = View.GONE
-                        } else {
-                            layout.relatedMoviesContainer.visibility = View.VISIBLE
-                        }
+                if (movieDetails.series == 0) {
+                    layout.apply {
+                        movieMetaContainer.visibility = View.VISIBLE
+                        relatedMoviesContainer.visibility = View.VISIBLE
+                        seasonsContainer.visibility = View.GONE
                     }
-                    else -> {
-                        layout.apply {
-                            movieMetaContainer.visibility = View.GONE
-                            relatedMoviesContainer.visibility = View.GONE
-                            season.text = state.response.movieEpisodes.seasonTitle
-                            seasonsContainer.apply {
-                                visibility = View.VISIBLE
-                                setOnClickListener {
-                                    val bundle = Bundle().apply {
-                                        putInt("movie_id", movie.id)
-                                    }
-                                    val seasonsBottomSheetModal = SeasonsBottomSheetModal()
-                                    seasonsBottomSheetModal.arguments = bundle
-                                    seasonsBottomSheetModal.show(supportFragmentManager, "TAG")
+                    val movies = state.response.relatedMovies.movies
+                    moviesAdapter.differ.submitList(movies)
+                    if (movies.isEmpty()) {
+                        layout.relatedMoviesContainer.visibility = View.GONE
+                    } else {
+                        layout.relatedMoviesContainer.visibility = View.VISIBLE
+                    }
+                } else {
+                    layout.apply {
+                        movieMetaContainer.visibility = View.GONE
+                        relatedMoviesContainer.visibility = View.GONE
+                        season.text = state.response.movieEpisodes.seasonTitle
+                        seasonsContainer.apply {
+                            visibility = View.VISIBLE
+                            setOnClickListener {
+                                val seasonsBottomSheetModal = SeasonsBottomSheetModal()
+                                seasonsBottomSheetModal.arguments = Bundle().apply {
+                                    putInt("movie_id", movie.id)
                                 }
+                                seasonsBottomSheetModal.show(supportFragmentManager, "seasons")
                             }
                         }
                         val episodes = state.response.movieEpisodes.rendered
@@ -273,9 +265,8 @@ class ViewMovieActivity : AppCompatActivity() {
                 }
             }
             if (state.error != null) {
-                requestDialog.dismiss()
-
                 layout.apply {
+                    refreshLayout.isRefreshing = false
                     movieContainer.visibility = View.GONE
                     internetConnection.root.visibility = View.VISIBLE
                     internetConnection.tryAgain.setOnClickListener {
@@ -360,15 +351,16 @@ class ViewMovieActivity : AppCompatActivity() {
             isSafe?.let { season ->
                 selectedSeason = season
                 layout.season.text = season.title
-                viewMovieViewModel.requestEpisodes(
+                episodesViewModel.requestEpisodes(
                     movieId = movie.id,
                     seasonLevel = season.level)
             }
         }
 
-        collectLatestOnLifecycleStarted(viewMovieViewModel.episodes) { state ->
+        collectLatestOnLifecycleStarted(episodesViewModel.episodes) { state ->
             if (state.response != null) {
-                episodesAdapter.differ.submitList(state.response.rendered)
+                val episodes = state.response.rendered
+                episodesAdapter.differ.submitList(episodes)
             }
         }
 
@@ -386,9 +378,6 @@ class ViewMovieActivity : AppCompatActivity() {
                 }
             }
             setOnRefreshListener {
-                if (isRefreshing) {
-                    isRefreshing = false
-                }
                 viewMovieViewModel.requestMovie(
                     movieId = movie.id,
                     seasonLevel = selectedSeason.level,
@@ -407,12 +396,9 @@ class ViewMovieActivity : AppCompatActivity() {
         })
     }
 
-    private fun schedulePreloadWork(url: String) {
-        val workManager = WorkManager.getInstance(applicationContext)
-        val videoPreloadWorker = VideoPreloadWorker.buildWorkRequest(url)
-        workManager.enqueueUniqueWork(
-            "VideoPreloadWorker",
-            ExistingWorkPolicy.KEEP,
-            videoPreloadWorker)
+    override fun onEpisodesBottomSheetDismissed() {
+        episodesViewModel.requestEpisodes(
+            movieId = movie.id,
+            seasonLevel = selectedSeason.level)
     }
 }

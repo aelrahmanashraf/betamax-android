@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="130dp"
@@ -9,15 +10,34 @@
     android:focusable="true"
     android:padding="1.4dp">
 
-    <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@id/episode_thumbnail"
+    <androidx.cardview.widget.CardView
         android:layout_width="130dp"
         android:layout_height="170dp"
-        fresco:actualImageScaleType="centerCrop"
-        fresco:overlayImage="@drawable/television_movie_overlay"
-        fresco:placeholderImage="?color_light_separate"
-        fresco:placeholderImageScaleType="centerCrop"
-        fresco:roundedCornerRadius="10dp" />
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="0dp">
+
+        <com.facebook.drawee.view.SimpleDraweeView
+            android:id="@id/episode_thumbnail"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            fresco:actualImageScaleType="centerCrop"
+            fresco:overlayImage="@drawable/television_movie_overlay"
+            fresco:placeholderImage="?color_light_separate"
+            fresco:placeholderImageScaleType="centerCrop"
+            fresco:roundedCornerRadius="10dp" />
+
+        <ProgressBar
+            android:id="@id/episode_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:progressBackgroundTint="@color/color_theme"
+            android:progressTint="@color/color_theme" />
+
+    </androidx.cardview.widget.CardView>
 
     <LinearLayout
         android:id="@id/movie_meta"

@@ -176,6 +176,7 @@ interface APIService {
     @POST("episode/request_episodes.inc.php")
     suspend fun episodes(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String,
         @Field("movie_id") movieId: Int,
         @Field("season_level") seasonLevel: Int
     ): EpisodesDto

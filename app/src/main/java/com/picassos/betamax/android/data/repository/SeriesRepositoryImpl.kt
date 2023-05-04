@@ -32,11 +32,12 @@ class SeriesRepositoryImpl @Inject constructor(private val service: APIService):
         }
     }
 
-    override suspend fun getEpisodes(movieId: Int, seasonLevel: Int): Flow<Resource<Episodes>> {
+    override suspend fun getEpisodes(token: String, movieId: Int, seasonLevel: Int): Flow<Resource<Episodes>> {
         return flow {
             emit(Resource.Loading(true))
             try {
                 val response = service.episodes(
+                    token = token,
                     movieId = movieId,
                     seasonLevel = seasonLevel)
                 emit(Resource.Success(response.toEpisodes()))

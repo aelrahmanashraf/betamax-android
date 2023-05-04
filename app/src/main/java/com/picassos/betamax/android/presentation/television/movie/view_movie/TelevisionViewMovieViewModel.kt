@@ -81,19 +81,21 @@ class TelevisionViewMovieViewModel @Inject constructor(app: Application, private
 
     fun requestEpisodes(movieId: Int, seasonLevel: Int) {
         viewModelScope.launch {
-            viewMovieUseCases.getEpisodesUseCase(movieId, seasonLevel).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _episodes.emit(EpisodesState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _episodes.emit(EpisodesState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _episodes.emit(EpisodesState(
-                            error = result.message))
+            viewMovieUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                viewMovieUseCases.getEpisodesUseCase(account.token, movieId, seasonLevel).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _episodes.emit(EpisodesState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _episodes.emit(EpisodesState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _episodes.emit(EpisodesState(
+                                error = result.message))
+                        }
                     }
                 }
             }

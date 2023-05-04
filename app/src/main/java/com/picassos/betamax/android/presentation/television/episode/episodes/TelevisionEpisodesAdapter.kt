@@ -8,6 +8,7 @@ import com.picassos.betamax.android.R
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -20,15 +21,22 @@ import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 
-class TelevisionEpisodesAdapter(private val listener: OnEpisodeClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TelevisionEpisodesAdapter(private val onClickListener: OnEpisodeClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class EpisodesHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.episode_thumbnail)
-        val title: TextView = itemView.findViewById(R.id.episode_title)
-        val duration: TextView = itemView.findViewById(R.id.episode_duration)
+        private val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.episode_thumbnail)
+        private val title: TextView = itemView.findViewById(R.id.episode_title)
+        private val duration: TextView = itemView.findViewById(R.id.episode_duration)
+        private val progress: ProgressBar = itemView.findViewById(R.id.episode_progress)
 
         fun setData(episode: Episodes.Episode) {
             title.text = episode.title
             duration.text = Helper.convertMinutesToHoursAndMinutes(episode.duration)
+            progress.apply {
+                max = episode.duration * 60 * 1000
+                episode.currentPosition?.let { currentPosition ->
+                    progress = currentPosition
+                } ?: run { visibility = View.GONE }
+            }
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(episode.thumbnail))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
@@ -45,8 +53,8 @@ class TelevisionEpisodesAdapter(private val listener: OnEpisodeClickListener) : 
                 .build()
         }
 
-        fun bind(item: Episodes.Episode?, listener: OnEpisodeClickListener) {
-            itemView.setOnClickListener {  listener.onItemClick(item) }
+        fun bind(item: Episodes.Episode?, onClickListener: OnEpisodeClickListener) {
+            itemView.setOnClickListener {  onClickListener.onItemClick(item) }
         }
     }
 
@@ -60,20 +68,25 @@ class TelevisionEpisodesAdapter(private val listener: OnEpisodeClickListener) : 
            return oldItem.id == newItem.id
                && oldItem.episodeId == newItem.episodeId
                && oldItem.title == newItem.title
+               && oldItem.duration == newItem.duration
+               && oldItem.currentPosition == newItem.currentPosition
         }
 
         override fun areContentsTheSame(oldItem: Episodes.Episode, newItem: Episodes.Episode): Boolean {
             return oldItem.id == newItem.id
                 && oldItem.episodeId == newItem.episodeId
                 && oldItem.title == newItem.title
+                && oldItem.duration == newItem.duration
+                && oldItem.currentPosition == newItem.currentPosition
         }
     })
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val episodes = differ.currentList[position]
-        val episodesHolder = holder as EpisodesHolder
-        episodesHolder.setData(episodes)
-        episodesHolder.bind(episodes, listener)
+        (holder as EpisodesHolder).apply {
+            setData(episodes)
+            bind(episodes, onClickListener)
+        }
     }
 
     override fun getItemCount(): Int {

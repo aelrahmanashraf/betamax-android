@@ -13,5 +13,6 @@ data class Episodes(
         val url: String,
         val title: String,
         val thumbnail: String,
-        val duration: Int): java.io.Serializable
+        val duration: Int,
+        val currentPosition: Int?): java.io.Serializable
 }

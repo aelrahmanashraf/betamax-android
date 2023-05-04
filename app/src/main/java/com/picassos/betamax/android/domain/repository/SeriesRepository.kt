@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface SeriesRepository {
     suspend fun getSeasons(movieId: Int): Flow<Resource<Seasons>>
-    suspend fun getEpisodes(movieId: Int, seasonLevel: Int): Flow<Resource<Episodes>>
+    suspend fun getEpisodes(token: String, movieId: Int, seasonLevel: Int): Flow<Resource<Episodes>>
 }

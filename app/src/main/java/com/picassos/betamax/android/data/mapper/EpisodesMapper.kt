@@ -16,7 +16,8 @@ fun EpisodesDto.toEpisodes(): Episodes {
                 url = episode.url,
                 title = episode.title,
                 thumbnail = episode.thumbnail,
-                duration = episode.duration)
+                duration = episode.duration,
+                currentPosition = episode.currentPosition)
         }
     )
 }

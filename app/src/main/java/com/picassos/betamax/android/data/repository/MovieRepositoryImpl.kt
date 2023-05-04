@@ -4,7 +4,6 @@ import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.data.mapper.*
 import com.picassos.betamax.android.data.source.remote.APIService
 import com.picassos.betamax.android.domain.model.Movies
-import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.domain.model.ViewMovie
 import com.picassos.betamax.android.domain.repository.MovieRepository
 import com.picassos.betamax.android.core.utilities.Response
@@ -25,22 +24,6 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
             try {
                 val response = service.movies()
                 emit(Resource.Success(response.toMovies()))
-            } catch (t: Throwable) {
-                when (t) {
-                    is IOException -> emit(Resource.Error(Response.NETWORK_FAILURE_EXCEPTION))
-                    else -> emit(Resource.Error(Response.MALFORMED_REQUEST_EXCEPTION))
-                }
-            }
-            emit(Resource.Loading(false))
-        }
-    }
-
-    override suspend fun getTvChannels(): Flow<Resource<TvChannels>> {
-        return flow {
-            emit(Resource.Loading(true))
-            try {
-                val response = service.tvChannels()
-                emit(Resource.Success(response.toTvChannels()))
             } catch (t: Throwable) {
                 when (t) {
                     is IOException -> emit(Resource.Error(Response.NETWORK_FAILURE_EXCEPTION))
@@ -173,6 +156,7 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
                     }
                     val seriesEpisodes = async(Dispatchers.IO) {
                         service.episodes(
+                            token = token,
                             movieId = movieId,
                             seasonLevel = seasonLevel)
                     }
