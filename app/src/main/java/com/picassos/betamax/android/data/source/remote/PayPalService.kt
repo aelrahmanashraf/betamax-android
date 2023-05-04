@@ -12,6 +12,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.util.concurrent.TimeUnit
 
 interface PayPalService {
     @FormUrlEncoded
@@ -57,6 +58,9 @@ interface PayPalService {
         private val okHttpClient by lazy {
             OkHttpClient.Builder()
                 .addInterceptor(ConnectivityInterceptor())
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .build()
         }
 
