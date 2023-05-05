@@ -279,7 +279,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                                     id = episode.episodeId,
                                     title = episode.title,
                                     url = episode.url,
-                                    meta = "${getString(R.string.season)} ${episode.seasonLevel}",
+                                    meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
                                     thumbnail = episode.thumbnail))
                                 startActivity(intent)
 

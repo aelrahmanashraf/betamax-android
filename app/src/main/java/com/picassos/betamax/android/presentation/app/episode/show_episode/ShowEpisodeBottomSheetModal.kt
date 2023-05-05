@@ -37,6 +37,7 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
     private lateinit var layout: ShowEpisodeBottomSheetModalBinding
     private val showEpisodeViewModel: ShowEpisodeViewModel by activityViewModels()
 
+    private lateinit var movie: Movies.Movie
     private lateinit var episode: Episodes.Episode
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -51,6 +52,8 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
         val requestDialog = RequestDialog(requireContext())
 
         getBundleSerializable(requireArguments(), "movie", Movies.Movie::class.java).also { movie ->
+            this@ShowEpisodeBottomSheetModal.movie = movie
+
             layout.apply {
                 episodeReleaseDate.text = Helper.getFormattedDateString(movie.date, "yyyy")
             }
@@ -90,7 +93,7 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
                                 id = episode.episodeId,
                                 title = episode.title,
                                 url = episode.url,
-                                meta = "${getString(R.string.season)} ${episode.seasonLevel}",
+                                meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
                                 thumbnail = episode.thumbnail,
                                 currentPosition = episode.currentPosition ?: 0))
                             startActivity(intent)
