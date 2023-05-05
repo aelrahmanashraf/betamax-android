@@ -9,6 +9,7 @@ import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.*
@@ -37,6 +38,7 @@ import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.television.genre.tvchannels_genres.TelevisionTvChannelsGenresAdapter
 import com.picassos.betamax.android.presentation.app.quality.QualityAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TelevisionTvChannelsActivity : AppCompatActivity() {
@@ -45,7 +47,12 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
 
     private var exoPlayer: ExoPlayer? = null
+    private lateinit var httpDataSource: DefaultHttpDataSource.Factory
+
     private var tvChannel: TvChannels.TvChannel? = null
+    private var selectedVideoQuality: Int = 0
+
+    private var isFirstLaunch = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +64,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         window.apply {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
+        initializePlayer()
 
         layout.apply {
             tvchannelsFavorites.setOnClickListener {
@@ -95,7 +103,8 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 if (state.response != null) {
                     layout.genresProgressbar.visibility = View.GONE
 
-                    genresAdapter.differ.submitList(state.response.genres)
+                    val genres = state.response.genres
+                    genresAdapter.differ.submitList(genres)
                 }
             }
         }
@@ -112,13 +121,18 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 layout.tvchannelsProgressbar.visibility = View.GONE
 
                 val tvChannels = state.response.tvChannels
+                if (isFirstLaunch) {
+                    playNewUrl(tvChannels[0].title,url = getTvChannelUrl(selectedVideoQuality, tvChannels[0]))
+                    isFirstLaunch = false
+                }
                 val selectedPosition = tvChannel?.let { tvChannels.indexOfId(it.tvChannelId) } ?: run { 0 }
 
                 val tvChannelsAdapter = TelevisionTvChannelsAdapter(selectedPosition = selectedPosition, onClickListener = object: OnTvChannelClickListener {
                     override fun onItemClick(tvChannel: TvChannels.TvChannel) {
                         televisionTvChannelsViewModel.apply {
                             this@TelevisionTvChannelsActivity.tvChannel = tvChannel
-                            requestTvChannel(tvChannel.tvChannelId)
+                            val tvChannelUrl = getTvChannelUrl(selectedVideoQuality, tvChannel)
+                            playNewUrl(title = tvChannel.title, url = tvChannelUrl)
                         }
                         layout.tvchannelsNavContainer.visibility = View.GONE
                     }
@@ -137,28 +151,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             }
         }
 
-        collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.viewTvChannel) { state ->
-            if (state.isLoading) {
-                exoPlayer?.apply {
-                    playWhenReady = false
-                    pause()
-                    clearMediaItems()
-                }
-            }
+        televisionTvChannelsViewModel.requestPreferredVideoQuality()
+        collectLatestOnLifecycleStarted(televisionTvChannelsViewModel.preferredVideoQuality) { state ->
             if (state.response != null) {
-                val tvChannelDetails = state.response.tvChannelDetails.tvChannels[0]
-
-                val tvChannelUrl = when (televisionTvChannelsViewModel.selectedQuality.value) {
-                    VideoQuality.QUALITY_SD -> tvChannelDetails.sdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } }
-                    VideoQuality.QUALITY_HD -> tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl
-                    VideoQuality.QUALITY_FHD -> tvChannelDetails.fhdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl }
-                }
-                tvChannelUrl?.let { url ->
-                    initializePlayer(
-                        title = tvChannelDetails.title,
-                        url = url,
-                        userAgent = tvChannelDetails.userAgent)
-                }
+                selectedVideoQuality = state.response
             }
         }
 
@@ -196,13 +192,18 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializePlayer(title: String = "", url: String, userAgent: String) {
+    private fun initializePlayer() {
+        exoPlayer?.apply {
+            playWhenReady = false
+            pause()
+            clearMediaItems()
+        }
         val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@TelevisionTvChannelsActivity, userAgent))
-        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@TelevisionTvChannelsActivity, tvChannel?.userAgent ?: ""))
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.EMPTY))
 
         exoPlayer = ExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
             .setTrackSelector(trackSelector)
@@ -212,9 +213,6 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             }
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
-        if (title.isNotEmpty()) {
-            layout.playerTitle.text = title
-        }
         layout.exoPlayer.apply {
             player = exoPlayer
         }
@@ -262,6 +260,28 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         }
     }
 
+    private fun playNewUrl(title: String = "", url: String) {
+        lifecycleScope.launch {
+            if (title.isNotEmpty()) {
+                layout.playerTitle.text = title
+            }
+            val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+            exoPlayer?.apply {
+                setMediaSource(mediaSource)
+                playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+            }
+        }
+    }
+
+    fun getTvChannelUrl(selectedVideoQuality: Int, tvChannel: TvChannels.TvChannel): String {
+        return when (selectedVideoQuality) {
+            1 -> tvChannel.sdUrl.ifEmpty { tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.fhdUrl.takeIf { it.isNotEmpty() } } ?: ""
+            2 -> tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.sdUrl
+            3 -> tvChannel.fhdUrl.ifEmpty { tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.sdUrl }
+            else -> ""
+        }
+    }
+
     private fun showChannelOptionsDialog(tvChannel: TvChannels.TvChannel) {
         val dialog = Dialog(this@TelevisionTvChannelsActivity).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -287,14 +307,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         val qualityAdapter = QualityAdapter(listener = object : QualityAdapter.OnQualityClickListener {
             override fun onItemClick(quality: QualityGroup.Quality) {
                 televisionTvChannelsViewModel.apply {
-                    when (quality.prefix) {
-                        "sd" -> setSelectedQuality(quality = VideoQuality.QUALITY_SD)
-                        "hd" -> setSelectedQuality(quality = VideoQuality.QUALITY_HD)
-                        "fhd" -> setSelectedQuality(quality = VideoQuality.QUALITY_FHD)
-                    }
-                    requestTvChannel(tvChannelId = tvChannel.tvChannelId)
+                    selectedVideoQuality = quality.id
+                    val tvChannelUrl = getTvChannelUrl(quality.id, tvChannel)
+                    playNewUrl(title = tvChannel.title, url = tvChannelUrl)
                 }
-
                 dialog.dismiss()
             }
         })

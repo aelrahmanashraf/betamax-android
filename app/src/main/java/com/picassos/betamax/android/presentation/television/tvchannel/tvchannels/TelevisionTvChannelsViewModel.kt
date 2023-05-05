@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.usecase.tvchannel.TelevisionTvChannelsUseCases
 import com.picassos.betamax.android.presentation.app.genre.genres.GenresState
+import com.picassos.betamax.android.presentation.app.quality.QualityState
 import com.picassos.betamax.android.presentation.app.tvchannel.tvchannels.TvChannelsState
-import com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel.ViewTvChannelState
 import com.picassos.betamax.android.presentation.television.tvchannel.save_tvchannel.SaveTvChannelState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,12 +20,6 @@ enum class Navigations {
     FavoritesNavigation
 }
 
-enum class VideoQuality {
-    QUALITY_SD,
-    QUALITY_HD,
-    QUALITY_FHD
-}
-
 @HiltViewModel
 class TelevisionTvChannelsViewModel @Inject constructor(app: Application, private val televisionTvChannelsUseCases: TelevisionTvChannelsUseCases): AndroidViewModel(app) {
     private val _selectedNavigation = MutableStateFlow(Navigations.HomeNavigation)
@@ -33,46 +27,6 @@ class TelevisionTvChannelsViewModel @Inject constructor(app: Application, privat
 
     fun setSelectedNavigation(navigation: Navigations) {
         _selectedNavigation.tryEmit(navigation)
-    }
-
-    private val _selectedQuality = MutableStateFlow(VideoQuality.QUALITY_HD)
-    val selectedQuality = _selectedQuality.asStateFlow()
-
-    fun setSelectedQuality(quality: VideoQuality) {
-        _selectedQuality.tryEmit(quality)
-    }
-
-    private val _viewTvChannel = MutableStateFlow(ViewTvChannelState())
-    val viewTvChannel = _viewTvChannel.asStateFlow()
-
-    fun requestTvChannel(tvChannelId: Int) {
-        viewModelScope.launch {
-            televisionTvChannelsUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                televisionTvChannelsUseCases.getTvChannelUseCase(account.token, tvChannelId).collect { result ->
-                    when (result) {
-                        is Resource.Loading -> {
-                            _viewTvChannel.emit(ViewTvChannelState(
-                                isLoading = result.isLoading))
-                        }
-                        is Resource.Success -> {
-                            _viewTvChannel.emit(ViewTvChannelState(
-                                response = result.data))
-                        }
-                        is Resource.Error -> {
-                            _viewTvChannel.emit(ViewTvChannelState(
-                                error = result.message))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private val _selectedGenre = MutableStateFlow(0)
-    val selectedGenre = _selectedGenre.asStateFlow()
-
-    fun setSelectedGenre(genreId: Int) {
-        _selectedGenre.tryEmit(genreId)
     }
 
     private val _tvGenres = MutableStateFlow(GenresState())
@@ -138,6 +92,32 @@ class TelevisionTvChannelsViewModel @Inject constructor(app: Application, privat
                     is Resource.Error -> {
                         _tvChannels.emit(TvChannelsState(
                             error = result.message))
+                    }
+                }
+            }
+        }
+    }
+
+    private val _preferredVideoQuality = MutableStateFlow(QualityState())
+    val preferredVideoQuality = _preferredVideoQuality.asStateFlow()
+
+    fun requestPreferredVideoQuality() {
+        viewModelScope.launch {
+            televisionTvChannelsUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                televisionTvChannelsUseCases.getVideoQualityUseCase(account.token).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _preferredVideoQuality.emit(QualityState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _preferredVideoQuality.emit(QualityState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _preferredVideoQuality.emit(QualityState(
+                                error = result.message))
+                        }
                     }
                 }
             }

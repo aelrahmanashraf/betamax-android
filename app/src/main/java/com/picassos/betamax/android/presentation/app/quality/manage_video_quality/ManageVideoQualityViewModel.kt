@@ -24,22 +24,16 @@ class ManageVideoQualityViewModel @Inject constructor(app: Application, private 
                 videoQualityUseCases.getVideoQualityUseCase(account.token).collect { result ->
                     when (result) {
                         is Resource.Loading -> {
-                            _videoQuality.emit(
-                                QualityState(
-                                isLoading = result.isLoading)
-                            )
+                            _videoQuality.emit(QualityState(
+                                isLoading = result.isLoading))
                         }
                         is Resource.Success -> {
-                            _videoQuality.emit(
-                                QualityState(
-                                response = result.data)
-                            )
+                            _videoQuality.emit(QualityState(
+                                response = result.data))
                         }
                         is Resource.Error -> {
-                            _videoQuality.emit(
-                                QualityState(
-                                error = result.message)
-                            )
+                            _videoQuality.emit(QualityState(
+                                error = result.message))
                         }
                     }
                 }

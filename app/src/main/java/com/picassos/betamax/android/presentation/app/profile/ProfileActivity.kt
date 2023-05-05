@@ -114,7 +114,7 @@ class ProfileActivity : AppCompatActivity() {
                         }
                         manageVideoQuality.setOnClickListener {
                             val manageVideoQualityBottomSheetModal = ManageVideoQualityBottomSheetModal()
-                            manageVideoQualityBottomSheetModal.show(supportFragmentManager, "TAG")
+                            manageVideoQualityBottomSheetModal.show(supportFragmentManager, "manage_video_quality")
                         }
                         sendFeedback.setOnClickListener {
                             openEmailAddress(

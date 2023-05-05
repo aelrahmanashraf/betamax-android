@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.usecase.tvchannel.ViewTvUseCases
 import com.picassos.betamax.android.presentation.app.genre.genres.GenresState
+import com.picassos.betamax.android.presentation.app.quality.QualityState
 import com.picassos.betamax.android.presentation.app.tvchannel.tvchannels.TvChannelsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,32 +16,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewTvChannelViewModel @Inject constructor(app: Application, private val viewTvUseCases: ViewTvUseCases): AndroidViewModel(app) {
-    private val _viewTvChannel = MutableStateFlow(ViewTvChannelState())
-    val viewTvChannel = _viewTvChannel.asStateFlow()
-
-    fun requestTvChannel(tvChannelId: Int) {
-        viewModelScope.launch {
-            viewTvUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                viewTvUseCases.getTvChannelUseCase(account.token, tvChannelId).collect { result ->
-                    when (result) {
-                        is Resource.Loading -> {
-                            _viewTvChannel.emit(ViewTvChannelState(
-                                isLoading = result.isLoading))
-                        }
-                        is Resource.Success -> {
-                            _viewTvChannel.emit(ViewTvChannelState(
-                                response = result.data))
-                        }
-                        is Resource.Error -> {
-                            _viewTvChannel.emit(ViewTvChannelState(
-                                error = result.message))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private val _selectedGenre = MutableStateFlow(0)
     val selectedGenre = _selectedGenre.asStateFlow()
 
@@ -111,6 +86,32 @@ class ViewTvChannelViewModel @Inject constructor(app: Application, private val v
                     is Resource.Error -> {
                         _tvChannels.emit(TvChannelsState(
                             error = result.message))
+                    }
+                }
+            }
+        }
+    }
+
+    private val _preferredVideoQuality = MutableStateFlow(QualityState())
+    val preferredVideoQuality = _preferredVideoQuality.asStateFlow()
+
+    fun requestPreferredVideoQuality() {
+        viewModelScope.launch {
+            viewTvUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                viewTvUseCases.getVideoQualityUseCase(account.token).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _preferredVideoQuality.emit(QualityState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _preferredVideoQuality.emit(QualityState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _preferredVideoQuality.emit(QualityState(
+                                error = result.message))
+                        }
                     }
                 }
             }

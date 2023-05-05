@@ -26,8 +26,6 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection
 import com.google.android.exoplayer2.upstream.*
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.chip.Chip
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -36,7 +34,6 @@ import com.picassos.betamax.android.core.utilities.Helper.fadeVisibility
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.utilities.Helper.requestedOrientationWithFullSensor
 import com.picassos.betamax.android.core.utilities.Helper.toDips
-import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.databinding.ActivityViewTvchannelBinding
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.domain.model.Genres
@@ -60,9 +57,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
     private val videoQualityChooserViewModel: VideoQualityChooserViewModel by viewModels()
 
     private var exoPlayer: ExoPlayer? = null
+    private lateinit var httpDataSource: DefaultHttpDataSource.Factory
 
     private lateinit var tvChannel: TvChannels.TvChannel
-    private var selectedUrl = ""
+    private var selectedVideoQuality: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,56 +87,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
         getSerializable(this@ViewTvChannelActivity, "tvchannel", TvChannels.TvChannel::class.java).also { tvChannel ->
             viewTvChannelViewModel.apply {
                 this@ViewTvChannelActivity.tvChannel = tvChannel
-                requestTvChannel(tvChannel.tvChannelId)
             }
         }
-
-        collectLatestOnLifecycleStarted(viewTvChannelViewModel.viewTvChannel) { state ->
-            if (state.isLoading) {
-                exoPlayer?.apply {
-                    playWhenReady = false
-                    pause()
-                    clearMediaItems()
-                }
-                layout.apply {
-                    recyclerRelatedTv.visibility = View.VISIBLE
-                    internetConnection.root.visibility = View.GONE
-                }
-            }
-            if (state.response != null) {
-                val tvChannelDetails = state.response.tvChannelDetails.tvChannels[0]
-                val tvChannelUrl = when (state.response.videoQuality) {
-                    1 -> tvChannelDetails.sdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } }
-                    2 -> tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl
-                    3 -> tvChannelDetails.fhdUrl.ifEmpty { tvChannelDetails.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannelDetails.sdUrl }
-                    else -> null
-                }
-                if (tvChannelUrl != null) {
-                    initializePlayer(
-                        title = tvChannelDetails.title,
-                        url = tvChannelUrl)
-                }
-            }
-            if (state.error != null) {
-                layout.apply {
-                    recyclerRelatedTv.visibility = View.GONE
-                    internetConnection.root.visibility = View.VISIBLE
-                    internetConnection.tryAgain.setOnClickListener {
-                        viewTvChannelViewModel.apply {
-                            requestTvChannel(tvChannel.tvChannelId)
-                            requestTvGenres()
-                            when (selectedGenre.value) {
-                                0 -> requestTvChannels()
-                                else -> requestTvChannelsByGenre(selectedGenre.value)
-                            }
-                        }
-                    }
-                }
-                if (state.error == Response.MALFORMED_REQUEST_EXCEPTION) {
-                    Firebase.crashlytics.log("Request returned a malformed request or response.")
-                }
-            }
-        }
+        initializePlayer()
 
         viewTvChannelViewModel.requestTvGenres()
         collectLatestOnLifecycleStarted(viewTvChannelViewModel.tvGenres) { state ->
@@ -170,7 +121,8 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     override fun onItemClick(tvChannel: TvChannels.TvChannel) {
                         viewTvChannelViewModel.apply {
                             this@ViewTvChannelActivity.tvChannel = tvChannel
-                            requestTvChannel(tvChannel.tvChannelId)
+                            val tvChannelUrl = getTvChannelUrl(selectedVideoQuality, tvChannel)
+                            playNewUrl(title = tvChannel.title, url = tvChannelUrl)
                         }
                     }
                 })
@@ -191,14 +143,25 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
         }
 
+        viewTvChannelViewModel.requestPreferredVideoQuality()
+        collectLatestOnLifecycleStarted(viewTvChannelViewModel.preferredVideoQuality) { state ->
+            if (state.response != null) {
+                val quality = state.response
+                selectedVideoQuality = quality
+
+                val tvChannelUrl = getTvChannelUrl(quality, tvChannel)
+                playNewUrl(title = tvChannel.title, url = tvChannelUrl)
+            }
+        }
+
         collectLatestOnLifecycleStarted(videoQualityChooserViewModel.selectedVideoQuality) { isSafe ->
             isSafe?.let { quality ->
+                selectedVideoQuality = quality
                 exoPlayer?.apply {
-                    releasePlayer()
                     when (quality) {
-                        1 -> initializePlayer(url = tvChannel.sdUrl)
-                        2 -> initializePlayer(url = tvChannel.hdUrl)
-                        3 -> initializePlayer(url = tvChannel.fhdUrl)
+                        1 -> playNewUrl(url = tvChannel.sdUrl)
+                        2 -> playNewUrl(url = tvChannel.hdUrl)
+                        3 -> playNewUrl(url = tvChannel.fhdUrl)
                     }
                 }
                 videoQualityChooserViewModel.setVideoQuality(null)
@@ -221,9 +184,12 @@ class ViewTvChannelActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SwitchIntDef")
-    private fun initializePlayer(title: String = "", url: String) {
-        selectedUrl = url
-
+    private fun initializePlayer() {
+        exoPlayer?.apply {
+            playWhenReady = false
+            pause()
+            clearMediaItems()
+        }
         val loadControl: LoadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
             .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
@@ -234,8 +200,8 @@ class ViewTvChannelActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@ViewTvChannelActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
-        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.EMPTY))
 
         exoPlayer = ExoPlayer.Builder(this@ViewTvChannelActivity, renderersFactory)
             .setTrackSelector(trackSelector)
@@ -246,9 +212,6 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
-        if (title.isNotEmpty()) {
-            layout.playerTitle.text = title
-        }
         layout.exoPlayer.apply {
             player = exoPlayer
             setControllerVisibilityListener { visibility ->
@@ -317,7 +280,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     hdQuality = tvChannel.hdUrl.isNotEmpty(),
                     fhdQuality = tvChannel.fhdUrl.isNotEmpty()))
             }
-            videoQualityChooserBottomSheetModal.show(supportFragmentManager, "TAG")
+            videoQualityChooserBottomSheetModal.show(supportFragmentManager, "video_quality_chooser")
         }
     }
 
@@ -351,6 +314,28 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
     }
 
+    private fun playNewUrl(title: String = "", url: String) {
+        lifecycleScope.launch {
+            if (title.isNotEmpty()) {
+                layout.playerTitle.text = title
+            }
+            val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+            exoPlayer?.apply {
+                setMediaSource(mediaSource)
+                playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+            }
+        }
+    }
+
+    fun getTvChannelUrl(selectedVideoQuality: Int, tvChannel: TvChannels.TvChannel): String {
+        return when (selectedVideoQuality) {
+            1 -> tvChannel.sdUrl.ifEmpty { tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.fhdUrl.takeIf { it.isNotEmpty() } } ?: ""
+            2 -> tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.sdUrl
+            3 -> tvChannel.fhdUrl.ifEmpty { tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.sdUrl }
+            else -> ""
+        }
+    }
+
     private fun releasePlayer() {
         exoPlayer?.apply {
             stop()
@@ -374,7 +359,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     }
                 }
             }
-            this.isChecked = isChecked
+            this.isChecked = isChecked || (viewTvChannelViewModel.selectedGenre.value == genre.genreId)
         }
     }
 

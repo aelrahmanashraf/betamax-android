@@ -21,8 +21,8 @@
 
         <ProgressBar
             android:id="@id/player_progressbar"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_margin="25dp"
@@ -40,7 +40,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight=".25"
-                android:background="@color/color_dark_alpha50"
+                android:background="@color/color_dark_alpha60"
                 android:orientation="vertical"
                 android:paddingTop="20dp"
                 android:paddingBottom="20dp">
@@ -157,7 +157,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight=".25"
-                android:background="@color/color_dark_alpha40"
+                android:background="@color/color_dark_alpha50"
                 android:orientation="vertical"
                 android:paddingTop="20dp"
                 android:paddingBottom="20dp">
@@ -193,7 +193,7 @@
                     android:id="@id/player_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
+                    android:layout_margin="25dp"
                     android:fontFamily="@font/poppins_medium"
                     android:textColor="?color_dark"
                     android:textSize="18sp" />
