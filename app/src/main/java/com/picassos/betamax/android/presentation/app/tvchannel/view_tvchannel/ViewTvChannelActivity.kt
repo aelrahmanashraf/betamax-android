@@ -314,16 +314,18 @@ class ViewTvChannelActivity : AppCompatActivity() {
         }
     }
 
-    private fun playNewUrl(title: String = "", url: String) {
-        lifecycleScope.launch {
-            if (title.isNotEmpty()) {
-                layout.playerTitle.text = title
-            }
-            val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
-            exoPlayer?.apply {
-                setMediaSource(mediaSource)
-                playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
-            }
+    private fun playNewUrl(url: String, title: String = "") {
+        if (title.isNotEmpty()) {
+            layout.playerTitle.text = title
+        }
+        exoPlayer?.apply {
+            stop()
+            clearMediaItems()
+        }
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        exoPlayer?.apply {
+            setMediaSource(mediaSource)
+            playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
         }
     }
 

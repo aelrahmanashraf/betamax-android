@@ -9,7 +9,6 @@ import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.exoplayer2.*
@@ -38,7 +37,6 @@ import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.television.genre.tvchannels_genres.TelevisionTvChannelsGenresAdapter
 import com.picassos.betamax.android.presentation.app.quality.QualityAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TelevisionTvChannelsActivity : AppCompatActivity() {
@@ -261,15 +259,17 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     }
 
     private fun playNewUrl(title: String = "", url: String) {
-        lifecycleScope.launch {
-            if (title.isNotEmpty()) {
-                layout.playerTitle.text = title
-            }
-            val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
-            exoPlayer?.apply {
-                setMediaSource(mediaSource)
-                playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
-            }
+        if (title.isNotEmpty()) {
+            layout.playerTitle.text = title
+        }
+        exoPlayer?.apply {
+            stop()
+            clearMediaItems()
+        }
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        exoPlayer?.apply {
+            setMediaSource(mediaSource)
+            playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
         }
     }
 
