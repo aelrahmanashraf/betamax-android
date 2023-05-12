@@ -14,7 +14,8 @@
     <color name="color_grey_dark">#7d7c82</color>
     <color name="color_warning">#FFAB00</color>
     <color name="color_theme">#6360f9</color>
-    <color name="color_theme_dark">#6f62ff</color>
+    <color name="color_theme_dark">#4e4cc5</color>
+    <color name="color_theme_alpha">#666360F9</color>
     <color name="color_red">#FE4949</color>
     <color name="color_yellow">#ffe258</color>
     <color name="color_white_alpha40">#66FFFFFF</color>
@@ -25,5 +26,4 @@
     <color name="color_dark_alpha60">#99141723</color>
     <color name="color_dark_alpha70">#B3141723</color>
     <color name="color_dark_alpha90">#E6141723</color>
-    <color name="color_theme_alpha">#4DFF4351</color>
 </resources>

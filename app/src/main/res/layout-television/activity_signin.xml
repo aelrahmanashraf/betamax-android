@@ -1,200 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+   xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
+   <data>
+      <import type="android.view.View" />
+      <variable
+         name="viewModel"
+         type="com.picassos.betamax.android.presentation.app.auth.signin.SigninViewModel" />
+   </data>
 
-        <import type="android.view.View" />
+   <androidx.core.widget.NestedScrollView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="?color_background"
+      android:fillViewport="true">
 
-        <variable
-            name="viewModel"
-            type="com.picassos.betamax.android.presentation.app.auth.signin.SigninViewModel" />
-    </data>
+      <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:layout_marginStart="150dp"
+         android:layout_marginEnd="150dp"
+         android:gravity="center"
+         android:orientation="vertical"
+         android:padding="30dp">
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?color_background"
-        android:fillViewport="true">
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:text="@string/signin"
+            android:textColor="?color_dark"
+            android:textSize="24sp" />
 
-        <LinearLayout
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="25dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="@string/sign_into_your_mynta_account_to_continue"
+            android:textAlignment="center"
+            android:textColor="?color_dark"
+            android:textSize="18sp" />
+
+         <EditText
+            android:id="@id/email"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="150dp"
-            android:layout_marginEnd="150dp"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="30dp">
+            android:layout_height="@dimen/input_height_tv"
+            android:afterTextChanged="@{(text) -> viewModel.onEmailChange(text)}"
+            android:background="@drawable/input_rectangle_background"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:hint="@string/email_address"
+            android:importantForAutofill="no"
+            android:inputType="textEmailAddress"
+            android:layoutDirection="ltr"
+            android:maxLines="1"
+            android:nextFocusDown="@id/password"
+            android:paddingStart="20dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="10dp"
+            android:text="@{viewModel.signinFormState.email}"
+            android:textColor="?color_dark"
+            android:textColorHint="?color_dark"
+            android:textSize="@dimen/input_text_size_tv"
+            app:layout_error="@{viewModel.signinFormState.emailError}" />
+
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="17dp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/color_red"
+            android:textSize="@dimen/response_text_size_tv"
+            android:visibility="gone"
+            app:text_error="@{viewModel.signinFormState.emailError}" />
+
+         <EditText
+            android:id="@id/password"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height_tv"
+            android:layout_marginTop="15dp"
+            android:afterTextChanged="@{(text) -> viewModel.onPasswordChange(text)}"
+            android:background="@drawable/input_rectangle_background"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:hint="@string/password"
+            android:importantForAutofill="no"
+            android:inputType="textPassword"
+            android:layoutDirection="ltr"
+            android:maxLines="1"
+            android:nextFocusUp="@id/email"
+            android:nextFocusDown="@id/reset_password"
+            android:paddingStart="20dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="10dp"
+            android:text="@{viewModel.signinFormState.password}"
+            android:textColor="?color_dark"
+            android:textColorHint="?color_dark"
+            android:textSize="@dimen/input_text_size_tv"
+            app:layout_error="@{viewModel.signinFormState.passwordError}" />
+
+         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="17dp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/color_red"
+            android:textSize="@dimen/response_text_size_tv"
+            android:visibility="gone"
+            app:text_error="@{viewModel.signinFormState.passwordError}" />
+
+         <TextView
+            android:id="@id/reset_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/television_link_background_selectable"
+            android:focusable="true"
+            android:fontFamily="@font/poppins_medium"
+            android:nextFocusUp="@id/password"
+            android:nextFocusDown="@id/signin"
+            android:text="@string/forgot_password"
+            android:textColor="?color_dark"
+            android:textSize="@dimen/link_text_size_tv" />
+
+         <Button
+            android:id="@id/signin"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/input_height_tv"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/button_primary"
+            android:focusable="true"
+            android:nextFocusUp="@id/reset_password"
+            android:nextFocusDown="@id/register"
+            android:onClick="@{() -> viewModel.onSubmit()}"
+            android:text="@string/signin"
+            android:textAllCaps="false"
+            android:textColor="?color_dark"
+            android:textSize="@dimen/input_text_size_tv" />
+
+         <TextView
+            android:id="@id/signin_response"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="17dp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/color_red"
+            android:textSize="@dimen/response_text_size_tv"
+            android:visibility="gone" />
+
+         <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:text="@string/signin"
-                android:textColor="?color_dark"
-                android:textSize="24sp" />
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:fontFamily="@font/poppins_medium"
+               android:text="@string/don_t_have_an_account"
+               android:textColor="?color_dark"
+               android:textSize="@dimen/link_text_size_tv" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="25dp"
-                android:fontFamily="@font/poppins_regular"
-                android:text="@string/sign_into_your_mynta_account_to_continue"
-                android:textAlignment="center"
-                android:textColor="?color_dark"
-                android:textSize="18sp" />
+               android:id="@id/register"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginStart="5dp"
+               android:background="@drawable/television_link_background_selectable"
+               android:focusable="true"
+               android:fontFamily="@font/poppins_medium"
+               android:nextFocusUp="@id/signin"
+               android:text="@string/signup"
+               android:textColor="@color/link_color"
+               android:textSize="@dimen/link_text_size_tv" />
 
-            <EditText
-                android:id="@id/email"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/input_height_tv"
-                android:afterTextChanged="@{(text) -> viewModel.onEmailChange(text)}"
-                android:background="@drawable/input_rectangle_background"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:hint="@string/email_address"
-                android:importantForAutofill="no"
-                android:inputType="textEmailAddress"
-                android:layoutDirection="ltr"
-                android:maxLines="1"
-                android:nextFocusDown="@id/password"
-                android:paddingStart="20dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="20dp"
-                android:paddingBottom="10dp"
-                android:text="@{viewModel.signinFormState.email}"
-                android:textColor="?color_dark"
-                android:textColorHint="?color_dark"
-                android:textSize="@dimen/input_text_size_tv"
-                app:layout_error="@{viewModel.signinFormState.emailError}" />
+         </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="17dp"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/color_red"
-                android:textSize="@dimen/response_text_size_tv"
-                android:visibility="gone"
-                app:text_error="@{viewModel.signinFormState.emailError}" />
+      </LinearLayout>
 
-            <EditText
-                android:id="@id/password"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/input_height_tv"
-                android:layout_marginTop="15dp"
-                android:afterTextChanged="@{(text) -> viewModel.onPasswordChange(text)}"
-                android:background="@drawable/input_rectangle_background"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:hint="@string/password"
-                android:importantForAutofill="no"
-                android:inputType="textPassword"
-                android:layoutDirection="ltr"
-                android:maxLines="1"
-                android:nextFocusUp="@id/email"
-                android:nextFocusDown="@id/reset_password"
-                android:paddingStart="20dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="20dp"
-                android:paddingBottom="10dp"
-                android:text="@{viewModel.signinFormState.password}"
-                android:textColor="?color_dark"
-                android:textColorHint="?color_dark"
-                android:textSize="@dimen/input_text_size_tv"
-                app:layout_error="@{viewModel.signinFormState.passwordError}" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="17dp"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/color_red"
-                android:textSize="@dimen/response_text_size_tv"
-                android:visibility="gone"
-                app:text_error="@{viewModel.signinFormState.passwordError}" />
-
-            <TextView
-                android:id="@id/reset_password"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="10dp"
-                android:focusable="true"
-                android:fontFamily="@font/poppins_medium"
-                android:nextFocusDown="@id/signin"
-                android:paddingBottom="10dp"
-                android:text="@string/forgot_password"
-                android:textColor="?color_dark"
-                android:textSize="@dimen/link_text_size_tv" />
-
-            <Button
-                android:id="@id/signin"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/input_height_tv"
-                android:layout_marginTop="15dp"
-                android:background="@drawable/button_primary"
-                android:focusable="true"
-                android:nextFocusUp="@id/reset_password"
-                android:nextFocusDown="@id/register"
-                android:onClick="@{() -> viewModel.onSubmit()}"
-                android:text="@string/signin"
-                android:textAllCaps="false"
-                android:textColor="?color_dark"
-                android:textSize="@dimen/input_text_size_tv" />
-
-            <TextView
-                android:id="@id/signin_response"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_marginStart="17dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="17dp"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/color_red"
-                android:textSize="@dimen/response_text_size_tv"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/poppins_medium"
-                    android:paddingBottom="10dp"
-                    android:text="@string/don_t_have_an_account"
-                    android:textColor="?color_dark"
-                    android:textSize="@dimen/link_text_size_tv" />
-
-                <TextView
-                    android:id="@id/register"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:focusable="true"
-                    android:fontFamily="@font/poppins_medium"
-                    android:nextFocusUp="@id/signin"
-                    android:paddingBottom="10dp"
-                    android:text="@string/signup"
-                    android:textColor="@color/link_color"
-                    android:textSize="@dimen/link_text_size_tv" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
+   </androidx.core.widget.NestedScrollView>
 
 </layout>
