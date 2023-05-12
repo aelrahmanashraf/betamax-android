@@ -52,8 +52,8 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providerSubscriptionRepository(api: APIService): SubscriptionRepository {
-        return SubscriptionRepositoryImpl(api)
+    fun providerSubscriptionRepository(api: APIService, sharedData: SharedDataManager): SubscriptionRepository {
+        return SubscriptionRepositoryImpl(api, sharedData)
     }
 
     @Provides

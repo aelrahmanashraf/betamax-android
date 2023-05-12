@@ -10,7 +10,6 @@ import com.picassos.betamax.android.presentation.app.episode.episodes.EpisodesSt
 import com.picassos.betamax.android.presentation.app.movie.save_movie.SaveMovieState
 import com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieState
 import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsState
-import com.picassos.betamax.android.presentation.app.subscription.check_subscription.CheckSubscriptionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -120,32 +119,6 @@ class TelevisionViewMovieViewModel @Inject constructor(app: Application, private
                         }
                         is Resource.Error -> {
                             _saveMovie.emit(SaveMovieState(
-                                error = result.message))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private val _checkSubscription = MutableStateFlow(CheckSubscriptionState())
-    val checkSubscription = _checkSubscription.asStateFlow()
-
-    fun requestCheckSubscription() {
-        viewModelScope.launch {
-            viewMovieUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                viewMovieUseCases.checkSubscriptionUseCase(account.token).collect { result ->
-                    when (result) {
-                        is Resource.Loading -> {
-                            _checkSubscription.emit(CheckSubscriptionState(
-                                isLoading = result.isLoading))
-                        }
-                        is Resource.Success -> {
-                            _checkSubscription.emit(CheckSubscriptionState(
-                                response = result.data))
-                        }
-                        is Resource.Error -> {
-                            _checkSubscription.emit(CheckSubscriptionState(
                                 error = result.message))
                         }
                     }

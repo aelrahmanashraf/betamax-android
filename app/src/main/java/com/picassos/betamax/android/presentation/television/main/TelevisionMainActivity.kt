@@ -26,7 +26,9 @@ import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
+import com.picassos.betamax.android.core.view.dialog.TelevisionSubscriptionDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionMainBinding
+import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingClickListener
 import com.picassos.betamax.android.domain.listener.OnContinueWatchingLongClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
@@ -44,6 +46,7 @@ import com.picassos.betamax.android.presentation.television.movie.view_movie.Tel
 import com.picassos.betamax.android.presentation.television.mylist.TelevisionMyListActivity
 import com.picassos.betamax.android.presentation.television.tvchannel.tvchannels.TelevisionTvChannelsActivity
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
@@ -58,6 +61,7 @@ class TelevisionMainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_television_main)
+        val entryPoint = EntryPointAccessors.fromApplication(this, AppEntryPoint::class.java)
 
         layout = DataBindingUtil.setContentView(this, R.layout.activity_television_main)
 
@@ -91,7 +95,14 @@ class TelevisionMainActivity : AppCompatActivity() {
                     setNavigationLiveTvFocusState(focused = isFocused)
                 }
                 setOnClickListener {
-                    startActivity(Intent(this@TelevisionMainActivity, TelevisionTvChannelsActivity::class.java))
+                    lifecycleScope.launch {
+                        entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                            when (subscription.daysLeft) {
+                                0 -> TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
+                                else -> startActivity(Intent(this@TelevisionMainActivity, TelevisionTvChannelsActivity::class.java))
+                            }
+                        }
+                    }
                 }
             }
             layout.navigationMylist.apply {
@@ -125,14 +136,23 @@ class TelevisionMainActivity : AppCompatActivity() {
 
         val continueWatchingAdapter = TelevisionContinueWatchingAdapter(onClickListener = object: OnContinueWatchingClickListener {
             override fun onItemClick(continueWatching: ContinueWatching.ContinueWatching) {
-                Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                    intent.putExtra("playerContent", PlayerContent(
-                        id = continueWatching.contentId,
-                        title = continueWatching.title,
-                        url = continueWatching.url,
-                        thumbnail = continueWatching.thumbnail,
-                        currentPosition = continueWatching.currentPosition))
-                    startActivity(intent)
+                lifecycleScope.launch {
+                    entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                        when (subscription.daysLeft) {
+                            0 -> TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
+                            else -> {
+                                Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", PlayerContent(
+                                        id = continueWatching.contentId,
+                                        title = continueWatching.title,
+                                        url = continueWatching.url,
+                                        thumbnail = continueWatching.thumbnail,
+                                        currentPosition = continueWatching.currentPosition))
+                                    startActivity(intent)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }, onLongClickListener = object: OnContinueWatchingLongClickListener {

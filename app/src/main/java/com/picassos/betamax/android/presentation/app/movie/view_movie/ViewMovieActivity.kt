@@ -25,7 +25,6 @@ import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.view.Toasto.showToast
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityViewMovieBinding
 import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.model.Movies
@@ -35,6 +34,7 @@ import com.picassos.betamax.android.presentation.app.movie.movies.MoviesAdapter
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.utilities.Response
+import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.model.PlayerContent
@@ -46,6 +46,7 @@ import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsBotto
 import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsViewModel
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import org.json.JSONException
@@ -67,6 +68,7 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = SharedPreferences(this)
+        val entryPoint = EntryPointAccessors.fromApplication(this, AppEntryPoint::class.java)
 
         Helper.darkMode(this)
 
@@ -77,8 +79,6 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                 Helper.restrictVpn(this@ViewMovieActivity)
             }
         }
-
-        val requestDialog = RequestDialog(this)
 
         layout.goBack.setOnClickListener {
             Intent().also { intent ->
@@ -182,13 +182,27 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
 
                 layout.playMovie.apply {
                     when (movieDetails.series) {
-                        0 -> {
-                            visibility = View.VISIBLE
-                            setOnClickListener {
-                                viewMovieViewModel.requestCheckSubscription()
+                        0 -> visibility = View.VISIBLE
+                        1 -> visibility = View.GONE
+                    }
+                    setOnClickListener {
+                        lifecycleScope.launch {
+                            entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                                when (subscription.daysLeft) {
+                                    0 -> startActivity(Intent(this@ViewMovieActivity, SubscribeActivity::class.java))
+                                    else -> {
+                                        Intent(this@ViewMovieActivity, MoviePlayerActivity::class.java).also { intent ->
+                                            intent.putExtra("playerContent", PlayerContent(
+                                                id = movie.id,
+                                                title = movie.title,
+                                                url = movie.url,
+                                                thumbnail = movie.thumbnail))
+                                            startActivity(intent)
+                                        }
+                                    }
+                                }
                             }
                         }
-                        1 -> visibility = View.GONE
                     }
                 }
 
@@ -293,45 +307,6 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                 }
             }
             if (state.error != null) {
-                when (state.error) {
-                    Response.NETWORK_FAILURE_EXCEPTION -> {
-                        showToast(this@ViewMovieActivity, getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)
-                    }
-                    Response.MALFORMED_REQUEST_EXCEPTION -> {
-                        showToast(this@ViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
-                        Firebase.crashlytics.log("Request returned a malformed request or response.")
-                    }
-                    else -> {
-                        showToast(this@ViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
-                    }
-                }
-            }
-        }
-
-        collectLatestOnLifecycleStarted(viewMovieViewModel.checkSubscription) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.response != null) {
-                requestDialog.dismiss()
-
-                val subscription = state.response
-                when (subscription.daysLeft) {
-                    0 -> startActivity(Intent(this@ViewMovieActivity, SubscribeActivity::class.java))
-                    else -> {
-                        Intent(this@ViewMovieActivity, MoviePlayerActivity::class.java).also { intent ->
-                            intent.putExtra("playerContent", PlayerContent(
-                                id = movie.id,
-                                title = movie.title,
-                                url = movie.url,
-                                thumbnail = movie.thumbnail))
-                            startActivity(intent)
-                        }
-                    }
-                }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
                 when (state.error) {
                     Response.NETWORK_FAILURE_EXCEPTION -> {
                         showToast(this@ViewMovieActivity, getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)

@@ -3,7 +3,6 @@ package com.picassos.betamax.android.presentation.app.tvchannel
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.picassos.betamax.android.R
@@ -24,14 +23,12 @@ import com.picassos.betamax.android.data.source.local.shared_preferences.SharedP
 import com.picassos.betamax.android.domain.model.TvChannels
 import com.picassos.betamax.android.presentation.app.tvchannel.tvchannels.TvChannelsAdapter
 import com.picassos.betamax.android.core.utilities.Response
-import com.picassos.betamax.android.core.view.Toasto
 import com.picassos.betamax.android.domain.listener.OnTvChannelClickListener
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import com.picassos.betamax.android.presentation.app.tvchannel.view_tvchannel.ViewTvChannelActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -49,8 +46,6 @@ class TvFragment : Fragment() {
         val sharedPreferences = SharedPreferences(requireContext())
         val entryPoint = EntryPointAccessors.fromApplication(requireContext(), AppEntryPoint::class.java)
 
-        val requestDialog = RequestDialog(requireContext())
-
         collectLatestOnLifecycleFragmentOwnerStarted(entryPoint.getAccountUseCase().invoke()) { account ->
             layout.profileIcon.apply {
                 text = Helper.characterIcon(account.username).uppercase()
@@ -62,38 +57,14 @@ class TvFragment : Fragment() {
 
         val tvAdapter = TvChannelsAdapter(onClickListener = object: OnTvChannelClickListener {
             override fun onItemClick(tvChannel: TvChannels.TvChannel) {
-                tvViewModel.requestCheckSubscription()
                 lifecycleScope.launch {
-                    tvViewModel.checkSubscription.collectLatest { state ->
-                        if (state.isLoading) {
-                            requestDialog.show()
-                        }
-                        if (state.response != null) {
-                            requestDialog.dismiss()
-
-                            val subscription = state.response
-                            when (subscription.daysLeft) {
-                                0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
-                                else -> {
-                                    Intent(requireContext(), ViewTvChannelActivity::class.java).also { intent ->
-                                        intent.putExtra("tvchannel", tvChannel)
-                                        startActivity(intent)
-                                    }
-                                }
-                            }
-                        }
-                        if (state.error != null) {
-                            requestDialog.dismiss()
-                            when (state.error) {
-                                Response.NETWORK_FAILURE_EXCEPTION -> {
-                                    Toasto.showToast(requireContext(), getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)
-                                }
-                                Response.MALFORMED_REQUEST_EXCEPTION -> {
-                                    Toasto.showToast(requireContext(), getString(R.string.unknown_issue_occurred), 0, 1)
-                                    Firebase.crashlytics.log("Request returned a malformed request or response.")
-                                }
-                                else -> {
-                                    Toasto.showToast(requireContext(), getString(R.string.unknown_issue_occurred), 0, 1)
+                    entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                        when (subscription.daysLeft) {
+                            0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                            else -> {
+                                Intent(requireContext(), ViewTvChannelActivity::class.java).also { intent ->
+                                    intent.putExtra("tvchannel", tvChannel)
+                                    startActivity(intent)
                                 }
                             }
                         }

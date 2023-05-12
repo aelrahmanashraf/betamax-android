@@ -5,6 +5,8 @@ import com.picassos.betamax.android.domain.usecase.account.auth.SetLocalAccountU
 import com.picassos.betamax.android.domain.usecase.configuration.GetLocalConfigurationUseCase
 import com.picassos.betamax.android.domain.usecase.configuration.SetLocalConfigurationUseCase
 import com.picassos.betamax.android.domain.usecase.signout.SignoutUseCase
+import com.picassos.betamax.android.domain.usecase.subscription.GetLocalSubscriptionUseCase
+import com.picassos.betamax.android.domain.usecase.subscription.SetLocalSubscriptionUseCase
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -16,5 +18,6 @@ interface AppEntryPoint {
     fun setAccountUseCase(): SetLocalAccountUseCase
     fun getConfigurationUseCase(): GetLocalConfigurationUseCase
     fun setConfigurationUseCase(): SetLocalConfigurationUseCase
-    fun signoutUseCase(): SignoutUseCase
+    fun getSubscriptionUseCase(): GetLocalSubscriptionUseCase
+    fun setSubscriptionUseCase(): SetLocalSubscriptionUseCase
 }

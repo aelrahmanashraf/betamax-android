@@ -52,6 +52,7 @@ import com.picassos.betamax.android.presentation.app.genre.genre_movies.GenreMov
 import com.picassos.betamax.android.presentation.app.movie.movie_player.MoviePlayerActivity
 import com.picassos.betamax.android.presentation.app.movie.view_movie.ViewMovieActivity
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
+import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -108,14 +109,23 @@ class HomeFragment : Fragment() {
 
         val continueWatchingAdapter = ContinueWatchingAdapter(onClickListener = object: OnContinueWatchingClickListener {
             override fun onItemClick(continueWatching: ContinueWatching.ContinueWatching) {
-                Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
-                    intent.putExtra("playerContent", PlayerContent(
-                        id = continueWatching.contentId,
-                        title = continueWatching.title,
-                        url = continueWatching.url,
-                        thumbnail = continueWatching.thumbnail,
-                        currentPosition = continueWatching.currentPosition))
-                    startActivity(intent)
+                lifecycleScope.launch {
+                    entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                        when (subscription.daysLeft) {
+                            0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                            else -> {
+                                Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", PlayerContent(
+                                        id = continueWatching.contentId,
+                                        title = continueWatching.title,
+                                        url = continueWatching.url,
+                                        thumbnail = continueWatching.thumbnail,
+                                        currentPosition = continueWatching.currentPosition))
+                                    startActivity(intent)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }, optionsListener = object: OnContinueWatchingOptionsClickListener {

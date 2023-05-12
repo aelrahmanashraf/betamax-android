@@ -3,6 +3,7 @@ package com.picassos.betamax.android.presentation.app.main
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.gson.Gson
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
@@ -20,6 +22,7 @@ import com.picassos.betamax.android.core.view.bottom_navigation.BottomNavigation
 import com.picassos.betamax.android.data.source.local.shared_preferences.SharedPreferences
 import com.picassos.betamax.android.databinding.ActivityMainBinding
 import com.picassos.betamax.android.di.AppEntryPoint
+import com.picassos.betamax.android.domain.model.Subscription
 import com.picassos.betamax.android.presentation.app.home.HomeFragment
 import com.picassos.betamax.android.presentation.app.movie.movies.MoviesFragment
 import com.picassos.betamax.android.presentation.app.series.SeriesFragment
@@ -114,18 +117,31 @@ class MainActivity : AppCompatActivity() {
         val layoutParams = layout.bottomNavigation.layoutParams as CoordinatorLayout.LayoutParams
         layoutParams.behavior = BottomNavigationViewBehavior()
 
-        lifecycleScope.launchWhenStarted {
-            delay(4000L)
+        lifecycleScope.launch {
             mainViewModel.requestCheckSubscription()
         }
         collectLatestOnLifecycleStarted(mainViewModel.checkSubscription) { state ->
             if (state.response != null) {
-                if (state.response.subscriptionPackage == 0) {
-                    if (!sharedPreferences.loadSubscription()) {
-                        startActivity(Intent(this@MainActivity, SubscribeActivity::class.java))
-                        sharedPreferences.setSubscription(true)
+                lifecycleScope.launch {
+                    val subscription = state.response
+                    entryPoint.setSubscriptionUseCase().invoke(Gson().toJson(Subscription(
+                        subscriptionPackage = subscription.subscriptionPackage,
+                        subscriptionEnd = subscription.subscriptionEnd,
+                        daysLeft = subscription.daysLeft)))
+
+                    Log.d("subscriptionState", subscription.daysLeft.toString())
+
+                    if (subscription.subscriptionPackage == 0) {
+                        delay(2000L)
+                        if (!sharedPreferences.loadSubscription()) {
+                            startActivity(Intent(this@MainActivity, SubscribeActivity::class.java))
+                            sharedPreferences.setSubscription(true)
+                        }
                     }
                 }
+            }
+            if (state.error != null) {
+                Log.d("subscriptionState", state.error.toString())
             }
         }
 

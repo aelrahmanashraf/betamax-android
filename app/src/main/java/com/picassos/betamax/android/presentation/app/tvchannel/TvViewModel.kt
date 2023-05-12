@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.usecase.tvchannel.TvUseCases
-import com.picassos.betamax.android.presentation.app.subscription.check_subscription.CheckSubscriptionState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,32 +31,6 @@ class TvViewModel @Inject constructor(app: Application, private val tvUseCases: 
                     is Resource.Error -> {
                         _tvChannels.emit(TvState(
                             error = result.message))
-                    }
-                }
-            }
-        }
-    }
-
-    private val _checkSubscription = MutableStateFlow(CheckSubscriptionState())
-    val checkSubscription = _checkSubscription.asStateFlow()
-
-    fun requestCheckSubscription() {
-        viewModelScope.launch {
-            tvUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                tvUseCases.checkSubscriptionUseCase(account.token).collect { result ->
-                    when (result) {
-                        is Resource.Loading -> {
-                            _checkSubscription.emit(CheckSubscriptionState(
-                                isLoading = result.isLoading))
-                        }
-                        is Resource.Success -> {
-                            _checkSubscription.emit(CheckSubscriptionState(
-                                response = result.data))
-                        }
-                        is Resource.Error -> {
-                            _checkSubscription.emit(CheckSubscriptionState(
-                                error = result.message))
-                        }
                     }
                 }
             }

@@ -39,8 +39,6 @@ import com.picassos.betamax.android.presentation.app.subscription.subscribe.Subs
 import com.picassos.betamax.android.presentation.television.auth.account_settings.TelevisionAccountSettingsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -77,6 +75,12 @@ class ProfileActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(profileViewModel.checkSubscription) { state ->
             if (state.response != null) {
                 subscription = state.response
+                lifecycleScope.launch {
+                    entryPoint.setSubscriptionUseCase().invoke(Gson().toJson(Subscription(
+                        subscriptionPackage = subscription.subscriptionPackage,
+                        subscriptionEnd = subscription.subscriptionEnd,
+                        daysLeft = subscription.daysLeft)))
+                }
 
                 layout.apply {
                     premiumBadge.visibility = when (state.response.daysLeft) {
@@ -88,73 +92,57 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                combine(entryPoint.getConfigurationUseCase().invoke(), entryPoint.getAccountUseCase().invoke()) { configuration, account ->
-                    layout.apply {
-                        accountSettings.setOnClickListener {
-                            if (!Helper.isTelevision(this@ProfileActivity)) {
-                                val accountSettingsBottomSheetModal = AccountSettingsBottomSheetModal()
-                                accountSettingsBottomSheetModal.show(supportFragmentManager, "TAG")
-                            } else {
-                                startActivity(Intent(this@ProfileActivity, TelevisionAccountSettingsActivity::class.java))
-                            }
-                        }
-                        manageSubscription.setOnClickListener {
-                            if (subscription.daysLeft == 0) {
-                                if (!Helper.isTelevision(this@ProfileActivity)) {
-                                    startActivityForResult.launch(Intent(this@ProfileActivity, SubscribeActivity::class.java))
-                                } else {
-                                    val televisionSubscriptionDialog = TelevisionSubscriptionDialog(this@ProfileActivity)
-                                    televisionSubscriptionDialog.show()
-                                }
-                            } else {
-                                startActivityForResult.launch(Intent(this@ProfileActivity, ManageSubscriptionActivity::class.java))
-                            }
-                        }
-                        manageVideoQuality.setOnClickListener {
-                            val manageVideoQualityBottomSheetModal = ManageVideoQualityBottomSheetModal()
-                            manageVideoQualityBottomSheetModal.show(supportFragmentManager, "manage_video_quality")
-                        }
-                        sendFeedback.setOnClickListener {
-                            openEmailAddress(
-                                email = configuration.email,
-                                subject = getString(R.string.feedback_email_subject),
-                                text = getString(R.string.feedback_email_body))
-                        }
-                        privacyPolicy.setOnClickListener {
-                            openWebBrowser(url = configuration.privacyURL)
-                        }
-                        helpCentre.setOnClickListener {
-                            openWebBrowser(url = configuration.helpURL)
-                        }
-                        about.setOnClickListener {
-                            startActivity(Intent(this@ProfileActivity, AboutActivity::class.java))
-                        }
-                        signout.setOnClickListener {
-                            profileViewModel.requestSignout()
-                        }
-                        developedByContainer.visibility = View.VISIBLE
-                        developedByAuthor.apply {
-                            visibility = View.VISIBLE
-                            text = "${getString(R.string.by)} ${configuration.developedBy}"
-                        }
-                        copyright.text = Helper.copyright(this@ProfileActivity)
-                        version.text = "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
+        collectLatestOnLifecycleStarted(entryPoint.getConfigurationUseCase().invoke()) { configuration ->
+            layout.apply {
+                accountSettings.setOnClickListener {
+                    if (!Helper.isTelevision(this@ProfileActivity)) {
+                        val accountSettingsBottomSheetModal = AccountSettingsBottomSheetModal()
+                        accountSettingsBottomSheetModal.show(supportFragmentManager, "TAG")
+                    } else {
+                        startActivity(Intent(this@ProfileActivity, TelevisionAccountSettingsActivity::class.java))
                     }
-                }.collect()
-            }
-        }
-
-        collectLatestOnLifecycleStarted(profileViewModel.profile) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.response != null) {
-                requestDialog.dismiss()
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
+                }
+                manageSubscription.setOnClickListener {
+                    if (subscription.daysLeft == 0) {
+                        if (!Helper.isTelevision(this@ProfileActivity)) {
+                            startActivityForResult.launch(Intent(this@ProfileActivity, SubscribeActivity::class.java))
+                        } else {
+                            val televisionSubscriptionDialog = TelevisionSubscriptionDialog(this@ProfileActivity)
+                            televisionSubscriptionDialog.show()
+                        }
+                    } else {
+                        startActivityForResult.launch(Intent(this@ProfileActivity, ManageSubscriptionActivity::class.java))
+                    }
+                }
+                manageVideoQuality.setOnClickListener {
+                    val manageVideoQualityBottomSheetModal = ManageVideoQualityBottomSheetModal()
+                    manageVideoQualityBottomSheetModal.show(supportFragmentManager, "manage_video_quality")
+                }
+                sendFeedback.setOnClickListener {
+                    openEmailAddress(
+                        email = configuration.email,
+                        subject = getString(R.string.feedback_email_subject),
+                        text = getString(R.string.feedback_email_body))
+                }
+                privacyPolicy.setOnClickListener {
+                    openWebBrowser(url = configuration.privacyURL)
+                }
+                helpCentre.setOnClickListener {
+                    openWebBrowser(url = configuration.helpURL)
+                }
+                about.setOnClickListener {
+                    startActivity(Intent(this@ProfileActivity, AboutActivity::class.java))
+                }
+                signout.setOnClickListener {
+                    profileViewModel.requestSignout()
+                }
+                developedByContainer.visibility = View.VISIBLE
+                developedByAuthor.apply {
+                    visibility = View.VISIBLE
+                    text = "${getString(R.string.by)} ${configuration.developedBy}"
+                }
+                copyright.text = Helper.copyright(this@ProfileActivity)
+                version.text = "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
             }
         }
 

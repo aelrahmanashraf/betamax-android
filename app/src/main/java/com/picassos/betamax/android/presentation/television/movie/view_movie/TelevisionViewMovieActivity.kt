@@ -8,6 +8,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.backends.pipeline.PipelineDraweeController
@@ -23,6 +24,7 @@ import com.picassos.betamax.android.core.view.Toasto.showToast
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.core.view.dialog.TelevisionSubscriptionDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionViewMovieBinding
+import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
@@ -34,6 +36,8 @@ import com.picassos.betamax.android.presentation.television.movie.movie_player.T
 import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesAdapter
 import com.picassos.betamax.android.presentation.television.season.seasons.TelevisionSeasonsAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TelevisionViewMovieActivity : AppCompatActivity() {
@@ -43,11 +47,11 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
     private lateinit var movie: Movies.Movie
 
     private var selectedSeason = Seasons.Season(level = 1)
-    private var episode: Episodes.Episode? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val entryPoint = EntryPointAccessors.fromApplication(this, AppEntryPoint::class.java)
 
         Helper.darkMode(this)
 
@@ -96,8 +100,26 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
 
         val episodesAdapter = TelevisionEpisodesAdapter(onClickListener = object: OnEpisodeClickListener {
             override fun onItemClick(episode: Episodes.Episode?) {
-                this@TelevisionViewMovieActivity.episode = episode
-                televisionViewMovieViewModel.requestCheckSubscription()
+                lifecycleScope.launch {
+                    entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                        when (subscription.daysLeft) {
+                            0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity).show()
+                            else -> {
+                                episode?.let { episode ->
+                                    Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                        intent.putExtra("playerContent", PlayerContent(
+                                            id = episode.episodeId,
+                                            title = episode.title,
+                                            url = episode.url,
+                                            meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
+                                            thumbnail = episode.thumbnail))
+                                        startActivity(intent)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         })
         layout.recyclerEpisodes.apply {
@@ -148,7 +170,23 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                         0 -> {
                             visibility = View.VISIBLE
                             setOnClickListener {
-                                televisionViewMovieViewModel.requestCheckSubscription()
+                                lifecycleScope.launch {
+                                    entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                                        when (subscription.daysLeft) {
+                                            0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity).show()
+                                            else -> {
+                                                Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                                    intent.putExtra("playerContent", PlayerContent(
+                                                        id = movie.id,
+                                                        title = movie.title,
+                                                        url = movie.url,
+                                                        thumbnail = movie.thumbnail))
+                                                    startActivity(intent)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         1 -> visibility = View.GONE
@@ -259,59 +297,6 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(televisionViewMovieViewModel.episodes) { state ->
             if (state.response != null) {
                 episodesAdapter.differ.submitList(state.response.rendered)
-            }
-        }
-
-        collectLatestOnLifecycleStarted(televisionViewMovieViewModel.checkSubscription) { subscriptionState ->
-            if (subscriptionState.isLoading) {
-                requestDialog.show()
-            }
-            if (subscriptionState.response != null) {
-                requestDialog.dismiss()
-
-                val subscription = subscriptionState.response
-                when (subscription.daysLeft) {
-                    0 -> TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity).show()
-                    else -> {
-                        episode?.let { episode ->
-                            Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                intent.putExtra("playerContent", PlayerContent(
-                                    id = episode.episodeId,
-                                    title = episode.title,
-                                    url = episode.url,
-                                    meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
-                                    thumbnail = episode.thumbnail))
-                                startActivity(intent)
-
-                                this@TelevisionViewMovieActivity.episode = null
-                            }
-                        } ?: run {
-                            Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                intent.putExtra("playerContent", PlayerContent(
-                                    id = movie.id,
-                                    title = movie.title,
-                                    url = movie.url,
-                                    thumbnail = movie.thumbnail))
-                                startActivity(intent)
-                            }
-                        }
-                    }
-                }
-            }
-            if (subscriptionState.error != null) {
-                requestDialog.dismiss()
-                when (subscriptionState.error) {
-                    Response.NETWORK_FAILURE_EXCEPTION -> {
-                        showToast(this@TelevisionViewMovieActivity, getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)
-                    }
-                    Response.MALFORMED_REQUEST_EXCEPTION -> {
-                        showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
-                        Firebase.crashlytics.log("Request returned a malformed request or response.")
-                    }
-                    else -> {
-                        showToast(this@TelevisionViewMovieActivity, getString(R.string.unknown_issue_occurred), 0, 1)
-                    }
-                }
             }
         }
     }

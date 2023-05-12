@@ -9,24 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
-import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleSheetOwnerStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.databinding.ShowEpisodeBottomSheetModalBinding
 import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.core.utilities.Helper.getBundleSerializable
-import com.picassos.betamax.android.core.utilities.Response
-import com.picassos.betamax.android.core.view.Toasto.showToast
-import com.picassos.betamax.android.core.view.dialog.RequestDialog
+import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.presentation.app.movie.movie_player.MoviePlayerActivity
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
@@ -48,8 +46,7 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val requestDialog = RequestDialog(requireContext())
+        val entryPoint = EntryPointAccessors.fromApplication(requireContext(), AppEntryPoint::class.java)
 
         getBundleSerializable(requireArguments(), "movie", Movies.Movie::class.java).also { movie ->
             this@ShowEpisodeBottomSheetModal.movie = movie
@@ -72,47 +69,24 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
             }
             layout.playEpisode.apply {
                 setOnClickListener {
-                    showEpisodeViewModel.requestCheckSubscription()
-                }
-            }
-        }
-
-        collectLatestOnLifecycleSheetOwnerStarted(showEpisodeViewModel.checkSubscription) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.response != null) {
-                requestDialog.dismiss()
-
-                val subscription = state.response
-                when (subscription.daysLeft) {
-                    0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
-                    else -> {
-                        Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
-                            intent.putExtra("playerContent", PlayerContent(
-                                id = episode.episodeId,
-                                title = episode.title,
-                                url = episode.url,
-                                meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
-                                thumbnail = episode.thumbnail,
-                                currentPosition = episode.currentPosition ?: 0))
-                            startActivity(intent)
+                    lifecycleScope.launch {
+                        entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                            when (subscription.daysLeft) {
+                                0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                                else -> {
+                                    Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
+                                        intent.putExtra("playerContent", PlayerContent(
+                                            id = episode.episodeId,
+                                            title = episode.title,
+                                            url = episode.url,
+                                            meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
+                                            thumbnail = episode.thumbnail,
+                                            currentPosition = episode.currentPosition ?: 0))
+                                        startActivity(intent)
+                                    }
+                                }
+                            }
                         }
-                    }
-                }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
-                when (state.error) {
-                    Response.NETWORK_FAILURE_EXCEPTION -> {
-                        showToast(requireContext(), getString(R.string.please_check_your_internet_connection_and_try_again), 0, 1)
-                    }
-                    Response.MALFORMED_REQUEST_EXCEPTION -> {
-                        showToast(requireContext(), getString(R.string.unknown_issue_occurred), 0, 1)
-                        Firebase.crashlytics.log("Request returned a malformed request or response.")
-                    }
-                    else -> {
-                        showToast(requireContext(), getString(R.string.unknown_issue_occurred), 0, 1)
                     }
                 }
             }
