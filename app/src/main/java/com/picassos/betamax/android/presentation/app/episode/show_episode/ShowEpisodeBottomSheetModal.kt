@@ -71,19 +71,18 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
                 setOnClickListener {
                     lifecycleScope.launch {
                         entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                            when (subscription.daysLeft) {
-                                0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
-                                else -> {
-                                    Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
-                                        intent.putExtra("playerContent", PlayerContent(
-                                            id = episode.episodeId,
-                                            title = episode.title,
-                                            url = episode.url,
-                                            meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
-                                            thumbnail = episode.thumbnail,
-                                            currentPosition = episode.currentPosition ?: 0))
-                                        startActivity(intent)
-                                    }
+                            if (subscription.daysLeft == 0) {
+                                startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                            } else {
+                                Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", PlayerContent(
+                                        id = episode.episodeId,
+                                        title = episode.title,
+                                        url = episode.url,
+                                        meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
+                                        thumbnail = episode.thumbnail,
+                                        currentPosition = episode.currentPosition ?: 0))
+                                    startActivity(intent)
                                 }
                             }
                         }

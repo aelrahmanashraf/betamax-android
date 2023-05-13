@@ -1,7 +1,9 @@
 package com.picassos.betamax.android.presentation.television.movie.movie_player
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -86,8 +88,12 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
             if (state.responseCode != null) {
                 requestDialog.dismiss()
-                when (state.responseCode) {
-                    200 -> finish()
+                if (state.responseCode == 200) {
+                    Intent().also { intent ->
+                        intent.putExtra("refreshContent", true)
+                        setResult(Activity.RESULT_OK, intent)
+                        finish()
+                    }
                 }
             }
             if (state.error != null) {
@@ -101,8 +107,12 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
             if (state.responseCode != null) {
                 requestDialog.dismiss()
-                when (state.responseCode) {
-                    200 -> finish()
+                if (state.responseCode == 200) {
+                    Intent().also { intent ->
+                        intent.putExtra("refreshContent", true)
+                        setResult(Activity.RESULT_OK, intent)
+                        finish()
+                    }
                 }
             }
             if (state.error != null) {

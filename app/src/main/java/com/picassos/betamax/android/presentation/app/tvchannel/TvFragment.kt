@@ -59,13 +59,12 @@ class TvFragment : Fragment() {
             override fun onItemClick(tvChannel: TvChannels.TvChannel) {
                 lifecycleScope.launch {
                     entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                        when (subscription.daysLeft) {
-                            0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
-                            else -> {
-                                Intent(requireContext(), ViewTvChannelActivity::class.java).also { intent ->
-                                    intent.putExtra("tvchannel", tvChannel)
-                                    startActivity(intent)
-                                }
+                        if (subscription.daysLeft == 0) {
+                            startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                        } else {
+                            Intent(requireContext(), ViewTvChannelActivity::class.java).also { intent ->
+                                intent.putExtra("tvchannel", tvChannel)
+                                startActivity(intent)
                             }
                         }
                     }

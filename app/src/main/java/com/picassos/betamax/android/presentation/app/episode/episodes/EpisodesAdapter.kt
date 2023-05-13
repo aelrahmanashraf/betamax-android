@@ -24,16 +24,12 @@ class EpisodesAdapter(private val onClickListener: OnEpisodeClickListener) : Rec
     internal class EpisodesHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.episode_thumbnail)
         private val title: TextView = itemView.findViewById(R.id.episode_title)
-        private val progress: ProgressBar = itemView.findViewById(R.id.episode_progress)
+        private val watchProgress: ProgressBar = itemView.findViewById(R.id.episode_progress)
 
         fun setData(episode: Episodes.Episode) {
             title.text = episode.title
-            progress.apply {
-                max = episode.duration * 60 * 1000
-                episode.currentPosition?.let { currentPosition ->
-                    progress = currentPosition
-                } ?: run { visibility = View.GONE }
-            }
+            watchProgress.max = episode.duration * 60 * 1000
+            watchProgress.progress = episode.currentPosition ?: 0
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(episode.thumbnail))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)

@@ -151,6 +151,14 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
 
                 val movieDetails = state.response.movieDetails.movies[0]
                 layout.apply {
+                    if (movieDetails.series == 0) {
+                        movieMetaContainer.visibility = View.VISIBLE
+                        relatedMoviesContainer.visibility = View.VISIBLE
+                        seasonsContainer.visibility = View.GONE
+                    } else {
+                        movieMetaContainer.visibility = View.GONE
+                        relatedMoviesContainer.visibility = View.GONE
+                    }
                     movieTitle.text = movieDetails.title
                     movieDate.text = Helper.getFormattedDateString(movieDetails.date, "yyyy")
                     movieDuration.text = Helper.convertMinutesToHoursAndMinutes(movieDetails.duration)
@@ -188,18 +196,18 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                     setOnClickListener {
                         lifecycleScope.launch {
                             entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                                when (subscription.daysLeft) {
-                                    0 -> startActivity(Intent(this@ViewMovieActivity, SubscribeActivity::class.java))
-                                    else -> {
-                                        Intent(this@ViewMovieActivity, MoviePlayerActivity::class.java).also { intent ->
-                                            intent.putExtra("playerContent", PlayerContent(
-                                                id = movie.id,
-                                                title = movie.title,
-                                                url = movie.url,
-                                                thumbnail = movie.thumbnail))
-                                            startActivity(intent)
-                                        }
+                                if (subscription.daysLeft == 0) {
+                                    startActivity(Intent(this@ViewMovieActivity, SubscribeActivity::class.java))
+                                } else {
+                                    Intent(this@ViewMovieActivity, MoviePlayerActivity::class.java).also { intent ->
+                                        intent.putExtra("playerContent", PlayerContent(
+                                            id = movie.id,
+                                            title = movie.title,
+                                            url = movie.url,
+                                            thumbnail = movie.thumbnail))
+                                        startActivity(intent)
                                     }
+
                                 }
                             }
                         }
@@ -207,13 +215,10 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                 }
 
                 layout.saveMovie.apply {
-                    when (state.response.movieSaved) {
-                        1 -> {
-                            setImageResource(R.drawable.icon_check)
-                        }
-                        else -> {
-                            setImageResource(R.drawable.icon_plus)
-                        }
+                    if (state.response.movieSaved == 1) {
+                        setImageResource(R.drawable.icon_check)
+                    } else {
+                        setImageResource(R.drawable.icon_plus)
                     }
                     setOnClickListener {
                         viewMovieViewModel.requestSaveMovie(movieDetails.id)
@@ -241,11 +246,6 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                 }
 
                 if (movieDetails.series == 0) {
-                    layout.apply {
-                        movieMetaContainer.visibility = View.VISIBLE
-                        relatedMoviesContainer.visibility = View.VISIBLE
-                        seasonsContainer.visibility = View.GONE
-                    }
                     val movies = state.response.relatedMovies.movies
                     moviesAdapter.differ.submitList(movies)
                     if (movies.isEmpty()) {
@@ -254,10 +254,9 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                         layout.relatedMoviesContainer.visibility = View.VISIBLE
                     }
                 } else {
+                    val episodes = state.response.movieEpisodes
                     layout.apply {
-                        movieMetaContainer.visibility = View.GONE
-                        relatedMoviesContainer.visibility = View.GONE
-                        season.text = state.response.movieEpisodes.seasonTitle
+                        season.text = episodes.seasonTitle
                         seasonsContainer.apply {
                             visibility = View.VISIBLE
                             setOnClickListener {
@@ -268,13 +267,12 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                                 seasonsBottomSheetModal.show(supportFragmentManager, "seasons")
                             }
                         }
-                        val episodes = state.response.movieEpisodes.rendered
-                        episodesAdapter.differ.submitList(episodes)
-                        if (episodes.isEmpty()) {
-                            layout.seasonsContainer.visibility = View.GONE
-                        } else {
-                            layout.seasonsContainer.visibility = View.VISIBLE
-                        }
+                    }
+                    episodesAdapter.differ.submitList(episodes.rendered)
+                    if (episodes.rendered.isEmpty()) {
+                        layout.seasonsContainer.visibility = View.GONE
+                    } else {
+                        layout.seasonsContainer.visibility = View.VISIBLE
                     }
                 }
             }

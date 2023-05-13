@@ -111,18 +111,17 @@ class HomeFragment : Fragment() {
             override fun onItemClick(continueWatching: ContinueWatching.ContinueWatching) {
                 lifecycleScope.launch {
                     entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                        when (subscription.daysLeft) {
-                            0 -> startActivity(Intent(requireContext(), SubscribeActivity::class.java))
-                            else -> {
-                                Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
-                                    intent.putExtra("playerContent", PlayerContent(
-                                        id = continueWatching.contentId,
-                                        title = continueWatching.title,
-                                        url = continueWatching.url,
-                                        thumbnail = continueWatching.thumbnail,
-                                        currentPosition = continueWatching.currentPosition))
-                                    startActivity(intent)
-                                }
+                        if (subscription.daysLeft == 0) {
+                            startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                        } else {
+                            Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
+                                intent.putExtra("playerContent", PlayerContent(
+                                    id = continueWatching.contentId,
+                                    title = continueWatching.title,
+                                    url = continueWatching.url,
+                                    thumbnail = continueWatching.thumbnail,
+                                    currentPosition = continueWatching.currentPosition))
+                                startActivity(intent)
                             }
                         }
                     }
@@ -130,11 +129,10 @@ class HomeFragment : Fragment() {
             }
         }, optionsListener = object: OnContinueWatchingOptionsClickListener {
             override fun onOptionsClick(continueWatching: ContinueWatching.ContinueWatching) {
-                val bundle = Bundle().apply {
+                val continueWatchingOptionsBottomSheetModal = ContinueWatchingOptionsBottomSheetModal()
+                continueWatchingOptionsBottomSheetModal.arguments = Bundle().apply {
                     putInt("contentId", continueWatching.contentId)
                 }
-                val continueWatchingOptionsBottomSheetModal = ContinueWatchingOptionsBottomSheetModal()
-                continueWatchingOptionsBottomSheetModal.arguments = bundle
                 continueWatchingOptionsBottomSheetModal.show(parentFragmentManager, "TAG")
             }
         })

@@ -97,9 +97,10 @@ class TelevisionMainActivity : AppCompatActivity() {
                 setOnClickListener {
                     lifecycleScope.launch {
                         entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                            when (subscription.daysLeft) {
-                                0 -> TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
-                                else -> startActivity(Intent(this@TelevisionMainActivity, TelevisionTvChannelsActivity::class.java))
+                            if (subscription.daysLeft == 0) {
+                                TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
+                            } else {
+                                startActivity(Intent(this@TelevisionMainActivity, TelevisionTvChannelsActivity::class.java))
                             }
                         }
                     }
@@ -138,18 +139,17 @@ class TelevisionMainActivity : AppCompatActivity() {
             override fun onItemClick(continueWatching: ContinueWatching.ContinueWatching) {
                 lifecycleScope.launch {
                     entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                        when (subscription.daysLeft) {
-                            0 -> TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
-                            else -> {
-                                Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                    intent.putExtra("playerContent", PlayerContent(
-                                        id = continueWatching.contentId,
-                                        title = continueWatching.title,
-                                        url = continueWatching.url,
-                                        thumbnail = continueWatching.thumbnail,
-                                        currentPosition = continueWatching.currentPosition))
-                                    startActivity(intent)
-                                }
+                        if (subscription.daysLeft == 0) {
+                            TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
+                        } else {
+                            Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                intent.putExtra("playerContent", PlayerContent(
+                                    id = continueWatching.contentId,
+                                    title = continueWatching.title,
+                                    url = continueWatching.url,
+                                    thumbnail = continueWatching.thumbnail,
+                                    currentPosition = continueWatching.currentPosition))
+                                startActivity(intent)
                             }
                         }
                     }
