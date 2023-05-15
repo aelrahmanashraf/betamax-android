@@ -33,7 +33,6 @@ import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.listener.OnSeasonClickListener
 import com.picassos.betamax.android.domain.model.*
 import com.picassos.betamax.android.presentation.app.cast.CastAdapter
-import com.picassos.betamax.android.presentation.television.episode.episode_player.TelevisionEpisodePlayerActivity
 import com.picassos.betamax.android.presentation.television.episode.episodes.TelevisionEpisodesAdapter
 import com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity
 import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesAdapter
@@ -50,7 +49,6 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
     private lateinit var movie: Movies.Movie
 
     private var selectedSeason = Seasons.Season(level = 1)
-    private var episodes: Episodes? = null
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,19 +101,22 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
         }
 
         val episodesAdapter = TelevisionEpisodesAdapter(onClickListener = object: OnEpisodeClickListener {
-            override fun onItemClick(episode: Episodes.Episode) {
+            override fun onItemClick(episode: Episodes.Episode?) {
                 lifecycleScope.launch {
                     entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
                         if (subscription.daysLeft == 0) {
                             TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity).show()
                         } else {
-                            Intent(this@TelevisionViewMovieActivity, TelevisionEpisodePlayerActivity::class.java).also { intent ->
-                                intent.putExtra("playerContent", EpisodePlayerContent(
-                                    movie = movie,
-                                    episode = episode,
-                                    episodes = episodes,
-                                    currentPosition = episode.currentPosition ?: 0))
-                                startActivityForResult.launch(intent)
+                            episode?.let { episode ->
+                                Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", PlayerContent(
+                                        id = episode.episodeId,
+                                        title = episode.title,
+                                        url = episode.url,
+                                        meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
+                                        thumbnail = episode.thumbnail))
+                                    startActivityForResult.launch(intent)
+                                }
                             }
                         }
                     }
@@ -183,7 +184,11 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                                         TelevisionSubscriptionDialog(this@TelevisionViewMovieActivity).show()
                                     } else {
                                         Intent(this@TelevisionViewMovieActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                            intent.putExtra("playerContent", MoviePlayerContent(movie = movie))
+                                            intent.putExtra("playerContent", PlayerContent(
+                                                id = movie.id,
+                                                title = movie.title,
+                                                url = movie.url,
+                                                thumbnail = movie.thumbnail))
                                             startActivity(intent)
                                         }
                                     }
@@ -242,10 +247,9 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                         }
                     }
 
-                    val episodes = state.response.movieEpisodes
-                    this@TelevisionViewMovieActivity.episodes = episodes
-                    episodesAdapter.differ.submitList(episodes.rendered)
-                    if (episodes.rendered.isEmpty()) {
+                    val episodes = state.response.movieEpisodes.rendered
+                    episodesAdapter.differ.submitList(episodes)
+                    if (episodes.isEmpty()) {
                         layout.seasonsContainer.visibility = View.GONE
                     } else {
                         layout.seasonsContainer.visibility = View.VISIBLE

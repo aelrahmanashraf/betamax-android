@@ -37,7 +37,7 @@ import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.di.AppEntryPoint
 import com.picassos.betamax.android.domain.listener.OnEpisodeClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
-import com.picassos.betamax.android.domain.model.MoviePlayerContent
+import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.domain.model.Seasons
 import com.picassos.betamax.android.presentation.app.episode.episodes.EpisodesViewModel
 import com.picassos.betamax.android.presentation.app.episode.show_episode.ShowEpisodeBottomSheetModal
@@ -47,9 +47,11 @@ import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsViewM
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import org.json.JSONException
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpisodeBottomSheetDismissedListener {
     private lateinit var layout: ActivityViewMovieBinding
@@ -61,8 +63,6 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
 
     private lateinit var movie: Movies.Movie
     private var selectedSeason = Seasons.Season(level = 1)
-    private var episodes: Episodes? = null
-
     private var requireRefresh = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,11 +124,10 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
         }
 
         val episodesAdapter = EpisodesAdapter(onClickListener = object: OnEpisodeClickListener {
-            override fun onItemClick(episode: Episodes.Episode) {
+            override fun onItemClick(episode: Episodes.Episode?) {
                 val showEpisodeBottomSheetModal = ShowEpisodeBottomSheetModal()
                 showEpisodeBottomSheetModal.arguments = Bundle().apply {
                     putSerializable("movie", movie)
-                    putSerializable("episodes", episodes)
                     putSerializable("episode", episode)
                 }
                 showEpisodeBottomSheetModal.show(supportFragmentManager, "show_episode")
@@ -201,9 +200,14 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                                     startActivity(Intent(this@ViewMovieActivity, SubscribeActivity::class.java))
                                 } else {
                                     Intent(this@ViewMovieActivity, MoviePlayerActivity::class.java).also { intent ->
-                                        intent.putExtra("playerContent", MoviePlayerContent(movie = movie))
+                                        intent.putExtra("playerContent", PlayerContent(
+                                            id = movie.id,
+                                            title = movie.title,
+                                            url = movie.url,
+                                            thumbnail = movie.thumbnail))
                                         startActivity(intent)
                                     }
+
                                 }
                             }
                         }
@@ -251,7 +255,6 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                     }
                 } else {
                     val episodes = state.response.movieEpisodes
-                    this@ViewMovieActivity.episodes = episodes
                     layout.apply {
                         season.text = episodes.seasonTitle
                         seasonsContainer.apply {

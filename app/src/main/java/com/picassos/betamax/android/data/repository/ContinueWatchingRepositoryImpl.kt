@@ -31,7 +31,7 @@ class ContinueWatchingRepositoryImpl @Inject constructor(private val service: AP
         }
     }
 
-    override suspend fun updateContinueWatching(token: String, contentId: Int, title: String, url: String, thumbnail: String, duration: Int, currentPosition: Int, series: Int): Flow<Resource<Int>> {
+    override suspend fun updateContinueWatching(token: String, contentId: Int, title: String, url: String, thumbnail: String, duration: Int, currentPosition: Int): Flow<Resource<Int>> {
         return flow {
             emit(Resource.Loading(true))
             delay(2000L)
@@ -43,8 +43,7 @@ class ContinueWatchingRepositoryImpl @Inject constructor(private val service: AP
                     url = url,
                     thumbnail = thumbnail,
                     duration = duration,
-                    currentPosition = currentPosition,
-                    series = series)
+                    currentPosition = currentPosition)
                 emit(Resource.Success(response))
             } catch (t: Throwable) {
                 when (t) {

@@ -28,16 +28,17 @@ import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
 import com.picassos.betamax.android.databinding.ActivityTelevisionMoviePlayerBinding
-import com.picassos.betamax.android.domain.model.MoviePlayerContent
-import com.picassos.betamax.android.domain.model.Movies
+import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.domain.model.TracksGroup
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
 import com.picassos.betamax.android.presentation.app.player.PlayerViewModel
 import com.picassos.betamax.android.presentation.app.track.tracks.TracksAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.util.*
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class TelevisionMoviePlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionMoviePlayerBinding
@@ -47,7 +48,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
     private lateinit var exoPlayer: ExoPlayer
 
-    private lateinit var playerContent: MoviePlayerContent
+    private lateinit var playerContent: PlayerContent
     private var isRetry = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,11 +67,20 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
-        getSerializable(this@TelevisionMoviePlayerActivity, "playerContent", MoviePlayerContent::class.java).also { playerContent ->
+        getSerializable(this@TelevisionMoviePlayerActivity, "playerContent", PlayerContent::class.java).also { playerContent ->
             this@TelevisionMoviePlayerActivity.playerContent = playerContent
 
-            initializePlayer(movie = playerContent.movie)
+            layout.apply {
+                playerTitle.text = playerContent.title
+                if (playerContent.meta.isNotEmpty()) {
+                    playerMeta.text = playerContent.meta
+                } else {
+                    playerMeta.visibility = View.GONE
+                }
+            }
         }
+
+        initializePlayer(url = playerContent.url)
 
         collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
             if (state.isLoading) {
@@ -112,7 +122,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SwitchIntDef")
-    private fun initializePlayer(movie: Movies.Movie) {
+    private fun initializePlayer(url: String) {
         val trackSelector = DefaultTrackSelector(this@TelevisionMoviePlayerActivity)
         val renderersFactory = DefaultRenderersFactory(this@TelevisionMoviePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
@@ -122,7 +132,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             .build()
         val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
 
-        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(movie.url)))
+        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
 
         exoPlayer = ExoPlayer.Builder(this@TelevisionMoviePlayerActivity)
             .setTrackSelector(trackSelector)
@@ -136,9 +146,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
-        layout.playerTitle.apply {
-            text = movie.title
-        }
         layout.exoPlayer.apply {
             player = exoPlayer
             setControllerVisibilityListener { visibility ->
@@ -212,7 +219,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             when (playbackState) {
                 Player.STATE_ENDED -> {
                     continueWatchingViewModel.requestDeleteContinueWatching(
-                        contentId = playerContent.movie.id)
+                        contentId = playerContent.id)
                 }
                 Player.STATE_BUFFERING -> {
                     layout.exoPlayer.apply {
@@ -232,18 +239,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             super.onPlayerErrorChanged(error)
             playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
         }
-    }
-
-    private fun updateContinueWatching() {
-        val movie = playerContent.movie
-        continueWatchingViewModel.requestUpdateContinueWatching(
-            contentId = movie.id,
-            title = movie.title,
-            url = movie.url,
-            thumbnail = movie.thumbnail,
-            duration = exoPlayer.duration.toInt(),
-            currentPosition = exoPlayer.currentPosition.toInt(),
-            series = 0)
     }
 
     private fun showTracksDialog() {
@@ -369,7 +364,15 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                 }
             }
             KeyEvent.KEYCODE_ESCAPE,
-            KeyEvent.KEYCODE_BACK -> updateContinueWatching()
+            KeyEvent.KEYCODE_BACK -> {
+                continueWatchingViewModel.requestUpdateContinueWatching(
+                    contentId = playerContent.id,
+                    title = playerContent.title,
+                    url = playerContent.url,
+                    thumbnail = playerContent.thumbnail,
+                    duration = exoPlayer.duration.toInt(),
+                    currentPosition = exoPlayer.currentPosition.toInt())
+            }
         }
         return false
     }

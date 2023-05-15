@@ -19,8 +19,8 @@ import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.core.utilities.Helper.getBundleSerializable
 import com.picassos.betamax.android.di.AppEntryPoint
-import com.picassos.betamax.android.domain.model.EpisodePlayerContent
-import com.picassos.betamax.android.presentation.app.episode.episode_player.EpisodePlayerActivity
+import com.picassos.betamax.android.domain.model.PlayerContent
+import com.picassos.betamax.android.presentation.app.movie.movie_player.MoviePlayerActivity
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
@@ -36,7 +36,6 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
     private val showEpisodeViewModel: ShowEpisodeViewModel by activityViewModels()
 
     private lateinit var movie: Movies.Movie
-    private lateinit var episodes: Episodes
     private lateinit var episode: Episodes.Episode
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -57,10 +56,6 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
             }
         }
 
-        getBundleSerializable(requireArguments(), "episodes", Episodes::class.java).also { episodes ->
-            this@ShowEpisodeBottomSheetModal.episodes = episodes
-        }
-
         getBundleSerializable(requireArguments(), "episode", Episodes.Episode::class.java).also { episode ->
             this@ShowEpisodeBottomSheetModal.episode = episode
 
@@ -72,19 +67,23 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
                     .setUri(episode.thumbnail)
                     .build()
             }
-            layout.playEpisode.setOnClickListener {
-                lifecycleScope.launch {
-                    entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                        if (subscription.daysLeft == 0) {
-                            startActivity(Intent(requireContext(), SubscribeActivity::class.java))
-                        } else {
-                            Intent(requireContext(), EpisodePlayerActivity::class.java).also { intent ->
-                                intent.putExtra("playerContent", EpisodePlayerContent(
-                                    movie = movie,
-                                    episode = episode,
-                                    episodes = episodes,
-                                    currentPosition = episode.currentPosition ?: 0))
-                                startActivity(intent)
+            layout.playEpisode.apply {
+                setOnClickListener {
+                    lifecycleScope.launch {
+                        entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
+                            if (subscription.daysLeft == 0) {
+                                startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+                            } else {
+                                Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", PlayerContent(
+                                        id = episode.episodeId,
+                                        title = episode.title,
+                                        url = episode.url,
+                                        meta = "${movie.title} | ${getString(R.string.season)} ${episode.seasonLevel}",
+                                        thumbnail = episode.thumbnail,
+                                        currentPosition = episode.currentPosition ?: 0))
+                                    startActivity(intent)
+                                }
                             }
                         }
                     }

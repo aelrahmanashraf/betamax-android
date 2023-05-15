@@ -31,6 +31,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
+@DelicateCoroutinesApi
 class GenreMoviesActivity : AppCompatActivity() {
     private lateinit var layout: ActivityGenreMoviesBinding
     private val genreMoviesViewModel: GenreMoviesViewModel by viewModels()

@@ -156,7 +156,6 @@ interface APIService {
         @Field("thumbnail") thumbnail: String,
         @Field("duration") duration: Int,
         @Field("current_position") currentPosition: Int,
-        @Field("series") series: Int
     ): Int
 
     @FormUrlEncoded

@@ -34,15 +34,11 @@ import com.picassos.betamax.android.domain.listener.OnContinueWatchingLongClickL
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.model.ContinueWatching
-import com.picassos.betamax.android.domain.model.EpisodePlayerContent
-import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.model.Movies
-import com.picassos.betamax.android.domain.model.MoviePlayerContent
+import com.picassos.betamax.android.domain.model.PlayerContent
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
-import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
 import com.picassos.betamax.android.presentation.television.continue_watching.TelevisionContinueWatchingAdapter
-import com.picassos.betamax.android.presentation.television.episode.episode_player.TelevisionEpisodePlayerActivity
 import com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity
 import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesActivity
 import com.picassos.betamax.android.presentation.television.movie.movies.TelevisionMoviesAdapter
@@ -53,6 +49,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
+
 
 @AndroidEntryPoint
 class TelevisionMainActivity : AppCompatActivity() {
@@ -145,58 +142,14 @@ class TelevisionMainActivity : AppCompatActivity() {
                         if (subscription.daysLeft == 0) {
                             TelevisionSubscriptionDialog(this@TelevisionMainActivity).show()
                         } else {
-                            lifecycleScope.launch {
-                                entryPoint.getSubscriptionUseCase().invoke().collect { subscription ->
-                                    if (subscription.daysLeft == 0) {
-                                        startActivity(Intent(this@TelevisionMainActivity, SubscribeActivity::class.java))
-                                    } else {
-                                        if (continueWatching.series == 0) {
-                                            Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
-                                                intent.putExtra("playerContent", MoviePlayerContent(
-                                                    movie = Movies.Movie(
-                                                        id = continueWatching.contentId,
-                                                        url = continueWatching.url,
-                                                        title = continueWatching.title,
-                                                        description = "",
-                                                        thumbnail = continueWatching.thumbnail,
-                                                        banner = "",
-                                                        rating = 0.0,
-                                                        duration = 0,
-                                                        date = ""),
-                                                    currentPosition = continueWatching.currentPosition))
-                                                startActivity(intent)
-                                            }
-                                        } else {
-                                            Intent(this@TelevisionMainActivity, TelevisionEpisodePlayerActivity::class.java).also { intent ->
-                                                intent.putExtra("playerContent", EpisodePlayerContent(
-                                                    movie = Movies.Movie(
-                                                        id = 0,
-                                                        url = "",
-                                                        title = "",
-                                                        description = "",
-                                                        thumbnail = "",
-                                                        banner = "",
-                                                        rating = 0.0,
-                                                        duration = 0,
-                                                        date = ""),
-                                                    episode = Episodes.Episode(
-                                                        id = continueWatching.contentId,
-                                                        episodeId = continueWatching.contentId,
-                                                        movieId = 0,
-                                                        seasonLevel = 0,
-                                                        level = 0,
-                                                        url = continueWatching.url,
-                                                        title = continueWatching.title,
-                                                        thumbnail = continueWatching.thumbnail,
-                                                        duration = 0,
-                                                        currentPosition = 0),
-                                                    currentPosition = continueWatching.currentPosition)
-                                                )
-                                                startActivity(intent)
-                                            }
-                                        }
-                                    }
-                                }
+                            Intent(this@TelevisionMainActivity, TelevisionMoviePlayerActivity::class.java).also { intent ->
+                                intent.putExtra("playerContent", PlayerContent(
+                                    id = continueWatching.contentId,
+                                    title = continueWatching.title,
+                                    url = continueWatching.url,
+                                    thumbnail = continueWatching.thumbnail,
+                                    currentPosition = continueWatching.currentPosition))
+                                startActivity(intent)
                             }
                         }
                     }
@@ -246,12 +199,7 @@ class TelevisionMainActivity : AppCompatActivity() {
             adapter = trendingAdapter
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                televisionMainViewModel.requestHomeContent()
-            }
-            televisionMainViewModel
-        }
+        televisionMainViewModel.requestHomeContent()
         collectLatestOnLifecycleStarted(televisionMainViewModel.home) { state ->
             if (state.isLoading) {
                 layout.apply {
@@ -264,14 +212,6 @@ class TelevisionMainActivity : AppCompatActivity() {
                 layout.apply {
                     moviesProgressbar.visibility = View.GONE
                     homeContainer.visibility = View.VISIBLE
-                }
-
-                val continueWatching = state.response.continueWatching.continueWatching
-                continueWatchingAdapter.differ.submitList(continueWatching)
-                if (continueWatching.isEmpty()) {
-                    layout.continueWatchingContainer.visibility = View.GONE
-                } else {
-                    layout.continueWatchingContainer.visibility = View.VISIBLE
                 }
 
                 val newlyRelease = state.response.newlyRelease.movies
@@ -294,9 +234,16 @@ class TelevisionMainActivity : AppCompatActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                continueWatchingViewModel.requestContinueWatching()
+            }
+        }
+
         collectLatestOnLifecycleStarted(continueWatchingViewModel.continueWatching) { state ->
             if (state.response != null) {
                 val continueWatching = state.response.continueWatching
+
                 continueWatchingAdapter.differ.submitList(continueWatching)
                 if (continueWatching.isEmpty()) {
                     layout.continueWatchingContainer.visibility = View.GONE

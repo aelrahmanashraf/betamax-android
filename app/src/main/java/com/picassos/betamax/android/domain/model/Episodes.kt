@@ -1,10 +1,8 @@
 package com.picassos.betamax.android.domain.model
 
-import java.io.Serializable
-
 data class Episodes(
     val seasonTitle: String,
-    val rendered: List<Episode>): Serializable {
+    val rendered: List<Episode>) {
 
     data class Episode(
         val id: Int,
@@ -16,5 +14,5 @@ data class Episodes(
         val title: String,
         val thumbnail: String,
         val duration: Int,
-        val currentPosition: Int?): Serializable
+        val currentPosition: Int?): java.io.Serializable
 }

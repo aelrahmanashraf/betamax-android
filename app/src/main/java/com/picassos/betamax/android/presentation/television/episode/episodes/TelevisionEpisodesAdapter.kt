@@ -49,7 +49,7 @@ class TelevisionEpisodesAdapter(private val onClickListener: OnEpisodeClickListe
                 .build()
         }
 
-        fun bind(item: Episodes.Episode, onClickListener: OnEpisodeClickListener) {
+        fun bind(item: Episodes.Episode?, onClickListener: OnEpisodeClickListener) {
             itemView.setOnClickListener {  onClickListener.onItemClick(item) }
         }
     }

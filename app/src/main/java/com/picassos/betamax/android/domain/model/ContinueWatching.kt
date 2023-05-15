@@ -12,6 +12,5 @@ data class ContinueWatching(
         val url: String,
         val thumbnail: String,
         val duration: Int,
-        val currentPosition: Int,
-        val series: Int): Serializable
+        val currentPosition: Int): Serializable
 }

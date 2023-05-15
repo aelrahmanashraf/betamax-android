@@ -13,8 +13,7 @@ fun ContinueWatchingDto.toContinueWatching(): ContinueWatching {
                 url = continueWatching.url,
                 thumbnail = continueWatching.thumbnail,
                 duration = continueWatching.duration,
-                currentPosition = continueWatching.currentPosition,
-                series = continueWatching.series)
+                currentPosition = continueWatching.currentPosition)
         }
     )
 }
