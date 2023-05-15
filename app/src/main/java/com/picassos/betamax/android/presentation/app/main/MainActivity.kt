@@ -3,7 +3,6 @@ package com.picassos.betamax.android.presentation.app.main
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -129,8 +128,6 @@ class MainActivity : AppCompatActivity() {
                         subscriptionEnd = subscription.subscriptionEnd,
                         daysLeft = subscription.daysLeft)))
 
-                    Log.d("subscriptionState", subscription.daysLeft.toString())
-
                     if (subscription.subscriptionPackage == 0) {
                         delay(2000L)
                         if (!sharedPreferences.loadSubscription()) {
@@ -139,9 +136,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-            }
-            if (state.error != null) {
-                Log.d("subscriptionState", state.error.toString())
             }
         }
 

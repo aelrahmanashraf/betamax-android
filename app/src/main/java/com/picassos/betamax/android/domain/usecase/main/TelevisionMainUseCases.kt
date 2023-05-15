@@ -4,10 +4,12 @@ import com.picassos.betamax.android.domain.usecase.account.auth.GetLocalAccountU
 import com.picassos.betamax.android.domain.usecase.home.GetHomeUseCase
 import com.picassos.betamax.android.domain.usecase.movie.GetFeaturedMoviesUseCase
 import com.picassos.betamax.android.domain.usecase.movie.GetNewlyReleaseMoviesUseCase
+import com.picassos.betamax.android.domain.usecase.subscription.CheckSubscriptionUseCase
 import javax.inject.Inject
 
 data class TelevisionMainUseCases @Inject constructor(
     val getLocalAccountUseCase: GetLocalAccountUseCase,
     val getHomeUseCase: GetHomeUseCase,
     val getNewlyReleaseMoviesUseCase: GetNewlyReleaseMoviesUseCase,
-    val getFeaturedMoviesUseCase: GetFeaturedMoviesUseCase)
+    val getFeaturedMoviesUseCase: GetFeaturedMoviesUseCase,
+    val checkSubscriptionUseCase: CheckSubscriptionUseCase)

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.picassos.betamax.android.core.resource.Resource
 import com.picassos.betamax.android.domain.usecase.main.TelevisionMainUseCases
 import com.picassos.betamax.android.presentation.app.home.HomeState
+import com.picassos.betamax.android.presentation.app.subscription.check_subscription.CheckSubscriptionState
 import com.picassos.betamax.android.presentation.television.main.navigation_focus.TelevisionMainNavigationFocusState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,6 +63,32 @@ class TelevisionMainViewModel @Inject constructor(app: Application, private val 
                         }
                         is Resource.Error -> {
                             _home.emit(HomeState(
+                                error = result.message))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private val _checkSubscription = MutableStateFlow(CheckSubscriptionState())
+    val checkSubscription = _checkSubscription.asStateFlow()
+
+    fun requestCheckSubscription() {
+        viewModelScope.launch {
+            televisionMainUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                televisionMainUseCases.checkSubscriptionUseCase(account.token).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _checkSubscription.emit(CheckSubscriptionState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _checkSubscription.emit(CheckSubscriptionState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _checkSubscription.emit(CheckSubscriptionState(
                                 error = result.message))
                         }
                     }

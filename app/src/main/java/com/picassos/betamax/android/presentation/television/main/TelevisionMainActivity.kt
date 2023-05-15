@@ -22,6 +22,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
+import com.google.gson.Gson
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
@@ -38,6 +39,7 @@ import com.picassos.betamax.android.domain.model.EpisodePlayerContent
 import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.domain.model.MoviePlayerContent
+import com.picassos.betamax.android.domain.model.Subscription
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
 import com.picassos.betamax.android.presentation.app.subscription.subscribe.SubscribeActivity
@@ -250,7 +252,6 @@ class TelevisionMainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 televisionMainViewModel.requestHomeContent()
             }
-            televisionMainViewModel
         }
         collectLatestOnLifecycleStarted(televisionMainViewModel.home) { state ->
             if (state.isLoading) {
@@ -290,6 +291,21 @@ class TelevisionMainActivity : AppCompatActivity() {
                     internetConnection.tryAgain.setOnClickListener {
                         televisionMainViewModel.requestHomeContent()
                     }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            televisionMainViewModel.requestCheckSubscription()
+        }
+        collectLatestOnLifecycleStarted(televisionMainViewModel.checkSubscription) { state ->
+            if (state.response != null) {
+                lifecycleScope.launch {
+                    val subscription = state.response
+                    entryPoint.setSubscriptionUseCase().invoke(Gson().toJson(Subscription(
+                        subscriptionPackage = subscription.subscriptionPackage,
+                        subscriptionEnd = subscription.subscriptionEnd,
+                        daysLeft = subscription.daysLeft)))
                 }
             }
         }

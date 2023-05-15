@@ -1,5 +1,6 @@
 package com.picassos.betamax.android.presentation.television.launch
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -32,6 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class TelevisionLaunchActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionLaunchBinding
