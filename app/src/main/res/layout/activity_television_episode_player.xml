@@ -30,15 +30,30 @@
          android:orientation="horizontal"
          tools:ignore="UseCompoundDrawables">
 
-         <TextView
-            android:id="@id/player_title"
+         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="1dp"
-            android:fontFamily="@font/poppins_medium"
-            android:textColor="?color_dark"
-            android:textSize="20sp" />
+            android:orientation="vertical">
+
+            <TextView
+               android:id="@id/player_title"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_marginTop="1dp"
+               android:fontFamily="@font/poppins_medium"
+               android:textColor="?color_dark"
+               android:textSize="20sp" />
+
+            <TextView
+               android:id="@id/player_meta"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:fontFamily="@font/poppins_regular"
+               android:textColor="?color_dark"
+               android:textSize="18sp" />
+
+         </LinearLayout>
 
       </LinearLayout>
 

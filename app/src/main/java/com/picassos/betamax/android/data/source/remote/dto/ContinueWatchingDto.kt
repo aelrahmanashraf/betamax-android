@@ -20,5 +20,7 @@ class ContinueWatchingDto(
             @SerializedName("duration")
             val duration: Int,
             @SerializedName("current_position")
-            val currentPosition: Int)
+            val currentPosition: Int,
+            @SerializedName("series")
+            val series: Int)
 }
