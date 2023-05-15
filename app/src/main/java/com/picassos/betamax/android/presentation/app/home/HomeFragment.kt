@@ -42,10 +42,13 @@ import com.picassos.betamax.android.data.source.local.shared_preferences.SharedP
 import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.domain.listener.*
 import com.picassos.betamax.android.domain.model.ContinueWatching
-import com.picassos.betamax.android.domain.model.PlayerContent
+import com.picassos.betamax.android.domain.model.EpisodePlayerContent
+import com.picassos.betamax.android.domain.model.Episodes
+import com.picassos.betamax.android.domain.model.MoviePlayerContent
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingAdapter
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.continue_watching.continue_watching_options.ContinueWatchingOptionsBottomSheetModal
+import com.picassos.betamax.android.presentation.app.episode.episode_player.EpisodePlayerActivity
 import com.picassos.betamax.android.presentation.app.genre.genres.GenresActivity
 import com.picassos.betamax.android.presentation.app.genre.genre_featured_movies.GenreFeaturedMoviesActivity
 import com.picassos.betamax.android.presentation.app.genre.genre_movies.GenreMoviesActivity
@@ -59,7 +62,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@DelicateCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
     private lateinit var layout: FragmentHomeBinding
@@ -114,14 +116,49 @@ class HomeFragment : Fragment() {
                         if (subscription.daysLeft == 0) {
                             startActivity(Intent(requireContext(), SubscribeActivity::class.java))
                         } else {
-                            Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
-                                intent.putExtra("playerContent", PlayerContent(
-                                    id = continueWatching.contentId,
-                                    title = continueWatching.title,
-                                    url = continueWatching.url,
-                                    thumbnail = continueWatching.thumbnail,
-                                    currentPosition = continueWatching.currentPosition))
-                                startActivity(intent)
+                            if (continueWatching.series == 0) {
+                                Intent(requireContext(), MoviePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", MoviePlayerContent(
+                                        movie = Movies.Movie(
+                                            id = continueWatching.contentId,
+                                            url = continueWatching.url,
+                                            title = continueWatching.title,
+                                            description = "",
+                                            thumbnail = continueWatching.thumbnail,
+                                            banner = "",
+                                            rating = 0.0,
+                                            duration = 0,
+                                            date = ""),
+                                        currentPosition = continueWatching.currentPosition))
+                                    startActivity(intent)
+                                }
+                            } else {
+                                Intent(requireContext(), EpisodePlayerActivity::class.java).also { intent ->
+                                    intent.putExtra("playerContent", EpisodePlayerContent(
+                                        movie = Movies.Movie(
+                                            id = 0,
+                                            url = "",
+                                            title = "",
+                                            description = "",
+                                            thumbnail = "",
+                                            banner = "",
+                                            rating = 0.0,
+                                            duration = 0,
+                                            date = ""),
+                                        episode = Episodes.Episode(
+                                            id = continueWatching.contentId,
+                                            episodeId = continueWatching.contentId,
+                                            movieId = 0,
+                                            seasonLevel = 0,
+                                            level = 0,
+                                            url = continueWatching.url,
+                                            title = continueWatching.title,
+                                            thumbnail = continueWatching.thumbnail,
+                                            duration = 0,
+                                            currentPosition = 0),
+                                        currentPosition = continueWatching.currentPosition))
+                                    startActivity(intent)
+                                }
                             }
                         }
                     }

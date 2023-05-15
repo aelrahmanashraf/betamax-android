@@ -44,10 +44,10 @@ class ContinueWatchingViewModel @Inject constructor(val app: Application, privat
     private val _updateContinueWatching = MutableStateFlow(UpdateContinueWatchingState())
     val updateContinueWatching = _updateContinueWatching.asStateFlow()
 
-    fun requestUpdateContinueWatching(contentId: Int, title: String, url: String, thumbnail: String, duration: Int, currentPosition: Int) {
+    fun requestUpdateContinueWatching(contentId: Int, title: String, url: String, thumbnail: String, duration: Int, currentPosition: Int, series: Int) {
         viewModelScope.launch {
             continueWatchingUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                continueWatchingUseCases.updateContinueWatchingUseCase(account.token, contentId, title, url, thumbnail, duration, currentPosition).collect { result ->
+                continueWatchingUseCases.updateContinueWatchingUseCase(account.token, contentId, title, url, thumbnail, duration, currentPosition, series).collect { result ->
                     when (result) {
                         is Resource.Loading -> {
                             _updateContinueWatching.emit(UpdateContinueWatchingState(

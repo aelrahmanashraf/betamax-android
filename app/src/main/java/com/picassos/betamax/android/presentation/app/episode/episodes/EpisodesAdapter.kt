@@ -46,7 +46,7 @@ class EpisodesAdapter(private val onClickListener: OnEpisodeClickListener) : Rec
                 .build()
         }
 
-        fun bind(item: Episodes.Episode?, onClickListener: OnEpisodeClickListener) {
+        fun bind(item: Episodes.Episode, onClickListener: OnEpisodeClickListener) {
             itemView.setOnClickListener {  onClickListener.onItemClick(item) }
         }
     }

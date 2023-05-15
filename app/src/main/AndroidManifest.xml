@@ -49,11 +49,20 @@
             android:name="com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity"
             android:exported="true" />
         <activity
+            android:name="com.picassos.betamax.android.presentation.television.episode.episode_player.TelevisionEpisodePlayerActivity"
+            android:exported="true" />
+        <activity
             android:name="com.picassos.betamax.android.presentation.television.mylist.TelevisionMyListActivity"
             android:exported="true" />
         <activity
             android:name="com.picassos.betamax.android.presentation.television.movie.view_movie.TelevisionViewMovieActivity"
             android:exported="true" />
+        <activity
+            android:name="com.picassos.betamax.android.presentation.app.episode.episode_player.EpisodePlayerActivity"
+            android:configChanges="orientation|keyboard|layoutDirection|screenSize"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape" />
         <activity
             android:name="com.picassos.betamax.android.presentation.television.tvchannel.tvchannels.TelevisionTvChannelsActivity"
             android:exported="true" />

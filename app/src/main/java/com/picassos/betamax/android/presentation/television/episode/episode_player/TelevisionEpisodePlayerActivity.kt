@@ -1,4 +1,4 @@
-package com.picassos.betamax.android.presentation.television.movie.movie_player
+package com.picassos.betamax.android.presentation.television.episode.episode_player
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -27,9 +27,9 @@ import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLif
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.view.dialog.RequestDialog
-import com.picassos.betamax.android.databinding.ActivityTelevisionMoviePlayerBinding
-import com.picassos.betamax.android.domain.model.MoviePlayerContent
-import com.picassos.betamax.android.domain.model.Movies
+import com.picassos.betamax.android.databinding.ActivityTelevisionEpisodePlayerBinding
+import com.picassos.betamax.android.domain.model.EpisodePlayerContent
+import com.picassos.betamax.android.domain.model.Episodes
 import com.picassos.betamax.android.domain.model.TracksGroup
 import com.picassos.betamax.android.presentation.app.continue_watching.ContinueWatchingViewModel
 import com.picassos.betamax.android.presentation.app.player.PlayerStatus
@@ -39,16 +39,20 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
 @AndroidEntryPoint
-class TelevisionMoviePlayerActivity : AppCompatActivity() {
-    private lateinit var layout: ActivityTelevisionMoviePlayerBinding
-    private val televisionMoviePlayerViewModel: TelevisionMoviePlayerViewModel by viewModels()
+class TelevisionEpisodePlayerActivity : AppCompatActivity() {
+    private lateinit var layout: ActivityTelevisionEpisodePlayerBinding
+    private val televisionEpisodePlayerViewModel: TelevisionEpisodePlayerViewModel by viewModels()
     private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
     private lateinit var exoPlayer: ExoPlayer
+    private lateinit var httpDataSource: DefaultHttpDataSource.Factory
 
-    private lateinit var playerContent: MoviePlayerContent
+    private lateinit var playerContent: EpisodePlayerContent
     private var isRetry = false
+
+    private var currentEpisode: Episodes.Episode? = null
+    private var currentEpisodePosition = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,19 +61,24 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         setTheme(R.style.PlayerTheme)
 
         val requestDialog = RequestDialog(
-            context = this@TelevisionMoviePlayerActivity,
+            context = this@TelevisionEpisodePlayerActivity,
             isFullscreen = true)
 
-        layout = DataBindingUtil.setContentView(this, R.layout.activity_television_movie_player)
+        layout = DataBindingUtil.setContentView(this, R.layout.activity_television_episode_player)
 
         window.apply {
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
-        getSerializable(this@TelevisionMoviePlayerActivity, "playerContent", MoviePlayerContent::class.java).also { playerContent ->
-            this@TelevisionMoviePlayerActivity.playerContent = playerContent
-
-            initializePlayer(movie = playerContent.movie)
+        getSerializable(this@TelevisionEpisodePlayerActivity, "playerContent", EpisodePlayerContent::class.java).also { playerContent ->
+            this@TelevisionEpisodePlayerActivity.playerContent = playerContent
+            this@TelevisionEpisodePlayerActivity.currentEpisode = playerContent.episode
+            playerContent.episodes?.let { episodes ->
+                episodes.rendered.indexOfFirst { it.episodeId == playerContent.episode.episodeId }.let { index ->
+                    currentEpisodePosition = index
+                }
+            }
+            initializePlayer(episode = playerContent.episode)
         }
 
         collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
@@ -79,11 +88,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             if (state.responseCode != null) {
                 requestDialog.dismiss()
                 if (state.responseCode == 200) {
-                    Intent().also { intent ->
-                        intent.putExtra("refreshContent", true)
-                        setResult(Activity.RESULT_OK, intent)
-                        finish()
-                    }
+                    finishActivityWithResult()
                 }
             }
             if (state.error != null) {
@@ -98,11 +103,17 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             if (state.responseCode != null) {
                 requestDialog.dismiss()
                 if (state.responseCode == 200) {
-                    Intent().also { intent ->
-                        intent.putExtra("refreshContent", true)
-                        setResult(Activity.RESULT_OK, intent)
-                        finish()
-                    }
+                    playerContent.episodes?.let { episodes ->
+                        try {
+                            episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
+                                currentEpisode = episode
+                                currentEpisodePosition += 1
+                                playNewUrl(episode = episode)
+                            } ?: run { finishActivityWithResult() }
+                        } catch (e: Exception) {
+                            finishActivityWithResult()
+                        }
+                    } ?: run { finishActivityWithResult() }
                 }
             }
             if (state.error != null) {
@@ -111,20 +122,20 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SwitchIntDef")
-    private fun initializePlayer(movie: Movies.Movie) {
-        val trackSelector = DefaultTrackSelector(this@TelevisionMoviePlayerActivity)
-        val renderersFactory = DefaultRenderersFactory(this@TelevisionMoviePlayerActivity).apply {
+    @SuppressLint("SwitchIntDef", "SetTextI18n")
+    private fun initializePlayer(episode: Episodes.Episode) {
+        val trackSelector = DefaultTrackSelector(this@TelevisionEpisodePlayerActivity)
+        val renderersFactory = DefaultRenderersFactory(this@TelevisionEpisodePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
         val parameters = trackSelector.buildUponParameters()
             .setPreferredAudioLanguage("spa")
             .build()
-        val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
+        httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
 
-        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(movie.url)))
+        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(episode.url)))
 
-        exoPlayer = ExoPlayer.Builder(this@TelevisionMoviePlayerActivity)
+        exoPlayer = ExoPlayer.Builder(this@TelevisionEpisodePlayerActivity)
             .setTrackSelector(trackSelector)
             .setMediaSourceFactory(DefaultMediaSourceFactory(httpDataSource))
             .setRenderersFactory(renderersFactory)
@@ -136,8 +147,13 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
-        layout.playerTitle.apply {
-            text = movie.title
+        layout.apply {
+            playerTitle.text = episode.title
+            if (playerContent.movie.title.isNotEmpty() && playerContent.episodes?.seasonTitle != null) {
+                playerMeta.text = "${playerContent.movie.title} | ${playerContent.episodes?.seasonTitle}"
+            } else {
+                playerMeta.visibility = View.GONE
+            }
         }
         layout.exoPlayer.apply {
             player = exoPlayer
@@ -211,8 +227,10 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             super.onPlaybackStateChanged(playbackState)
             when (playbackState) {
                 Player.STATE_ENDED -> {
-                    continueWatchingViewModel.requestDeleteContinueWatching(
-                        contentId = playerContent.movie.id)
+                    currentEpisode?.let { episode ->
+                        continueWatchingViewModel.requestDeleteContinueWatching(
+                            contentId = episode.episodeId)
+                    }
                 }
                 Player.STATE_BUFFERING -> {
                     layout.exoPlayer.apply {
@@ -234,20 +252,36 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         }
     }
 
+    private fun playNewUrl(episode: Episodes.Episode) {
+        if (title.isNotEmpty()) {
+            layout.playerTitle.text = episode.title
+        }
+        exoPlayer.apply {
+            stop()
+            clearMediaItems()
+        }
+        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(episode.url)))
+        exoPlayer.apply {
+            setMediaSource(mediaSource)
+            playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+        }
+    }
+
     private fun updateContinueWatching() {
-        val movie = playerContent.movie
-        continueWatchingViewModel.requestUpdateContinueWatching(
-            contentId = movie.id,
-            title = movie.title,
-            url = movie.url,
-            thumbnail = movie.thumbnail,
-            duration = exoPlayer.duration.toInt(),
-            currentPosition = exoPlayer.currentPosition.toInt(),
-            series = 0)
+        currentEpisode?.let { episode ->
+            continueWatchingViewModel.requestUpdateContinueWatching(
+                contentId = episode.episodeId,
+                title = episode.title,
+                url = episode.url,
+                thumbnail = episode.thumbnail,
+                duration = exoPlayer.duration.toInt(),
+                currentPosition = exoPlayer.currentPosition.toInt(),
+                series = 1)
+        }
     }
 
     private fun showTracksDialog() {
-        val dialog = Dialog(this@TelevisionMoviePlayerActivity).apply {
+        val dialog = Dialog(this@TelevisionEpisodePlayerActivity).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(R.layout.dialog_tracks)
             setCancelable(true)
@@ -298,7 +332,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
         })
         dialog.findViewById<RecyclerView>(R.id.recycler_audio_tracks).apply {
-            layoutManager = LinearLayoutManager(this@TelevisionMoviePlayerActivity)
+            layoutManager = LinearLayoutManager(this@TelevisionEpisodePlayerActivity)
             adapter = audioTracksAdapter
         }
         audioTracksAdapter.differ.submitList(audioTracksGroup)
@@ -323,7 +357,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
         })
         dialog.findViewById<RecyclerView>(R.id.recycler_subtitles_tracks).apply {
-            layoutManager = LinearLayoutManager(this@TelevisionMoviePlayerActivity)
+            layoutManager = LinearLayoutManager(this@TelevisionEpisodePlayerActivity)
             adapter = subtitlesTracksAdapter
         }
         subtitlesTracksAdapter.differ.submitList(subtitleTracksGroup)
@@ -338,6 +372,14 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
         }
         dialog.show()
+    }
+
+    private fun finishActivityWithResult() {
+        Intent().also { intent ->
+            intent.putExtra("refreshContent", true)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
