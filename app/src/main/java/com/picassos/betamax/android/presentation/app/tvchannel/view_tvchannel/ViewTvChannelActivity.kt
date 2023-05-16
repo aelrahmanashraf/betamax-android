@@ -85,9 +85,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
         layout.goBack.setOnClickListener { finish() }
 
         getSerializable(this@ViewTvChannelActivity, "tvchannel", TvChannels.TvChannel::class.java).also { tvChannel ->
-            viewTvChannelViewModel.apply {
-                this@ViewTvChannelActivity.tvChannel = tvChannel
-            }
+            this@ViewTvChannelActivity.tvChannel = tvChannel
         }
         initializePlayer()
 
