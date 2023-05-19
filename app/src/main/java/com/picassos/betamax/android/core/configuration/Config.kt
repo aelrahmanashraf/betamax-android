@@ -4,8 +4,7 @@ import com.picassos.betamax.android.BuildConfig
 
 object Config {
     // configuration
-    const val LAUNCH_TIMEOUT = 500L
-    const val TV_LAUNCH_TIMEOUT = 3800L
+    const val LAUNCH_TIMEOUT = 200L
     const val SLIDER_INTERVAL = 5000L
     const val PLAYER_REPLAY_DURATION = 30000L
     const val PLAYER_FORWARD_DURATION = 30000L

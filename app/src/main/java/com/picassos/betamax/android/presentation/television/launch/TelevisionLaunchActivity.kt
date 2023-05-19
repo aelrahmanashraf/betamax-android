@@ -63,7 +63,7 @@ class TelevisionLaunchActivity : AppCompatActivity() {
                     200 -> {
                         lifecycleScope.launch {
                             entryPoint.getAccountUseCase().invoke().collectLatest { account ->
-                                delay(Config.TV_LAUNCH_TIMEOUT)
+                                delay(Config.LAUNCH_TIMEOUT)
                                 when (account.token) {
                                     CREDENTIALS_NOT_SET -> {
                                         startActivity(Intent(this@TelevisionLaunchActivity, SigninActivity::class.java))

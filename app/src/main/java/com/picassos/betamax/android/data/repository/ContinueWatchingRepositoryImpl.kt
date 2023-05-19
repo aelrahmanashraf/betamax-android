@@ -6,7 +6,6 @@ import com.picassos.betamax.android.domain.repository.ContinueWatchingRepository
 import com.picassos.betamax.android.core.utilities.Response
 import com.picassos.betamax.android.data.mapper.toContinueWatching
 import com.picassos.betamax.android.domain.model.ContinueWatching
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
@@ -34,7 +33,6 @@ class ContinueWatchingRepositoryImpl @Inject constructor(private val service: AP
     override suspend fun updateContinueWatching(token: String, contentId: Int, title: String, url: String, thumbnail: String, duration: Int, currentPosition: Int, series: Int): Flow<Resource<Int>> {
         return flow {
             emit(Resource.Loading(true))
-            delay(2000L)
             try {
                 val response = service.updateContinueWatching(
                     token = token,
