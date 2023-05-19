@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.common.ResizeOptions
 import com.facebook.imagepipeline.image.ImageInfo
 import com.facebook.imagepipeline.request.ImageRequest
 import com.facebook.imagepipeline.request.ImageRequestBuilder
@@ -36,6 +37,7 @@ class TelevisionTvChannelsAdapter(private var selectedPosition: Int = RecyclerVi
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(tvChannel.banner))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
                 .setProgressiveRenderingEnabled(true)
+                .setResizeOptions(ResizeOptions.forDimensions(45, 25))
                 .build()
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
                 .setImageRequest(imageRequest)

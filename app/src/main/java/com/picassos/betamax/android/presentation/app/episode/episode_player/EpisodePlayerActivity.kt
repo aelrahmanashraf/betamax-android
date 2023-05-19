@@ -255,8 +255,10 @@ class EpisodePlayerActivity : AppCompatActivity() {
                 }
                 PlayerStatus.RELEASE -> {
                     exoPlayer.apply {
+                        stop()
                         removeListener(playerListener)
                         clearMediaItems()
+                        release()
                     }
                 }
             }

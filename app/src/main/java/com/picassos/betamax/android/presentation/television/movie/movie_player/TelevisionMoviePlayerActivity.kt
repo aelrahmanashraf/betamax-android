@@ -186,8 +186,10 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                 }
                 PlayerStatus.RELEASE -> {
                     exoPlayer.apply {
+                        stop()
                         removeListener(playerListener)
                         clearMediaItems()
+                        release()
                     }
                 }
             }

@@ -258,7 +258,12 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RELEASE -> {
-                    releasePlayer()
+                    exoPlayer?.apply {
+                        stop()
+                        removeListener(playerListener)
+                        clearMediaItems()
+                        release()
+                    }
                 }
             }
         }
@@ -333,14 +338,6 @@ class ViewTvChannelActivity : AppCompatActivity() {
             2 -> tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.fhdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.sdUrl
             3 -> tvChannel.fhdUrl.ifEmpty { tvChannel.hdUrl.takeIf { it.isNotEmpty() } ?: tvChannel.sdUrl }
             else -> ""
-        }
-    }
-
-    private fun releasePlayer() {
-        exoPlayer?.apply {
-            stop()
-            removeListener(playerListener)
-            clearMediaItems()
         }
     }
 

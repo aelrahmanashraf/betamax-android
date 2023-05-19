@@ -230,8 +230,10 @@ class MoviePlayerActivity : AppCompatActivity() {
                 }
                 PlayerStatus.RELEASE -> {
                     exoPlayer.apply {
+                        stop()
                         removeListener(playerListener)
                         clearMediaItems()
+                        release()
                     }
                 }
             }

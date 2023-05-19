@@ -239,8 +239,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 PlayerStatus.RETRY -> { }
                 PlayerStatus.RELEASE -> {
                     exoPlayer?.apply {
+                        stop()
                         removeListener(playerListener)
                         clearMediaItems()
+                        release()
                     }
                 }
             }
