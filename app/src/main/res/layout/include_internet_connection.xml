@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:fontFamily="@font/poppins_regular"
-        android:text="@string/couldn_t_load_content_maybe_your_internet_connection_down_pull_to_try_again"
+        android:text="@string/couldnt_load_content_check_connection"
         android:textColor="?color_dark" />
 
     <Button

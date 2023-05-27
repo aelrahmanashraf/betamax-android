@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:fontFamily="@font/poppins_regular"
-                android:text="@string/you_have_successfully_subscribed_you_can_now_access_exclusive_content_all_day_long"
+                android:text="@string/you_have_successfully_subscribed_access_exclusive_content"
                 android:textAlignment="center"
                 android:textColor="?color_dark"
                 android:textSize="14sp" />

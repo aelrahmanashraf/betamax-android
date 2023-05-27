@@ -57,7 +57,7 @@ class VerifyCodeActivity : AppCompatActivity() {
             }
 
             layout.emailVerification.text =
-                getString(R.string.please_enter_the_6_digit_code_sent_to_you_at) + " ${account.emailAddress}"
+                getString(R.string.enter_the_6_digit_code_sent_to_you) + " ${account.emailAddress}"
         }
 
         intent.extras?.let { extras ->

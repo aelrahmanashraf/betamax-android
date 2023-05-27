@@ -5,7 +5,7 @@
     <string name="invalid_username">Please enter a valid username.\n  • Usernames must start with a letter. Allowed characters are a–z (only lower case), 0–9, _, - (dash), and .(dot).</string>
     <string name="invalid_email">Please enter a valid email address.</string>
     <string name="invalid_password">Please enter a valid password.\n  • Must be at least 8 characters long\n  • Use at least one digit (0–9) and one letter (a-z)</string>
-    <string name="sign_into_your_mynta_account_to_continue">Sign into your account to continue</string>
+    <string name="sign_into_account_to_continue">Sign into your account to continue</string>
     <string name="signin">Sign in</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
@@ -40,7 +40,7 @@
     <string name="signup">Sign Up</string>
     <string name="user_exists">User already exists</string>
     <string name="version">Version</string>
-    <string name="couldn_t_load_content_maybe_your_internet_connection_down_pull_to_try_again">Couldn\'t load content, connect to the internet and try again.</string>
+    <string name="couldnt_load_content_check_connection">Couldn\'t load content, connect to the internet and try again.</string>
     <string name="verification_code_expired">Verification code is invalid or expired.</string>
     <string name="agreement_notice">By signing up you accept  <a href="https://google.com"><b>Terms of Use</b></a>, and <a href="https://google.com"><b>Privacy Policy</b></a>.</string>
     <string name="current_password_wrong">Your current password is incorrect. Please try again.</string>
@@ -48,13 +48,13 @@
     <string name="create_a_new_account_to_continue">Create a new account to continue</string>
     <string name="resend">Resend</string>
     <string name="resend_code_in">Resend code in 00:</string>
-    <string name="your_new_password_must_differ_nfrom_your_previous_used_password">Your new password must differ\nfrom your previous used password</string>
+    <string name="password_must_differ_from_previous_password">Your new password must differ\nfrom your previous used password</string>
     <string name="about">About</string>
     <string name="speak_help">Speak to search help…</string>
     <string name="account_name">Account Name</string>
     <string name="this_field_is_required">This field is required.</string>
     <string name="set_password">Set Password</string>
-    <string name="please_enter_the_6_digit_code_sent_to_you_at">Please enter the 6-digit code sent to you at</string>
+    <string name="enter_the_6_digit_code_sent_to_you">Please enter the 6-digit code sent to you at</string>
     <string name="forgot_password">Forgot password?</string>
     <string name="profile">Profile</string>
     <string name="we_sent_email">We Sent You Email!</string>
@@ -122,7 +122,7 @@
     <string name="released_in">Released in</string>
     <string name="add_to_mylist">Add to My List</string>
     <string name="your_list_is_empty">Your list is empty.</string>
-    <string name="start_adding_content_to_your_list">Start adding movies, series and tv channels to your list.</string>
+    <string name="add_content_to_list">Start adding movies, series and tv channels to your list.</string>
     <string name="seasons">Seasons</string>
     <string name="checkout">Checkout</string>
     <string name="are_you_sure_you_want_exit">Are you sure you want exit?</string>
@@ -142,7 +142,7 @@
     <string name="_3_device">• 3 Device</string>
     <string name="kontinue">Continue</string>
     <string name="congratulations">Congratulations!</string>
-    <string name="you_have_successfully_subscribed_you_can_now_access_exclusive_content_all_day_long">You have successfully subscribed. You can now access exclusive content all day long.</string>
+    <string name="you_have_successfully_subscribed_access_exclusive_content">You have successfully subscribed. You can now access exclusive content all day long.</string>
     <string name="remove_from_continue_to_watch">Remove from Continue to Watch</string>
     <string name="subtitles">Subtitles</string>
     <string name="audio">Audio</string>
@@ -152,5 +152,4 @@
     <string name="tvchannel_add_to_favorites">Tv channel added to favorites.</string>
     <string name="tvchannel_removed_from_favorites">Tv channel removed from favorites</string>
     <string name="all">All</string>
-    <string name="season">Season</string>
 </resources>

@@ -208,7 +208,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_regular"
-                            android:text="@string/start_adding_content_to_your_list"
+                            android:text="@string/add_content_to_list"
                             android:textAlignment="center"
                             android:textColor="?color_dark"
                             android:textSize="16sp" />

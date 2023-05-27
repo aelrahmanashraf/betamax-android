@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="25dp"
                 android:fontFamily="@font/poppins_regular"
-                android:text="@string/sign_into_your_mynta_account_to_continue"
+                android:text="@string/sign_into_account_to_continue"
                 android:textAlignment="center"
                 android:textColor="?color_dark"
                 android:textSize="14sp" />
