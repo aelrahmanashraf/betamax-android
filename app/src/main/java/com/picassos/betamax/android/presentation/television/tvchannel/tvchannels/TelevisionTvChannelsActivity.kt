@@ -16,11 +16,13 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection
+import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.util.Util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
+import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
 import com.picassos.betamax.android.core.utilities.Response
@@ -196,7 +198,15 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             pause()
             clearMediaItems()
         }
-        val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
+        val loadControl: LoadControl = DefaultLoadControl.Builder()
+            .setAllocator(DefaultAllocator(true, 2 * 1024 * 1024))
+            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setTargetBufferBytes(-1)
+            .setPrioritizeTimeOverSizeThresholds(true)
+            .build()
+        val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory).apply {
+            setParameters(buildUponParameters().setMaxVideoSizeSd())
+        }
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
@@ -205,6 +215,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
 
         exoPlayer = ExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
             .setTrackSelector(trackSelector)
+            .setLoadControl(loadControl)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource)
@@ -236,7 +247,13 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                         pause()
                     }
                 }
-                PlayerStatus.RETRY -> { }
+                PlayerStatus.RETRY -> {
+                    exoPlayer?.apply {
+                        val lastPlayBackPosition = currentPosition
+                        seekTo(lastPlayBackPosition)
+                    }
+                    playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+                }
                 PlayerStatus.RELEASE -> {
                     exoPlayer?.apply {
                         stop()
@@ -258,6 +275,13 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 layout.playerProgressbar.visibility = View.GONE
             }
         }
+
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
+            super.onPlayerErrorChanged(error)
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
+        }
     }
 
     private fun playNewUrl(title: String = "", url: String) {
@@ -268,11 +292,10 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             stop()
             clearMediaItems()
         }
-        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
-        exoPlayer?.apply {
-            setMediaSource(mediaSource)
-            playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
-        }
+        val mediaSource = HlsMediaSource.Factory(httpDataSource)
+            .createMediaSource(MediaItem.fromUri(Uri.parse(url)))
+        exoPlayer?.setMediaSource(mediaSource)
+        playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
     }
 
     fun getTvChannelUrl(selectedVideoQuality: Int, tvChannel: TvChannels.TvChannel): String {

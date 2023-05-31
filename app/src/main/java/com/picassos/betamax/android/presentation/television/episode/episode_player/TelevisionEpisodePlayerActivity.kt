@@ -49,7 +49,6 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
     private lateinit var httpDataSource: DefaultHttpDataSource.Factory
 
     private lateinit var playerContent: EpisodePlayerContent
-    private var isRetry = false
 
     private var currentEpisode: Episodes.Episode? = null
     private var currentEpisodePosition = 0
@@ -195,10 +194,11 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    isRetry = true
-                    layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
-                        setImageResource(R.drawable.icon_retry)
+                    exoPlayer.apply {
+                        val lastPlayBackPosition = currentPosition
+                        seekTo(lastPlayBackPosition)
                     }
+                    playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                 }
                 PlayerStatus.RELEASE -> {
                     exoPlayer.apply {
@@ -250,7 +250,9 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
         }
         override fun onPlayerErrorChanged(error: PlaybackException?) {
             super.onPlayerErrorChanged(error)
-            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
         }
     }
 
@@ -399,17 +401,10 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
                 }
             }
             KeyEvent.KEYCODE_DPAD_CENTER -> {
-                exoPlayer.apply {
-                    if (!isRetry) {
-                        if (!isPlaying) {
-                            playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-                        } else {
-                            playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-                        }
-                    } else {
-                        isRetry = false
-                        playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
-                    }
+                if (!exoPlayer.isPlaying) {
+                    playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                } else {
+                    playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
                 }
             }
             KeyEvent.KEYCODE_ESCAPE,
