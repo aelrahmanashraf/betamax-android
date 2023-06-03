@@ -94,7 +94,7 @@
             android:layoutDirection="ltr"
             android:maxLines="1"
             android:nextFocusUp="@id/email"
-            android:nextFocusDown="@id/reset_password"
+            android:nextFocusDown="@id/signin"
             android:paddingStart="20dp"
             android:paddingTop="10dp"
             android:paddingEnd="20dp"
