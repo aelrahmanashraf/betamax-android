@@ -14,8 +14,11 @@
     <color name="color_grey_dark">#7d7c82</color>
     <color name="color_warning">#FFAB00</color>
     <color name="color_theme">#6360f9</color>
+    <color name="color_theme_alpha10">#1A6360F9</color>
+    <color name="color_theme_alpha40">#666360F9</color>
+    <color name="color_theme_alpha50">#806360F9</color>
+    <color name="color_theme_alpha90">#E66360F9</color>
     <color name="color_theme_dark">#4e4cc5</color>
-    <color name="color_theme_alpha">#666360F9</color>
     <color name="color_red">#FE4949</color>
     <color name="color_yellow">#ffe258</color>
     <color name="color_white_alpha40">#66FFFFFF</color>

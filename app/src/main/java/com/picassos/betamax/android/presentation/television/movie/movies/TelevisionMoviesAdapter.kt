@@ -22,7 +22,7 @@ import com.picassos.betamax.android.domain.model.Movies
 import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 
-class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val isHorizontal: Boolean = false, private val onClickListener: OnMovieClickListener, private val onFocusListener: OnMovieFocusListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val isHorizontal: Boolean = false, private val isRelated: Boolean = false, private val onClickListener: OnMovieClickListener, private val onFocusListener: OnMovieFocusListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class MoviesHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.movie_title)
         val date: TextView = itemView.findViewById(R.id.movie_date)
@@ -67,7 +67,13 @@ class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = when (isHorizontal) {
             false -> LayoutInflater.from(parent.context).inflate(R.layout.item_television_movie_vertical, parent, false)
-            else -> LayoutInflater.from(parent.context).inflate(R.layout.item_television_movie_horizontal, parent, false)
+            else -> {
+                if (!isRelated) {
+                    LayoutInflater.from(parent.context).inflate(R.layout.item_television_movie_horizontal, parent, false)
+                } else {
+                    LayoutInflater.from(parent.context).inflate(R.layout.item_television_related_movie_horizontal, parent, false)
+                }
+            }
         }
         return MoviesHolder(view)
     }

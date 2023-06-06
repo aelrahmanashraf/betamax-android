@@ -2,7 +2,6 @@ package com.picassos.betamax.android.presentation.television.movie.view_movie
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResult
@@ -13,9 +12,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.drawee.backends.pipeline.PipelineDraweeController
-import com.facebook.imagepipeline.postprocessors.BlurPostProcessor
-import com.facebook.imagepipeline.request.ImageRequestBuilder
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
@@ -32,7 +28,6 @@ import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.listener.OnSeasonClickListener
 import com.picassos.betamax.android.domain.model.*
-import com.picassos.betamax.android.presentation.app.cast.CastAdapter
 import com.picassos.betamax.android.presentation.television.episode.episode_player.TelevisionEpisodePlayerActivity
 import com.picassos.betamax.android.presentation.television.episode.episodes.TelevisionEpisodesAdapter
 import com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity
@@ -79,13 +74,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
             }
         }
 
-        val castAdapter = CastAdapter()
-        layout.recyclerCast.apply {
-            layoutManager = LinearLayoutManager(this@TelevisionViewMovieActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = castAdapter
-        }
-
-        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = true, onClickListener = object: OnMovieClickListener {
+        val moviesAdapter = TelevisionMoviesAdapter(isHorizontal = true, isRelated = true, onClickListener = object: OnMovieClickListener {
             override fun onItemClick(movie: Movies.Movie) {
                 Intent(this@TelevisionViewMovieActivity, TelevisionViewMovieActivity::class.java).also { intent ->
                     intent.putExtra("movie", movie)
@@ -137,44 +126,27 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                 val movieDetails = state.response.movieDetails.movies[0]
                 layout.apply {
                     if (movieDetails.series == 0) {
-                        movieDurationContainer.visibility = View.VISIBLE
-                        relatedMoviesContainer.visibility = View.VISIBLE
                         seasonsContainer.visibility = View.GONE
-                    } else {
-                        movieDurationContainer.visibility = View.GONE
-                        relatedMoviesContainer.visibility = View.GONE
                     }
                     movieTitle.text = movieDetails.title
-                    movieDate.text = getString(R.string.released_in) + " " + Helper.getFormattedDateString(movieDetails.date, "yyyy")
+                    movieDate.text = Helper.getFormattedDateString(movieDetails.date, "yyyy")
                     movieDuration.text = Helper.convertMinutesToHoursAndMinutes(movieDetails.duration)
                     movieDescription.text = movieDetails.description
                     if (movieDetails.genre == 0) {
-                        movieGenre.visibility = View.GONE
+                        movieGenreContainer.visibility = View.GONE
                     } else {
-                        movieGenre.visibility = View.VISIBLE
+                        movieGenreContainer.visibility = View.VISIBLE
                         movieGenre.text = state.response.movieGenre.title
                     }
                     movieRating.text = "${movieDetails.rating} / 10"
-                    movieThumbnail.controller = Fresco.newDraweeControllerBuilder()
+                    movieBanner.controller = Fresco.newDraweeControllerBuilder()
                         .setTapToRetryEnabled(true)
-                        .setUri(movieDetails.thumbnail)
+                        .setUri(movie.banner)
                         .build()
                 }
 
-                layout.movieThumbnailContainer.apply {
-                    val request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movieDetails.banner))
-                        .setPostprocessor(BlurPostProcessor(10, this@TelevisionViewMovieActivity, 1))
-                        .build()
-
-                    val controller = Fresco.newDraweeControllerBuilder().setImageRequest(request)
-                        .setOldController(this.controller)
-                        .build() as PipelineDraweeController
-
-                    this.controller = controller
-                }
-
-                layout.playMovie.apply {
-                    if (movieDetails.series == 0) {
+                if (movieDetails.series == 0) {
+                    layout.playMovie.apply {
                         visibility = View.VISIBLE
                         setOnClickListener {
                             lifecycleScope.launch {
@@ -204,14 +176,6 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                             setImageResource(R.drawable.icon_plus)
                         }
                     }
-                }
-
-                val cast = state.response.movieCast.cast
-                castAdapter.differ.submitList(cast)
-                if (cast.isEmpty()) {
-                    layout.castContainer.visibility = View.GONE
-                } else {
-                    layout.castContainer.visibility = View.VISIBLE
                 }
 
                 if (movieDetails.series == 0) {
