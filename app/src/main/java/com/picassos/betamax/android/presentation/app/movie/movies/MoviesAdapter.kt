@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.common.ResizeOptions
 import com.facebook.imagepipeline.image.ImageInfo
 import com.facebook.imagepipeline.request.ImageRequest
 import com.facebook.imagepipeline.request.ImageRequestBuilder
@@ -31,6 +32,7 @@ class MoviesAdapter(private val isHorizontal: Boolean = false, private val onCli
             date.text = Helper.getFormattedDateString(movie.date, "yyyy")
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.thumbnail))
+                .setResizeOptions(ResizeOptions(150, 190))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
                 .setProgressiveRenderingEnabled(true)
                 .build()

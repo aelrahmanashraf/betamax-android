@@ -3,6 +3,7 @@ package com.picassos.betamax.android.presentation.app.movie.view_movie
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.drawable.Animatable
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -17,8 +18,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.picassos.betamax.android.core.utilities.Helper
-import com.facebook.drawee.backends.pipeline.PipelineDraweeController
+import com.facebook.drawee.controller.BaseControllerListener
+import com.facebook.imagepipeline.image.ImageInfo
 import com.facebook.imagepipeline.postprocessors.BlurPostProcessor
+import com.facebook.imagepipeline.request.ImageRequest
 import com.facebook.imagepipeline.request.ImageRequestBuilder
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
@@ -171,22 +174,35 @@ class ViewMovieActivity : AppCompatActivity(), ShowEpisodeBottomSheetModal.OnEpi
                         movieGenre.text = state.response.movieGenre.title
                     }
                     movieRating.text = movieDetails.rating.toString()
+
+                    val movieThumbnailImageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.thumbnail))
+                        .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
+                        .setProgressiveRenderingEnabled(true)
+                        .build()
                     movieThumbnail.controller = Fresco.newDraweeControllerBuilder()
-                        .setTapToRetryEnabled(true)
-                        .setUri(movieDetails.thumbnail)
+                        .setImageRequest(movieThumbnailImageRequest)
+                        .setOldController(movieThumbnail.controller)
+                        .setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                            override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                                movieThumbnailImageRequest.sourceUri?.let { Fresco.getImagePipeline().evictFromMemoryCache(it) }
+                            }
+                        })
                         .build()
-                }
 
-                layout.movieThumbnailContainer.apply {
-                    val request = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movieDetails.banner))
+                    val movieThumbnailContainerImageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.thumbnail))
                         .setPostprocessor(BlurPostProcessor(10, this@ViewMovieActivity, 1))
+                        .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
+                        .setProgressiveRenderingEnabled(true)
                         .build()
-
-                    val controller = Fresco.newDraweeControllerBuilder().setImageRequest(request)
-                        .setOldController(this.controller)
-                        .build() as PipelineDraweeController
-
-                    this.controller = controller
+                    movieThumbnailContainer.controller = Fresco.newDraweeControllerBuilder()
+                        .setImageRequest(movieThumbnailContainerImageRequest)
+                        .setOldController(movieThumbnailContainer.controller)
+                        .setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                            override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                                movieThumbnailContainerImageRequest.sourceUri?.let { Fresco.getImagePipeline().evictFromMemoryCache(it) }
+                            }
+                        })
+                        .build()
                 }
 
                 layout.playMovie.apply {

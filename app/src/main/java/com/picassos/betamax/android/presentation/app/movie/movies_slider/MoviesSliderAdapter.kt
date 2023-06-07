@@ -14,6 +14,7 @@ import androidx.viewpager.widget.ViewPager
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.common.ResizeOptions
 import com.facebook.imagepipeline.image.ImageInfo
 import com.facebook.imagepipeline.request.ImageRequest
 import com.facebook.imagepipeline.request.ImageRequestBuilder
@@ -45,6 +46,7 @@ class MoviesSliderAdapter(private val context: Context, private val movies: List
             duration.text = Helper.convertMinutesToHoursAndMinutes(movie.duration)
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.banner))
+                .setResizeOptions(ResizeOptions(280, 380))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
                 .setProgressiveRenderingEnabled(true)
                 .build()
