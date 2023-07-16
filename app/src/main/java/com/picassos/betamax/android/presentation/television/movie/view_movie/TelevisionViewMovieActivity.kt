@@ -165,16 +165,17 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                     }
                 }
 
-                layout.apply {
-                    saveMovie.setOnClickListener {
+                layout.saveMovie.apply {
+                    visibility = View.VISIBLE
+                    setOnClickListener {
                         televisionViewMovieViewModel.requestSaveMovie(movieDetails.id)
                     }
-                    saveMovieIcon.apply {
-                        if (state.response.movieSaved == 1) {
-                            setImageResource(R.drawable.icon_check)
-                        } else {
-                            setImageResource(R.drawable.icon_plus)
-                        }
+                }
+                layout.saveMovieIcon.apply {
+                    if (state.response.movieSaved == 1) {
+                        setImageResource(R.drawable.icon_check)
+                    } else {
+                        setImageResource(R.drawable.icon_plus)
                     }
                 }
 
@@ -247,8 +248,9 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
 
         collectLatestOnLifecycleStarted(televisionViewMovieViewModel.episodes) { state ->
             if (state.response != null) {
-                val episodes = state.response.rendered
-                episodesAdapter.differ.submitList(episodes)
+                val episodes = state.response
+                this@TelevisionViewMovieActivity.episodes = episodes
+                episodesAdapter.differ.submitList(episodes.rendered)
             }
         }
     }
