@@ -37,7 +37,6 @@ class TelevisionTvChannelsAdapter(private var selectedPosition: Int = RecyclerVi
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(tvChannel.banner))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
                 .setProgressiveRenderingEnabled(true)
-                .setResizeOptions(ResizeOptions.forDimensions(45, 25))
                 .build()
             thumbnail.controller = Fresco.newDraweeControllerBuilder()
                 .setImageRequest(imageRequest)

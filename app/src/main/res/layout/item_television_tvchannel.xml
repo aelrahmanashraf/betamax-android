@@ -27,12 +27,12 @@
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/tvchannel_thumbnail"
-        android:layout_width="45dp"
-        android:layout_height="25dp"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
         fresco:actualImageScaleType="centerCrop"
         fresco:placeholderImage="?color_dark"
         fresco:placeholderImageScaleType="centerCrop"
-        fresco:roundedCornerRadius="5dp" />
+        fresco:roundedCornerRadius="10dp" />
 
     <TextView
         android:id="@id/tvchannel_title"
