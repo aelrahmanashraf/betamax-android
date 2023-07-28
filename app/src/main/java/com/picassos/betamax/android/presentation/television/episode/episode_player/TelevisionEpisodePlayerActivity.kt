@@ -410,7 +410,7 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
             KeyEvent.KEYCODE_ESCAPE,
             KeyEvent.KEYCODE_BACK -> updateContinueWatching()
         }
-        return false
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

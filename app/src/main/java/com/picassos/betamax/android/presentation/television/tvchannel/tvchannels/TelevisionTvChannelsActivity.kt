@@ -378,7 +378,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                 }
             }
         }
-        return false
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun List<TvChannels.TvChannel>.indexOfId(id: Int): Int {
