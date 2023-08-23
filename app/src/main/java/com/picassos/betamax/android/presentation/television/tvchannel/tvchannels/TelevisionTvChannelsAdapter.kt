@@ -26,9 +26,8 @@ import com.picassos.betamax.android.domain.model.TvChannels
 
 class TelevisionTvChannelsAdapter(private var selectedPosition: Int = RecyclerView.NO_POSITION, private val onClickListener: OnTvChannelClickListener, private val onLongClickListener: OnTvChannelLongClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class TvChannelsHolder(itemView: View, private val adapter: TelevisionTvChannelsAdapter) : RecyclerView.ViewHolder(itemView) {
-        val container: LinearLayout = itemView.findViewById(R.id.tvchannel_container)
-        val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.tvchannel_thumbnail)
-        val title: TextView = itemView.findViewById(R.id.tvchannel_title)
+        private val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.tvchannel_thumbnail)
+        private val title: TextView = itemView.findViewById(R.id.tvchannel_title)
         private val playing: CardView = itemView.findViewById(R.id.tvchannel_playing)
 
         fun setData(tvChannel: TvChannels.TvChannel) {
