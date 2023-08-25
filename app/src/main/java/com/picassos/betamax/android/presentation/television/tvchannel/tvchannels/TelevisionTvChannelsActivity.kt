@@ -364,16 +364,24 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                     tvChannel?.let { tvChannel ->
                         showChannelOptionsDialog(tvChannel)
                     }
+                    return true
                 }
             }
             KeyEvent.KEYCODE_DPAD_CENTER -> {
                 layout.tvchannelsNavContainer.apply {
-                    if (visibility == View.GONE) visibility = View.VISIBLE
+                    if (visibility == View.GONE) {
+                        visibility = View.VISIBLE
+                        return true
+                    }
                 }
             }
             KeyEvent.KEYCODE_ESCAPE,
             KeyEvent.KEYCODE_BACK -> {
                 layout.tvchannelsNavContainer.apply {
+                    if (visibility == View.VISIBLE) {
+                        visibility = View.GONE
+                        return true
+                    }
                     if (visibility == View.VISIBLE) visibility = View.GONE else finish()
                 }
             }
