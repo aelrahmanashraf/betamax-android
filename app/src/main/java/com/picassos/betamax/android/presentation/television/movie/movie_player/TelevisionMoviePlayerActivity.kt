@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -127,6 +128,8 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             .setTrackSelector(trackSelector)
             .setMediaSourceFactory(DefaultMediaSourceFactory(httpDataSource))
             .setRenderersFactory(renderersFactory)
+            .setSeekBackIncrementMs(Config.PLAYER_REPLAY_DURATION)
+            .setSeekForwardIncrementMs(Config.PLAYER_FORWARD_DURATION)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
@@ -344,31 +347,36 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                showTracksDialog()
-            }
-            KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                exoPlayer.seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
-            }
-            KeyEvent.KEYCODE_DPAD_LEFT -> {
-                exoPlayer.apply {
-                    if (currentPosition <= Config.PLAYER_REPLAY_DURATION) seekTo(0)
-                    else seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event != null && event.action == KeyEvent.ACTION_DOWN) {
+            when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> {
+                    showTracksDialog()
+                    return true
+                }
+                KeyEvent.KEYCODE_DPAD_CENTER -> {
+                    if (!exoPlayer.isPlaying) {
+                        playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
+                    } else {
+                        playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                    }
+                    return true
+                }
+                KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                    exoPlayer.seekForward()
+                    return true
+                }
+                KeyEvent.KEYCODE_DPAD_LEFT -> {
+                    exoPlayer.seekBack()
+                    return true
+                }
+                KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_BACK -> {
+                    updateContinueWatching()
+                    return true
                 }
             }
-            KeyEvent.KEYCODE_DPAD_CENTER -> {
-                if (!exoPlayer.isPlaying) {
-                    playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-                } else {
-                    playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-                }
-            }
-            KeyEvent.KEYCODE_ESCAPE,
-            KeyEvent.KEYCODE_BACK -> updateContinueWatching()
         }
-        return super.onKeyDown(keyCode, event)
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

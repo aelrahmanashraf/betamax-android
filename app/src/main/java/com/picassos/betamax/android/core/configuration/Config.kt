@@ -6,8 +6,8 @@ object Config {
     // configuration
     const val LAUNCH_TIMEOUT = 200L
     const val SLIDER_INTERVAL = 5000L
-    const val PLAYER_REPLAY_DURATION = 30000L
-    const val PLAYER_FORWARD_DURATION = 30000L
+    const val PLAYER_REPLAY_DURATION = 10000L
+    const val PLAYER_FORWARD_DURATION = 10000L
 
     // exoplayer
     const val MIN_BUFFER_DURATION = 32 * 1024

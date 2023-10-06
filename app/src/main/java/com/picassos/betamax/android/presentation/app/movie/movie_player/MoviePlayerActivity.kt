@@ -161,6 +161,8 @@ class MoviePlayerActivity : AppCompatActivity() {
             .setLoadControl(loadControl)
             .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))
             .setRenderersFactory(renderersFactory)
+            .setSeekBackIncrementMs(Config.PLAYER_REPLAY_DURATION)
+            .setSeekForwardIncrementMs(Config.PLAYER_FORWARD_DURATION)
             .build().apply {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
@@ -240,14 +242,11 @@ class MoviePlayerActivity : AppCompatActivity() {
         }
 
         layout.exoPlayer.findViewById<ImageView>(R.id.replay).setOnClickListener {
-            exoPlayer.apply {
-                if (currentPosition <= Config.PLAYER_REPLAY_DURATION) seekTo(0)
-                else seekTo(currentPosition - Config.PLAYER_REPLAY_DURATION)
-            }
+            exoPlayer.seekBack()
         }
 
         layout.exoPlayer.findViewById<ImageView>(R.id.forward).setOnClickListener {
-            exoPlayer.seekTo(exoPlayer.currentPosition + Config.PLAYER_FORWARD_DURATION)
+            exoPlayer.seekForward()
         }
 
         layout.exoPlayer.apply {
