@@ -13,7 +13,7 @@
         android:id="@id/movie_thumbnail"
         android:layout_width="110dp"
         android:layout_height="150dp"
-        fresco:actualImageScaleType="centerCrop"
+        fresco:actualImageScaleType="fitCenter"
         fresco:overlayImage="@drawable/television_movie_overlay"
         fresco:placeholderImage="?color_light_separate"
         fresco:roundedCornerRadius="10dp" />

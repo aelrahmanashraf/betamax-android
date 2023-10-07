@@ -21,7 +21,7 @@
             android:id="@id/episode_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            fresco:actualImageScaleType="centerCrop"
+            fresco:actualImageScaleType="fitCenter"
             fresco:overlayImage="@drawable/television_movie_overlay"
             fresco:placeholderImage="?color_light_separate"
             fresco:roundedCornerRadius="10dp" />
