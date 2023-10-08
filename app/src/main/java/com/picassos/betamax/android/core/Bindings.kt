@@ -38,6 +38,15 @@ fun EditText.layoutError(error: String?) {
     }
 }
 
+@BindingAdapter("layout_error_alt")
+fun EditText.layoutErrorAlt(error: String?) {
+    if (error != null) {
+        this.setBackgroundResource(R.drawable.input_rectangle_background_alpha_error)
+    } else {
+        this.setBackgroundResource(R.drawable.input_rectangle_background_alpha)
+    }
+}
+
 @BindingAdapter("visible")
 fun Button.visible(error: String?) {
     this.visibility = if (error == null) {

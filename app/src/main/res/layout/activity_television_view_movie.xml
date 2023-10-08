@@ -16,7 +16,7 @@
          android:id="@id/movie_banner"
          android:layout_width="match_parent"
          android:layout_height="match_parent"
-         app:overlayImage="@drawable/television_movie_slider_overlay"
+         app:overlayImage="@drawable/television_banner_overlay"
          app:placeholderImageScaleType="centerCrop"
          fresco:actualImageScaleType="centerCrop"
          fresco:placeholderImage="?color_background" />

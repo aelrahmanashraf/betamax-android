@@ -28,6 +28,8 @@ data class ConfigurationDto(
             val whatsappURL: String,
             @SerializedName("about_text")
             val aboutText: String,
+            @SerializedName("banner_image")
+            val bannerImage: String,
             @SerializedName("silver_package_price")
             val silverPackagePrice: String,
             @SerializedName("gold_package_price")

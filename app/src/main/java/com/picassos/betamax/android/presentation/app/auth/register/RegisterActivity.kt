@@ -1,6 +1,8 @@
 package com.picassos.betamax.android.presentation.app.auth.register
 
 import android.content.Intent
+import android.graphics.drawable.Animatable
+import android.net.Uri
 import com.picassos.betamax.android.core.view.Toasto.showToast
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,6 +12,11 @@ import android.text.method.LinkMovementMethod
 import android.view.View
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
+import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.controller.BaseControllerListener
+import com.facebook.imagepipeline.image.ImageInfo
+import com.facebook.imagepipeline.request.ImageRequest
+import com.facebook.imagepipeline.request.ImageRequestBuilder
 import com.picassos.betamax.android.databinding.ActivityRegisterBinding
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.presentation.app.main.MainActivity
@@ -17,7 +24,10 @@ import com.picassos.betamax.android.core.utilities.Response
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.core.utilities.Helper
+import com.picassos.betamax.android.di.AppEntryPoint
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import kotlin.system.exitProcess
 
 @AndroidEntryPoint
 class RegisterActivity : AppCompatActivity() {
@@ -26,6 +36,7 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val entryPoint = EntryPointAccessors.fromApplication(this, AppEntryPoint::class.java)
 
         Helper.darkMode(this)
 
@@ -35,6 +46,27 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         val requestDialog = RequestDialog(this)
+
+        collectLatestOnLifecycleStarted(entryPoint.getConfigurationUseCase().invoke()) { configuration ->
+            if (!Helper.verifyLicense(configuration.developedBy)) {
+                finishAffinity()
+                exitProcess(0)
+            }
+
+            val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(configuration.bannerImage))
+                .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
+                .setProgressiveRenderingEnabled(true)
+                .build()
+            layout.bannerImage?.controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(imageRequest)
+                .setOldController(layout.bannerImage?.controller)
+                .setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                        imageRequest.sourceUri?.let { Fresco.getImagePipeline().evictFromMemoryCache(it) }
+                    }
+                })
+                .build()
+        }
 
         layout.agreementNotice.movementMethod = LinkMovementMethod.getInstance()
 

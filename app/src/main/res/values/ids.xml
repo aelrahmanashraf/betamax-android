@@ -148,6 +148,7 @@
     <item name="email" type="id" />
     <item name="password" type="id" />
     <item name="premium_badge" type="id" />
+    <item name="banner_image" type="id" />
     <item name="signin" type="id" />
     <item name="reset_password" type="id" />
     <item name="register_response" type="id" />

@@ -15,7 +15,6 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.lifecycleScope
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -31,7 +30,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -61,19 +59,17 @@ class TelevisionLaunchActivity : AppCompatActivity() {
             if (state.response != null) {
                 when (state.response.configuration.responseCode) {
                     200 -> {
-                        lifecycleScope.launch {
-                            entryPoint.getAccountUseCase().invoke().collectLatest { account ->
-                                delay(Config.LAUNCH_TIMEOUT)
-                                when (account.token) {
-                                    CREDENTIALS_NOT_SET -> {
-                                        startActivity(Intent(this@TelevisionLaunchActivity, SigninActivity::class.java))
-                                    }
-                                    else -> {
-                                        startActivity(Intent(this@TelevisionLaunchActivity, TelevisionMainActivity::class.java))
-                                    }
+                        entryPoint.getAccountUseCase().invoke().collectLatest { account ->
+                            delay(Config.LAUNCH_TIMEOUT)
+                            when (account.token) {
+                                CREDENTIALS_NOT_SET -> {
+                                    startActivity(Intent(this@TelevisionLaunchActivity, SigninActivity::class.java))
                                 }
-                                finishAffinity()
+                                else -> {
+                                    startActivity(Intent(this@TelevisionLaunchActivity, TelevisionMainActivity::class.java))
+                                }
                             }
+                            finishAffinity()
                         }
                     }
                     else -> showToast(this@TelevisionLaunchActivity, getString(R.string.unknown_issue_occurred), 0, 1)

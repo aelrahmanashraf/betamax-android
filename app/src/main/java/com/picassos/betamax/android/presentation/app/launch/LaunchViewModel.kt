@@ -43,6 +43,7 @@ class LaunchViewModel @Inject constructor(app: Application, private val launchUs
                                         telegramURL = configuration.telegramURL,
                                         whatsappURL = configuration.whatsappURL,
                                         aboutText = configuration.aboutText,
+                                        bannerImage = configuration.bannerImage,
                                         silverPackagePrice = configuration.silverPackagePrice,
                                         goldPackagePrice = configuration.goldPackagePrice,
                                         diamondPackagePrice = configuration.diamondPackagePrice,

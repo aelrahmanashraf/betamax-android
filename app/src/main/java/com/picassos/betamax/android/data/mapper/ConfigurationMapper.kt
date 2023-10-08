@@ -11,6 +11,7 @@ fun ConfigurationDto.toConfiguration(): Configuration {
         telegramURL = app.configuration.telegramURL,
         whatsappURL = app.configuration.whatsappURL,
         aboutText = app.configuration.aboutText,
+        bannerImage = app.configuration.bannerImage,
         silverPackagePrice = app.configuration.silverPackagePrice,
         goldPackagePrice = app.configuration.goldPackagePrice,
         diamondPackagePrice = app.configuration.diamondPackagePrice,

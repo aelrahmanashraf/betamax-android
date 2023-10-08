@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="input_height">50dp</dimen>
-    <dimen name="input_height_tv">55dp</dimen>
+    <dimen name="input_height_tv">50dp</dimen>
     <dimen name="input_text_size">13sp</dimen>
     <dimen name="input_text_size_tv">15sp</dimen>
     <dimen name="response_text_size">12sp</dimen>

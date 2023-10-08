@@ -10,6 +10,7 @@ data class Configuration(
     val telegramURL: String = CONFIGURATION_NOT_SET,
     val whatsappURL: String = CONFIGURATION_NOT_SET,
     val aboutText: String = CONFIGURATION_NOT_SET,
+    val bannerImage: String = CONFIGURATION_NOT_SET,
     val silverPackagePrice: String = CONFIGURATION_NOT_SET,
     val goldPackagePrice: String = CONFIGURATION_NOT_SET,
     val diamondPackagePrice: String = CONFIGURATION_NOT_SET,
