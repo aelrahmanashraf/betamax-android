@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 object Coroutines {
     fun <T> ComponentActivity.collectLatestOnLifecycleStarted(flow: Flow<T>, collect: suspend (T) -> Unit) {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 flow.collectLatest(collect)
             }
         }

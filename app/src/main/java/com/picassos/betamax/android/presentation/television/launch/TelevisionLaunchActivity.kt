@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.Window
 import android.view.WindowInsets
@@ -15,6 +16,7 @@ import android.widget.Button
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -30,6 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -57,20 +60,23 @@ class TelevisionLaunchActivity : AppCompatActivity() {
         launchViewModel.requestLaunch()
         collectLatestOnLifecycleStarted(launchViewModel.launch) { state ->
             if (state.response != null) {
+                Log.d("Launch", state.response.toString())
                 when (state.response.configuration.responseCode) {
                     200 -> {
-                        entryPoint.getAccountUseCase().invoke().collectLatest { account ->
-                            delay(Config.LAUNCH_TIMEOUT)
-                            when (account.token) {
-                                CREDENTIALS_NOT_SET -> {
-                                    startActivity(Intent(this@TelevisionLaunchActivity, SigninActivity::class.java))
-                                }
-                                else -> {
-                                    startActivity(Intent(this@TelevisionLaunchActivity, TelevisionMainActivity::class.java))
-                                }
-                            }
-                            finishAffinity()
-                        }
+                       lifecycleScope.launch {
+                           entryPoint.getAccountUseCase().invoke().collectLatest { account ->
+                               delay(Config.LAUNCH_TIMEOUT)
+                               when (account.token) {
+                                   CREDENTIALS_NOT_SET -> {
+                                       startActivity(Intent(this@TelevisionLaunchActivity, SigninActivity::class.java))
+                                   }
+                                   else -> {
+                                       startActivity(Intent(this@TelevisionLaunchActivity, TelevisionMainActivity::class.java))
+                                   }
+                               }
+                               finishAffinity()
+                           }
+                       }
                     }
                     else -> showToast(this@TelevisionLaunchActivity, getString(R.string.unknown_issue_occurred), 0, 1)
                 }
