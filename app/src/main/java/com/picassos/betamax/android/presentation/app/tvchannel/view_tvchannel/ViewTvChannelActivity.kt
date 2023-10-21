@@ -196,7 +196,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
             .build()
         val trackSelector = DefaultTrackSelector(this@ViewTvChannelActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
         val renderersFactory = DefaultRenderersFactory(this@ViewTvChannelActivity).apply {
-            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
         httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
         val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.EMPTY))

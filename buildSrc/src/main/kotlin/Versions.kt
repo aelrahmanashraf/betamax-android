@@ -18,7 +18,7 @@ object Versions {
     const val gson = "2.9.1"
     const val work = "2.8.0"
     const val onesignal = "[4.0.0, 4.99.99]"
-    const val exoplayer = "2.18.4"
+    const val exoplayer = "2.19.1"
     const val circleIndicator = "2.1.6"
     const val qrGenerator = "1.0.1"
     const val junit = "4.13.2"

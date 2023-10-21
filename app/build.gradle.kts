@@ -11,7 +11,7 @@ val keystoreProperties = loadProperties(rootProject.file("keystore.properties"))
 android {
     defaultConfig {
         applicationId = "app.betamax.android"
-        minSdk = 22
+        minSdk = 24
         compileSdk = 33
         targetSdk = 33
         versionCode = 1
@@ -73,6 +73,12 @@ dependencies {
     // firebase bom
     val firebaseVersion = "30.4.1"
     implementation(platform("com.google.firebase:firebase-bom:${firebaseVersion}"))
+    // external libs
+    implementation(fileTree(mapOf(
+        "dir" to "libs",
+        "include" to listOf("*.aar", "*.jar"),
+        "exclude" to listOf("mock.jar")
+    )))
 }
 
 fun loadProperties(file: File): Properties {
