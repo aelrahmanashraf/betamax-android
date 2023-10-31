@@ -45,7 +45,7 @@ class TelevisionMoviesSliderAdapter(private val context: Context, private val mo
         movies[position].let { movie ->
             title.text = movie.title
             date.text = Helper.getFormattedDateString(movie.date, "yyyy")
-            duration.text = Helper.convertMinutesToHoursAndMinutes(movie.duration)
+            movie.duration?.let { duration.text = Helper.convertMinutesToHoursAndMinutes(it) }
             rating.text = "${context.getString(R.string.rating)}: ${movie.rating} / 10"
             description.text = movie.description
 

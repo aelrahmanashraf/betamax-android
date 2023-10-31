@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -27,12 +28,18 @@ class TelevisionMoviesAdapter(private val isPoster: Boolean = false, private val
         val title: TextView = itemView.findViewById(R.id.movie_title)
         val date: TextView = itemView.findViewById(R.id.movie_date)
         val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.movie_thumbnail)
+        private val isWatched: CardView = itemView.findViewById(R.id.watched_container)
 
         fun setData(movie: Movies.Movie, isPoster: Boolean) {
             title.text = movie.title
             date.text = Helper.getFormattedDateString(movie.date, "yyyy")
             if (isPoster) {
                 itemView.findViewById<LinearLayout>(R.id.movie_meta).visibility = View.GONE
+            }
+            if (movie.duration != null && movie.currentPosition != null) {
+                if (movie.duration <= movie.currentPosition) {
+                    isWatched.visibility = View.VISIBLE
+                }
             }
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.thumbnail))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)

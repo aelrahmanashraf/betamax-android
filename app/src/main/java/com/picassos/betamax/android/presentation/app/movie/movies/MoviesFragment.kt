@@ -11,6 +11,9 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.picassos.betamax.android.core.utilities.Helper
 import com.google.firebase.crashlytics.ktx.crashlytics
@@ -27,6 +30,7 @@ import com.picassos.betamax.android.presentation.app.profile.ProfileActivity
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 @DelicateCoroutinesApi
@@ -67,7 +71,12 @@ class MoviesFragment : Fragment() {
             adapter = moviesAdapter
         }
 
-        moviesViewModel.requestMovies()
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                moviesViewModel.requestMovies()
+            }
+        }
+
         collectLatestOnLifecycleFragmentOwnerStarted(moviesViewModel.movies) { state ->
             if (state.isLoading) {
                 layout.apply {

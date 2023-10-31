@@ -28,10 +28,8 @@ class ContinueWatchingAdapter(private val onClickListener: OnContinueWatchingCli
         private val progress: ProgressBar = itemView.findViewById(R.id.continue_watching_progress)
 
         fun setData(continueWatching: ContinueWatching.ContinueWatching) {
-            progress.apply {
-                max = continueWatching.duration
-                progress = continueWatching.currentPosition
-            }
+            progress.max = continueWatching.duration
+            progress.progress = continueWatching.currentPosition
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(continueWatching.thumbnail))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
@@ -72,17 +70,11 @@ class ContinueWatchingAdapter(private val onClickListener: OnContinueWatchingCli
 
     val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<ContinueWatching.ContinueWatching>() {
         override fun areItemsTheSame(oldItem: ContinueWatching.ContinueWatching, newItem: ContinueWatching.ContinueWatching): Boolean {
-           return oldItem.id == newItem.id
-               && oldItem.url == newItem.url
-               && oldItem.thumbnail == newItem.thumbnail
-               && oldItem.currentPosition == newItem.currentPosition
+           return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: ContinueWatching.ContinueWatching, newItem: ContinueWatching.ContinueWatching): Boolean {
-            return oldItem.id == newItem.id
-                && oldItem.url == newItem.url
-                && oldItem.thumbnail == newItem.thumbnail
-                && oldItem.currentPosition == newItem.currentPosition
+            return oldItem == newItem
         }
     })
 

@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.Window
@@ -106,21 +105,6 @@ class MoviePlayerActivity : AppCompatActivity() {
                 requestDialog.dismiss()
                 when (state.responseCode) {
                     200 -> finish()
-                }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
-            }
-        }
-
-        collectLatestOnLifecycleStarted(continueWatchingViewModel.deleteContinueWatching) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.responseCode != null) {
-                requestDialog.dismiss()
-                if (state.responseCode == 200) {
-                    finish()
                 }
             }
             if (state.error != null) {
@@ -291,8 +275,7 @@ class MoviePlayerActivity : AppCompatActivity() {
             super.onPlaybackStateChanged(playbackState)
             when (playbackState) {
                 Player.STATE_ENDED -> {
-                    continueWatchingViewModel.requestDeleteContinueWatching(
-                        contentId = playerContent.movie.id)
+                    updateContinueWatching()
                 }
                 Player.STATE_BUFFERING -> {
                     layout.exoPlayer.apply {

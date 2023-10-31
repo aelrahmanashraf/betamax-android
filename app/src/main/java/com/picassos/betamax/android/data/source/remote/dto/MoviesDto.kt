@@ -24,7 +24,7 @@ data class MoviesDto(
         @SerializedName("rating")
         val rating: Double,
         @SerializedName("duration")
-        val duration: Int,
+        val duration: Int?,
         @SerializedName("series")
         val series: Int,
         @SerializedName("featured")
@@ -32,5 +32,5 @@ data class MoviesDto(
         @SerializedName("date")
         val date: String,
         @SerializedName("current_position")
-        val currentPosition: Int = 0): java.io.Serializable
+        val currentPosition: Int? = 0): java.io.Serializable
 }

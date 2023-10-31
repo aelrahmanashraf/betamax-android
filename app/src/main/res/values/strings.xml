@@ -152,4 +152,5 @@
     <string name="tvchannel_add_to_favorites">Tv channel added to favorites.</string>
     <string name="tvchannel_removed_from_favorites">Tv channel removed from favorites</string>
     <string name="all">All</string>
+    <string name="watched">Watched</string>
 </resources>

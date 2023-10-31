@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
@@ -8,6 +9,31 @@
     android:background="@drawable/item_television_movie_selectable"
     android:focusable="true"
     android:padding="1.4dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@id/watched_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/color_theme_alpha50"
+        app:cardCornerRadius="15dp"
+        tools:ignore="RelativeOverlap">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:text="@string/watched"
+            android:textColor="@color/color_white"
+            android:textSize="13sp" />
+
+    </androidx.cardview.widget.CardView>
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@id/movie_thumbnail"

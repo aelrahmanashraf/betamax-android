@@ -20,6 +20,7 @@
     <color name="color_theme_alpha50">#806360F9</color>
     <color name="color_theme_alpha90">#E66360F9</color>
     <color name="color_theme_dark">#4e4cc5</color>
+    <color name="color_red_alpha30">#4DFE4949</color>
     <color name="color_red">#FE4949</color>
     <color name="color_yellow">#ffe258</color>
     <color name="color_white_alpha40">#66FFFFFF</color>

@@ -217,7 +217,13 @@ class HomeFragment : Fragment() {
             adapter = newlyReleaseAdapter
         }
 
-        homeViewModel.requestHomeContent()
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                homeViewModel.requestHomeContent()
+                continueWatchingViewModel.requestContinueWatching()
+            }
+        }
+
         collectLatestOnLifecycleFragmentOwnerStarted(homeViewModel.home) { state ->
             if (state.isLoading) {
                 layout.apply {
@@ -303,12 +309,6 @@ class HomeFragment : Fragment() {
                 if (state.error == Response.MALFORMED_REQUEST_EXCEPTION) {
                     Firebase.crashlytics.log("Request returned a malformed request or response.")
                 }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                continueWatchingViewModel.requestContinueWatching()
             }
         }
 

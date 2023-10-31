@@ -14,9 +14,9 @@ data class Movies(
         val thumbnail: String,
         val banner: String,
         val rating: Double,
-        val duration: Int,
+        val duration: Int?,
         val series: Int = 0,
         val featured: Int = 0,
         val date: String,
-        val currentPosition: Int = 0): Serializable
+        val currentPosition: Int? = 0): Serializable
 }

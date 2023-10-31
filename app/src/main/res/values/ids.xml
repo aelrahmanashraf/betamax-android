@@ -10,6 +10,7 @@
     <item name="movie_genre" type="id" />
     <item name="movie_genre_container" type="id" />
     <item name="movie_rating" type="id" />
+    <item name="watched_container" type="id" />
     <item name="player_meta" type="id" />
     <item name="send_feedback" type="id" />
     <item name="recycler_trending" type="id" />

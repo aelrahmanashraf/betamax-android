@@ -43,7 +43,9 @@ class MoviesSliderAdapter(private val context: Context, private val movies: List
             title.text = movie.title
             description.text = movie.description
             date.text = Helper.getFormattedDateString(movie.date, "yyyy")
-            duration.text = Helper.convertMinutesToHoursAndMinutes(movie.duration)
+            movie.duration?.let {
+                duration.text = Helper.convertMinutesToHoursAndMinutes(it)
+            }
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.banner))
                 .setResizeOptions(ResizeOptions(280, 380))

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -23,14 +24,19 @@ import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 
 class MoviesAdapter(private val isHorizontal: Boolean = false, private val onClickListener: OnMovieClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     internal class MoviesHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.movie_title)
-        val date: TextView = itemView.findViewById(R.id.movie_date)
-        val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.movie_thumbnail)
+        private val title: TextView = itemView.findViewById(R.id.movie_title)
+        private val date: TextView = itemView.findViewById(R.id.movie_date)
+        private val thumbnail: SimpleDraweeView = itemView.findViewById(R.id.movie_thumbnail)
+        private val isWatched: CardView = itemView.findViewById(R.id.watched_container)
 
         fun setData(movie: Movies.Movie) {
             title.text = movie.title
             date.text = Helper.getFormattedDateString(movie.date, "yyyy")
-
+            if (movie.duration != null && movie.currentPosition != null) {
+                if (movie.duration <= movie.currentPosition) {
+                    isWatched.visibility = View.VISIBLE
+                }
+            }
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(movie.thumbnail))
                 .setResizeOptions(ResizeOptions(150, 190))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
@@ -62,15 +68,11 @@ class MoviesAdapter(private val isHorizontal: Boolean = false, private val onCli
 
     val differ = AsyncListDiffer(this, object : DiffUtil.ItemCallback<Movies.Movie>() {
         override fun areItemsTheSame(oldItem: Movies.Movie, newItem: Movies.Movie): Boolean {
-           return oldItem.id == newItem.id
-               && oldItem.title == newItem.title
-               && oldItem.description == newItem.description
+           return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: Movies.Movie, newItem: Movies.Movie): Boolean {
-            return oldItem.id == newItem.id
-                && oldItem.title == newItem.title
-                && oldItem.description == newItem.description
+            return oldItem == newItem
         }
     })
 
