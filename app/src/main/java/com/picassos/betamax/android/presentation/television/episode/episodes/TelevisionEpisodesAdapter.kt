@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ProgressBar
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -27,13 +28,18 @@ class TelevisionEpisodesAdapter(private val onClickListener: OnEpisodeClickListe
         private val title: TextView = itemView.findViewById(R.id.episode_title)
         private val duration: TextView = itemView.findViewById(R.id.episode_duration)
         private val watchProgress: ProgressBar = itemView.findViewById(R.id.episode_progress)
+        private val isWatched: CardView = itemView.findViewById(R.id.watched_container)
 
         fun setData(episode: Episodes.Episode) {
             title.text = episode.title
             duration.text = Helper.formatDuration(episode.duration)
             watchProgress.max = episode.duration.toInt()
             watchProgress.progress = episode.currentPosition ?: 0
-
+            if (episode.currentPosition != null) {
+                if (episode.duration <= episode.currentPosition) {
+                    isWatched.visibility = View.VISIBLE
+                }
+            }
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(episode.thumbnail))
                 .setLowestPermittedRequestLevel(ImageRequest.RequestLevel.FULL_FETCH)
                 .setProgressiveRenderingEnabled(true)

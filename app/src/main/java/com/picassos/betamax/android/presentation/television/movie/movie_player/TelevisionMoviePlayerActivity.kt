@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -73,25 +72,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         }
 
         collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.responseCode != null) {
-                requestDialog.dismiss()
-                if (state.responseCode == 200) {
-                    Intent().also { intent ->
-                        intent.putExtra("refreshContent", true)
-                        setResult(Activity.RESULT_OK, intent)
-                        finish()
-                    }
-                }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
-            }
-        }
-
-        collectLatestOnLifecycleStarted(continueWatchingViewModel.deleteContinueWatching) { state ->
             if (state.isLoading) {
                 requestDialog.show()
             }
@@ -216,8 +196,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             super.onPlaybackStateChanged(playbackState)
             when (playbackState) {
                 Player.STATE_ENDED -> {
-                    continueWatchingViewModel.requestDeleteContinueWatching(
-                        contentId = playerContent.movie.id)
+                    updateContinueWatching()
                 }
                 Player.STATE_BUFFERING -> {
                     layout.exoPlayer.apply {

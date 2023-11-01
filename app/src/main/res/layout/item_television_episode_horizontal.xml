@@ -17,6 +17,30 @@
         app:cardCornerRadius="10dp"
         app:cardElevation="0dp">
 
+        <androidx.cardview.widget.CardView
+            android:id="@id/watched_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_margin="10dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/color_theme_alpha90"
+            app:cardCornerRadius="15dp"
+            tools:ignore="RelativeOverlap">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="5dp"
+                android:text="@string/watched"
+                android:textColor="@color/color_white"
+                android:textSize="13sp" />
+
+        </androidx.cardview.widget.CardView>
+
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@id/episode_thumbnail"
             android:layout_width="match_parent"

@@ -66,7 +66,7 @@ class ShowEpisodeBottomSheetModal : BottomSheetDialogFragment() {
 
             layout.apply {
                 episodeTitle.text = episode.title
-                episodeDuration.text = "${episode.duration}min"
+                episodeDuration.text = Helper.formatDuration(episode.duration)
                 episodeThumbnail.controller = Fresco.newDraweeControllerBuilder()
                     .setTapToRetryEnabled(true)
                     .setUri(episode.thumbnail)

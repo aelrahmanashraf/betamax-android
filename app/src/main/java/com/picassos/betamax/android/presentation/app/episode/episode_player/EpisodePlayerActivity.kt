@@ -113,34 +113,18 @@ class EpisodePlayerActivity : AppCompatActivity() {
             }
             if (state.responseCode != null) {
                 requestDialog.dismiss()
-                when (state.responseCode) {
-                    200 -> finish()
-                }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
-            }
-        }
 
-        collectLatestOnLifecycleStarted(continueWatchingViewModel.deleteContinueWatching) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.responseCode != null) {
-                requestDialog.dismiss()
-                if (state.responseCode == 200) {
-                    playerContent.episodes?.let { episodes ->
-                        try {
-                            episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
-                                currentEpisode = episode
-                                currentEpisodePosition += 1
-                                playNewUrl(episode = episode)
-                            } ?: run { finish() }
-                        } catch (e: Exception) {
-                            finish()
-                        }
-                    } ?: run { finish() }
-                }
+                playerContent.episodes?.let { episodes ->
+                    try {
+                        episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
+                            currentEpisode = episode
+                            currentEpisodePosition += 1
+                            playNewUrl(episode = episode)
+                        } ?: run { finish() }
+                    } catch (e: Exception) {
+                        finish()
+                    }
+                } ?: run { finish() }
             }
             if (state.error != null) {
                 requestDialog.dismiss()
@@ -315,10 +299,7 @@ class EpisodePlayerActivity : AppCompatActivity() {
             super.onPlaybackStateChanged(playbackState)
             when (playbackState) {
                 Player.STATE_ENDED -> {
-                    currentEpisode?.let { episode ->
-                        continueWatchingViewModel.requestDeleteContinueWatching(
-                            contentId = episode.episodeId)
-                    }
+                    updateContinueWatching()
                 }
                 Player.STATE_BUFFERING -> {
                     layout.exoPlayer.apply {
