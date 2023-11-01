@@ -18,7 +18,7 @@
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/color_theme_alpha50"
+        app:cardBackgroundColor="@color/color_theme_alpha90"
         app:cardCornerRadius="15dp"
         tools:ignore="RelativeOverlap">
 

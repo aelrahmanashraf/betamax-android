@@ -32,10 +32,10 @@ class HomeRepositoryImpl @Inject constructor(private val service: APIService): H
                         service.homeSavedMovies(token = token)
                     }
                     val newlyReleaseMovies = async(Dispatchers.IO) {
-                        service.newlyReleaseMovies()
+                        service.newlyReleaseMovies(token = token)
                     }
                     val trendingMovies = async(Dispatchers.IO) {
-                        service.homeTrendingMovies()
+                        service.homeTrendingMovies(token = token)
                     }
                     val continueWatching = async(Dispatchers.IO) {
                         service.continueWatching(token = token)

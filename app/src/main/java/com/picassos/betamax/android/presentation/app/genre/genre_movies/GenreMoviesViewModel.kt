@@ -26,19 +26,21 @@ class GenreMoviesViewModel @Inject constructor(app: Application, private val gen
 
     fun requestGenreMovies(genreId: Int, filter: String = "all") {
         viewModelScope.launch {
-            genreMoviesUseCases.getMoviesByGenreUseCase.invoke(genreId, filter).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(GenreMoviesState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(GenreMoviesState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(GenreMoviesState(
-                            error = result.message))
+            genreMoviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                genreMoviesUseCases.getMoviesByGenreUseCase.invoke(account.token, genreId, filter).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(GenreMoviesState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(GenreMoviesState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(GenreMoviesState(
+                                error = result.message))
+                        }
                     }
                 }
             }

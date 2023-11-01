@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetMoviesByGenreUseCase @Inject constructor(private val repository: MovieRepository) {
-    suspend operator fun invoke(genreId: Int, filter: String): Flow<Resource<Movies>> =
-        repository.getMoviesByGenre(genreId, filter)
+    suspend operator fun invoke(token: String, genreId: Int, filter: String): Flow<Resource<Movies>> =
+        repository.getMoviesByGenre(token, genreId, filter)
 }

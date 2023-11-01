@@ -18,11 +18,11 @@ import javax.inject.Singleton
 
 @Singleton
 class MovieRepositoryImpl @Inject constructor(private val service: APIService): MovieRepository {
-    override suspend fun getMovies(): Flow<Resource<Movies>> {
+    override suspend fun getMovies(token: String): Flow<Resource<Movies>> {
         return flow {
             emit(Resource.Loading(true))
             try {
-                val response = service.movies()
+                val response = service.movies(token = token)
                 emit(Resource.Success(response.toMovies()))
             } catch (t: Throwable) {
                 when (t) {
@@ -66,11 +66,11 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
         }
     }
 
-    override suspend fun getHomeMovies(): Flow<Resource<Movies>> {
+    override suspend fun getHomeMovies(token: String): Flow<Resource<Movies>> {
         return flow {
             emit(Resource.Loading(true))
             try {
-                val response = service.homeMovies()
+                val response = service.homeMovies(token = token)
                 emit(Resource.Success(response.toMovies()))
             } catch (t: Throwable) {
                 when (t) {
@@ -98,11 +98,13 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
         }
     }
 
-    override suspend fun getRelatedMovies(movieId: Int): Flow<Resource<Movies>> {
+    override suspend fun getRelatedMovies(token: String, movieId: Int): Flow<Resource<Movies>> {
         return flow {
             emit(Resource.Loading(true))
             try {
-                val response = service.relatedMovies(movieId = movieId)
+                val response = service.relatedMovies(
+                    token = token,
+                    movieId = movieId)
                 emit(Resource.Success(response.toMovies()))
             } catch (t: Throwable) {
                 when (t) {
@@ -114,11 +116,12 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
         }
     }
 
-    override suspend fun getMoviesByGenre(genreId: Int, filter: String): Flow<Resource<Movies>> {
+    override suspend fun getMoviesByGenre(token: String, genreId: Int, filter: String): Flow<Resource<Movies>> {
         return flow {
             emit(Resource.Loading(true))
             try {
                 val response = service.moviesByGenre(
+                    token = token,
                     genreId = genreId,
                     filter = filter)
                 emit(Resource.Success(response.toMovies()))
@@ -152,7 +155,9 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
                             movieId = movieId)
                     }
                     val relatedMovies = async(Dispatchers.IO) {
-                        service.relatedMovies(movieId = movieId)
+                        service.relatedMovies(
+                            token = token,
+                            movieId = movieId)
                     }
                     val seriesEpisodes = async(Dispatchers.IO) {
                         service.episodes(
@@ -230,11 +235,12 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
         }
     }
 
-    override suspend fun getNewlyReleaseMovies(filter: String): Flow<Resource<Movies>> {
+    override suspend fun getNewlyReleaseMovies(token: String, filter: String): Flow<Resource<Movies>> {
         return flow {
             emit(Resource.Loading(true))
             try {
                 val response = service.newlyReleaseMovies(
+                    token = token,
                     filter = filter)
                 emit(Resource.Success(response.toMovies()))
             } catch (t: Throwable) {
@@ -247,11 +253,12 @@ class MovieRepositoryImpl @Inject constructor(private val service: APIService): 
         }
     }
 
-    override suspend fun getTrendingMovies(filter: String): Flow<Resource<Movies>> {
+    override suspend fun getTrendingMovies(token: String, filter: String): Flow<Resource<Movies>> {
         return flow {
             emit(Resource.Loading(true))
             try {
                 val response = service.trendingMovies(
+                    token = token,
                     filter = filter)
                 emit(Resource.Success(response.toMovies()))
             } catch (t: Throwable) {

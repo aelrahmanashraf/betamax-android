@@ -135,13 +135,15 @@ interface APIService {
     @FormUrlEncoded
     @POST("movie/request_home_trending_movies.inc.php")
     suspend fun homeTrendingMovies(
-        @Field("secret_api_key") sak: String = SECRET_API_KEY
+        @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String
     ): MoviesDto
 
     @FormUrlEncoded
     @POST("movie/request_trending_movies.inc.php")
     suspend fun trendingMovies(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String,
         @Field("filter") filter: String = "all"
     ): MoviesDto
 
@@ -206,7 +208,8 @@ interface APIService {
     @FormUrlEncoded
     @POST("movie/request_movies.inc.php")
     suspend fun movies(
-        @Field("secret_api_key") sak: String = SECRET_API_KEY
+        @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String
     ): MoviesDto
 
     @FormUrlEncoded
@@ -219,13 +222,15 @@ interface APIService {
     @POST("movie/request_newly_release_movies.inc.php")
     suspend fun newlyReleaseMovies(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String,
         @Field("filter") filter: String = "all"
     ): MoviesDto
 
     @FormUrlEncoded
     @POST("movie/request_home_movies.inc.php")
     suspend fun homeMovies(
-        @Field("secret_api_key") sak: String = SECRET_API_KEY
+        @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String
     ): MoviesDto
 
     @FormUrlEncoded
@@ -238,6 +243,7 @@ interface APIService {
     @POST("movie/request_related_movies.inc.php")
     suspend fun relatedMovies(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String,
         @Field("movie_id") movieId: Int
     ): MoviesDto
 
@@ -325,6 +331,7 @@ interface APIService {
     @POST("movie/request_movies_by_genre.inc.php")
     suspend fun moviesByGenre(
         @Field("secret_api_key") sak: String = SECRET_API_KEY,
+        @Field("token") token: String,
         @Field("genre_id") genreId: Int,
         @Field("filter") filter: String = "all"
     ): MoviesDto

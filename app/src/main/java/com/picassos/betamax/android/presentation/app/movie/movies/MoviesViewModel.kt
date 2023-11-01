@@ -9,6 +9,7 @@ import com.picassos.betamax.android.presentation.app.movie.MovieState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,19 +20,21 @@ class MoviesViewModel @Inject constructor(app: Application, private val moviesUs
 
     fun requestMovies() {
         viewModelScope.launch {
-            moviesUseCases.getMoviesUseCase.invoke().collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(MovieState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(MovieState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(MovieState(
-                            error = result.message))
+            moviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                moviesUseCases.getMoviesUseCase.invoke(account.token).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(MovieState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(MovieState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(MovieState(
+                                error = result.message))
+                        }
                     }
                 }
             }

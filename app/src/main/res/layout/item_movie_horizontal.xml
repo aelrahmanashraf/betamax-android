@@ -16,8 +16,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
-        android:visibility="visible"
-        app:cardBackgroundColor="@color/color_theme_alpha50"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/color_theme_alpha90"
         app:cardCornerRadius="15dp"
         tools:ignore="RelativeOverlap">
 

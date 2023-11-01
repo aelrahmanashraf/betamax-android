@@ -44,19 +44,21 @@ class TelevisionMoviesViewModel @Inject constructor(app: Application, private va
 
     fun requestNewlyReleaseMovies(filter: String = "all") {
         viewModelScope.launch {
-            televisionMoviesUseCases.getNewlyReleaseMoviesUseCase.invoke(filter).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(MovieState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(MovieState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(MovieState(
-                            error = result.message))
+            televisionMoviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                televisionMoviesUseCases.getNewlyReleaseMoviesUseCase.invoke(account.token, filter).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(MovieState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(MovieState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(MovieState(
+                                error = result.message))
+                        }
                     }
                 }
             }
@@ -65,19 +67,21 @@ class TelevisionMoviesViewModel @Inject constructor(app: Application, private va
 
     fun requestTrendingMovies(filter: String = "all") {
         viewModelScope.launch {
-            televisionMoviesUseCases.getTrendingMoviesUseCase.invoke(filter).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(MovieState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(MovieState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(MovieState(
-                            error = result.message))
+            televisionMoviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                televisionMoviesUseCases.getTrendingMoviesUseCase.invoke(account.token, filter).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(MovieState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(MovieState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(MovieState(
+                                error = result.message))
+                        }
                     }
                 }
             }
@@ -86,19 +90,21 @@ class TelevisionMoviesViewModel @Inject constructor(app: Application, private va
 
     fun requestMoviesByGenre(genreId: Int, filter: String = "all") {
         viewModelScope.launch {
-            televisionMoviesUseCases.getMoviesByGenreUseCase.invoke(genreId, filter).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(MovieState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(MovieState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(MovieState(
-                            error = result.message))
+            televisionMoviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                televisionMoviesUseCases.getMoviesByGenreUseCase.invoke(account.token, genreId, filter).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(MovieState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(MovieState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(MovieState(
+                                error = result.message))
+                        }
                     }
                 }
             }

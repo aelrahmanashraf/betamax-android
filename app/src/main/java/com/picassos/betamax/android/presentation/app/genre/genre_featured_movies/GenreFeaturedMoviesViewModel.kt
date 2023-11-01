@@ -9,6 +9,7 @@ import com.picassos.betamax.android.presentation.app.genre.genre_movies.GenreFea
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,19 +43,21 @@ class GenreFeaturedMoviesViewModel @Inject constructor(app: Application, private
 
     fun requestMovies() {
         viewModelScope.launch {
-            genreFeaturedMoviesUseCases.getMoviesUseCase.invoke().collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(GenreFeaturedMoviesState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(GenreFeaturedMoviesState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(GenreFeaturedMoviesState(
-                            error = result.message))
+            genreFeaturedMoviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                genreFeaturedMoviesUseCases.getMoviesUseCase.invoke(account.token).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(GenreFeaturedMoviesState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(GenreFeaturedMoviesState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(GenreFeaturedMoviesState(
+                                error = result.message))
+                        }
                     }
                 }
             }
@@ -63,19 +66,21 @@ class GenreFeaturedMoviesViewModel @Inject constructor(app: Application, private
 
     fun requestTrendingMovies(filter: String = "all") {
         viewModelScope.launch {
-            genreFeaturedMoviesUseCases.getTrendingMoviesUseCase.invoke(filter).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _movies.emit(GenreFeaturedMoviesState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _movies.emit(GenreFeaturedMoviesState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _movies.emit(GenreFeaturedMoviesState(
-                            error = result.message))
+            genreFeaturedMoviesUseCases.getLocalAccountUseCase.invoke().collect { account ->
+                genreFeaturedMoviesUseCases.getTrendingMoviesUseCase.invoke(account.token, filter).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _movies.emit(GenreFeaturedMoviesState(
+                                isLoading = result.isLoading))
+                        }
+                        is Resource.Success -> {
+                            _movies.emit(GenreFeaturedMoviesState(
+                                response = result.data))
+                        }
+                        is Resource.Error -> {
+                            _movies.emit(GenreFeaturedMoviesState(
+                                error = result.message))
+                        }
                     }
                 }
             }
