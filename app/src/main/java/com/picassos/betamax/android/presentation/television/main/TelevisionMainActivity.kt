@@ -350,7 +350,7 @@ class TelevisionMainActivity : AppCompatActivity() {
             movieTitle.text = movie.title
             movieDescription.text = movie.description
             movieDate.text = Helper.getFormattedDateString(movie.date, "yyyy")
-            movie.duration?.let { movieDuration.text = Helper.convertMinutesToHoursAndMinutes(it) }
+            movie.duration?.let { movieDuration.text = Helper.formatDuration(it) }
             movieRating.text = "${getString(R.string.rating)}: ${movie.rating} / 10"
             movieBanner.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)

@@ -130,7 +130,7 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                     }
                     movieTitle.text = movieDetails.title
                     movieDate.text = Helper.getFormattedDateString(movieDetails.date, "yyyy")
-                    movieDetails.duration?.let { movieDuration.text = Helper.convertMinutesToHoursAndMinutes(it) }
+                    movieDetails.duration?.let { movieDuration.text = Helper.formatDuration(it) }
                     movieDescription.text = movieDetails.description
                     if (movieDetails.genre == 0) {
                         movieGenreContainer.visibility = View.GONE

@@ -15,6 +15,6 @@ data class Episodes(
         val url: String,
         val title: String,
         val thumbnail: String,
-        val duration: Int,
+        val duration: Long,
         val currentPosition: Int?): Serializable
 }

@@ -72,8 +72,9 @@ object Helper {
         } else value
     }
 
-    fun convertMinutesToHoursAndMinutes(minutes: Int): String {
-        val hours = TimeUnit.MINUTES.toHours(java.lang.Long.valueOf(minutes.toLong()))
+    fun formatDuration(milliseconds: Long): String {
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
+        val hours = TimeUnit.MINUTES.toHours(minutes)
         val remainMinutes = minutes - TimeUnit.HOURS.toMinutes(hours)
         return String.format("%02dh %02dm", hours, remainMinutes)
     }

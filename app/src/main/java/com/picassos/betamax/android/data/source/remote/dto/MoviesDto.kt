@@ -24,7 +24,7 @@ data class MoviesDto(
         @SerializedName("rating")
         val rating: Double,
         @SerializedName("duration")
-        val duration: Int?,
+        val duration: Long?,
         @SerializedName("series")
         val series: Int,
         @SerializedName("featured")

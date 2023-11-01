@@ -28,7 +28,7 @@ class EpisodesAdapter(private val onClickListener: OnEpisodeClickListener) : Rec
 
         fun setData(episode: Episodes.Episode) {
             title.text = episode.title
-            watchProgress.max = episode.duration * 60 * 1000
+            watchProgress.max = episode.duration.toInt()
             watchProgress.progress = episode.currentPosition ?: 0
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(episode.thumbnail))

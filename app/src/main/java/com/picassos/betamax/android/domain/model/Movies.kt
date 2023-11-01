@@ -14,7 +14,7 @@ data class Movies(
         val thumbnail: String,
         val banner: String,
         val rating: Double,
-        val duration: Int?,
+        val duration: Long?,
         val series: Int = 0,
         val featured: Int = 0,
         val date: String,

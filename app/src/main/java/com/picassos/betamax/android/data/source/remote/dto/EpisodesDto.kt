@@ -30,7 +30,7 @@ data class EpisodesDto(
             @SerializedName("thumbnail")
             val thumbnail: String,
             @SerializedName("duration")
-            val duration: Int,
+            val duration: Long,
             @SerializedName("current_position")
             val currentPosition: Int?)
     }

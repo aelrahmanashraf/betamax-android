@@ -30,8 +30,8 @@ class TelevisionEpisodesAdapter(private val onClickListener: OnEpisodeClickListe
 
         fun setData(episode: Episodes.Episode) {
             title.text = episode.title
-            duration.text = Helper.convertMinutesToHoursAndMinutes(episode.duration)
-            watchProgress.max = episode.duration * 60 * 1000
+            duration.text = Helper.formatDuration(episode.duration)
+            watchProgress.max = episode.duration.toInt()
             watchProgress.progress = episode.currentPosition ?: 0
 
             val imageRequest = ImageRequestBuilder.newBuilderWithSource(Uri.parse(episode.thumbnail))
