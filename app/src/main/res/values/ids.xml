@@ -38,6 +38,7 @@
     <item name="copyright" type="id" />
     <item name="movie_meta_container" type="id" />
     <item name="exo_player" type="id" />
+    <item name="player_view" type="id" />
     <item name="tvchannels_nav_container" type="id" />
     <item name="player_container" type="id" />
     <item name="telegram_link" type="id" />

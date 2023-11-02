@@ -20,6 +20,7 @@ class App : Application() {
     companion object {
         @get:Synchronized
         lateinit var instance: App
+        lateinit var cache1: androidx.media3.datasource.cache.SimpleCache
         lateinit var cache: SimpleCache
 
         const val ONESIGNAL_APP_ID = BuildConfig.ONESIGNAL_APP_ID
@@ -31,9 +32,12 @@ class App : Application() {
     }
 
     private val cacheSize: Long = 90 * 1024 * 1024
+    private lateinit var cacheEvictor1: androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+    private lateinit var playerDatabaseProvider1: androidx.media3.database.StandaloneDatabaseProvider
     private lateinit var cacheEvictor: LeastRecentlyUsedCacheEvictor
     private lateinit var exoplayerDatabaseProvider: StandaloneDatabaseProvider
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
 
@@ -62,5 +66,9 @@ class App : Application() {
         cacheEvictor = LeastRecentlyUsedCacheEvictor(cacheSize)
         exoplayerDatabaseProvider = StandaloneDatabaseProvider(this)
         cache = SimpleCache(cacheDir, cacheEvictor, exoplayerDatabaseProvider)
+
+        cacheEvictor1 = androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor(cacheSize)
+        playerDatabaseProvider1 = androidx.media3.database.StandaloneDatabaseProvider(this)
+        cache1 = androidx.media3.datasource.cache.SimpleCache(cacheDir, cacheEvictor1, playerDatabaseProvider1)
     }
 }

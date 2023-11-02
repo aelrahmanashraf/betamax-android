@@ -18,6 +18,7 @@
         android:allowBackup="false"
         android:banner="@drawable/home_banner"
         android:icon="@mipmap/ic_launcher"
+        android:largeHeap="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/DarkTheme"

@@ -152,4 +152,5 @@
     <string name="tvchannel_add_to_favorites">Canal de TV agregado a favoritos.</string>
     <string name="tvchannel_removed_from_favorites">Canal de TV eliminado de favoritos</string>
     <string name="all">Todo</string>
+    <string name="watched">Visto</string>
 </resources>
