@@ -17,20 +17,26 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.trackselection.ExoTrackSelection
+import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.upstream.*
-import com.google.android.exoplayer2.util.Util
 import com.google.android.material.chip.Chip
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
 import com.picassos.betamax.android.core.utilities.Helper
-import com.picassos.betamax.android.core.utilities.Helper.fadeVisibility
 import com.picassos.betamax.android.core.utilities.Helper.getSerializable
 import com.picassos.betamax.android.core.utilities.Helper.requestedOrientationWithFullSensor
 import com.picassos.betamax.android.core.utilities.Helper.toDips
@@ -48,6 +54,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @DelicateCoroutinesApi
 @AndroidEntryPoint
 class ViewTvChannelActivity : AppCompatActivity() {
@@ -56,7 +63,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val videoQualityChooserViewModel: VideoQualityChooserViewModel by viewModels()
 
-    private var exoPlayer: ExoPlayer? = null
+    private var player: ExoPlayer? = null
     private lateinit var httpDataSource: DefaultHttpDataSource.Factory
 
     private lateinit var tvChannel: TvChannels.TvChannel
@@ -155,12 +162,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
         collectLatestOnLifecycleStarted(videoQualityChooserViewModel.selectedVideoQuality) { isSafe ->
             isSafe?.let { quality ->
                 selectedVideoQuality = quality
-                exoPlayer?.apply {
-                    when (quality) {
-                        1 -> playNewUrl(url = tvChannel.sdUrl)
-                        2 -> playNewUrl(url = tvChannel.hdUrl)
-                        3 -> playNewUrl(url = tvChannel.fhdUrl)
-                    }
+                when (quality) {
+                    1 -> playNewUrl(url = tvChannel.sdUrl)
+                    2 -> playNewUrl(url = tvChannel.hdUrl)
+                    3 -> playNewUrl(url = tvChannel.fhdUrl)
                 }
                 videoQualityChooserViewModel.setVideoQuality(null)
             }
@@ -183,14 +188,20 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
     @SuppressLint("SwitchIntDef")
     private fun initializePlayer() {
-        exoPlayer?.apply {
+        player?.apply {
             playWhenReady = false
             pause()
             clearMediaItems()
         }
-        val loadControl: LoadControl = DefaultLoadControl.Builder()
+
+        val loadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
-            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setBufferDurationsMs(
+                Config.MIN_BUFFER_DURATION,
+                Config.MAX_BUFFER_DURATION,
+                Config.MIN_PLAYBACK_START_BUFFER,
+                Config.MIN_PLAYBACK_RESUME_BUFFER
+            )
             .setTargetBufferBytes(-1)
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
@@ -198,10 +209,14 @@ class ViewTvChannelActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@ViewTvChannelActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
-        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent))
-        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.EMPTY))
+        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(
+            Util.getUserAgent(this@ViewTvChannelActivity, tvChannel.userAgent)
+        )
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.EMPTY)
+        )
 
-        exoPlayer = ExoPlayer.Builder(this@ViewTvChannelActivity, renderersFactory)
+        player = ExoPlayer.Builder(this@ViewTvChannelActivity, renderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .build().apply {
@@ -210,9 +225,13 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
-        layout.exoPlayer.apply {
-            player = exoPlayer
-            setControllerVisibilityListener { visibility ->
+        layout.playerView.apply {
+            player = this@ViewTvChannelActivity.player
+
+        }
+
+        /*
+        setControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
                         View.VISIBLE -> fadeVisibility(View.VISIBLE, 400)
@@ -220,7 +239,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+         */
 
         collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
             when (status) {
@@ -228,9 +247,9 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
                 }
                 PlayerStatus.PREPARE -> {
-                    exoPlayer?.prepare()
+                    player?.prepare()
                     layout.playerAction.setOnClickListener {
-                        when (exoPlayer?.isPlaying) {
+                        when (player?.isPlaying) {
                             true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
                             else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                         }
@@ -238,13 +257,13 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                 }
                 PlayerStatus.PLAY -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         playWhenReady = true
                         play()
                     }
                 }
                 PlayerStatus.PAUSE -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         playWhenReady = false
                         pause()
                     }
@@ -258,7 +277,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RELEASE -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         stop()
                         removeListener(playerListener)
                         clearMediaItems()
@@ -268,7 +287,7 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
         }
 
-        layout.exoPlayer.findViewById<ImageView>(R.id.fullscreen_mode).setOnClickListener {
+        layout.playerView.findViewById<ImageView>(R.id.fullscreen_mode).setOnClickListener {
             when (resources.configuration.orientation) {
                 Configuration.ORIENTATION_PORTRAIT -> requestedOrientationWithFullSensor(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
                 Configuration.ORIENTATION_LANDSCAPE -> requestedOrientationWithFullSensor(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -309,11 +328,10 @@ class ViewTvChannelActivity : AppCompatActivity() {
                 }
             }
         }
-        override fun onPlayerErrorChanged(error: PlaybackException?) {
+
+        override fun onPlayerError(error: PlaybackException) {
             super.onPlayerErrorChanged(error)
-            if (error != null) {
-                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
-            }
+            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
         }
     }
 
@@ -321,12 +339,14 @@ class ViewTvChannelActivity : AppCompatActivity() {
         if (title.isNotEmpty()) {
             layout.playerTitle.text = title
         }
-        exoPlayer?.apply {
+        player?.apply {
             stop()
             clearMediaItems()
         }
-        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(url)))
-        exoPlayer?.apply {
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.parse(url))
+        )
+        player?.apply {
             setMediaSource(mediaSource)
             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
         }
@@ -366,8 +386,8 @@ class ViewTvChannelActivity : AppCompatActivity() {
             layout.apply {
                 goBack.visibility = View.VISIBLE
                 playerContainer.layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, (200f).toDips(resources))
-                exoPlayer.apply exoplayer@ {
-                    this@exoplayer.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fullscreen_filled)
+                playerView.apply player@ {
+                    this@player.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fullscreen_filled)
                 }
                 Helper.showSystemUI(window, root)
             }
@@ -375,8 +395,8 @@ class ViewTvChannelActivity : AppCompatActivity() {
             layout.apply {
                 goBack.visibility = View.GONE
                 playerContainer.layoutParams = RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-                exoPlayer.apply exoplayer@ {
-                    this@exoplayer.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fit_to_width_filled)
+                playerView.apply player@ {
+                    this@player.findViewById<ImageView>(R.id.fullscreen_mode).setImageResource(R.drawable.icon_fit_to_width_filled)
                 }
                 Helper.hideSystemUI(window, root)
             }
