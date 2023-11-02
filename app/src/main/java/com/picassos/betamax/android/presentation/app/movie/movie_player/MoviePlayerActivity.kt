@@ -56,6 +56,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
 class MoviePlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityMoviePlayerBinding
@@ -125,7 +126,6 @@ class MoviePlayerActivity : AppCompatActivity() {
         })
     }
 
-    @androidx.annotation.OptIn(UnstableApi::class)
     @SuppressLint("SwitchIntDef")
     private fun initializePlayer(movie: Movies.Movie) {
         val loadControl = DefaultLoadControl.Builder()

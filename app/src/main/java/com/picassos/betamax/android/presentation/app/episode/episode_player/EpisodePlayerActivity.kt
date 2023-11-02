@@ -19,18 +19,24 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.SimpleCache
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.upstream.DefaultAllocator
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.SubtitleView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
-import com.google.android.exoplayer2.ui.SubtitleView
-import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -50,6 +56,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.*
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
 class EpisodePlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityEpisodePlayerBinding
@@ -57,10 +64,10 @@ class EpisodePlayerActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
-    private lateinit var exoPlayer: ExoPlayer
+    private lateinit var player: ExoPlayer
     private lateinit var httpDataSource: DefaultHttpDataSource.Factory
     private lateinit var cacheDataSource: CacheDataSource.Factory
-    private val cache: SimpleCache = App.cache
+    private val cache: SimpleCache = App.cache1
 
     private lateinit var playerContent: EpisodePlayerContent
 
@@ -142,13 +149,18 @@ class EpisodePlayerActivity : AppCompatActivity() {
     private fun initializePlayer(episode: Episodes.Episode) {
         val loadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
-            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setBufferDurationsMs(
+                Config.MIN_BUFFER_DURATION,
+                Config.MAX_BUFFER_DURATION,
+                Config.MIN_PLAYBACK_START_BUFFER,
+                Config.MIN_PLAYBACK_RESUME_BUFFER
+            )
             .setTargetBufferBytes(-1)
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
         val trackSelector = DefaultTrackSelector(this@EpisodePlayerActivity)
         val renderersFactory = DefaultRenderersFactory(this@EpisodePlayerActivity).apply {
-            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+            setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
         val parameters = trackSelector.buildUponParameters()
             .setPreferredAudioLanguage("spa")
@@ -158,9 +170,11 @@ class EpisodePlayerActivity : AppCompatActivity() {
             .setCache(cache)
             .setUpstreamDataSourceFactory(httpDataSource)
             .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
-        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(episode.url)))
+        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.parse(episode.url))
+        )
 
-        exoPlayer = ExoPlayer.Builder(this@EpisodePlayerActivity)
+        player = ExoPlayer.Builder(this@EpisodePlayerActivity)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setMediaSourceFactory(DefaultMediaSourceFactory(cacheDataSource))
@@ -171,7 +185,7 @@ class EpisodePlayerActivity : AppCompatActivity() {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
-        exoPlayer.trackSelectionParameters = parameters
+        player.trackSelectionParameters = parameters
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
@@ -183,9 +197,15 @@ class EpisodePlayerActivity : AppCompatActivity() {
                 playerMeta.visibility = View.GONE
             }
         }
-        layout.exoPlayer.apply {
-            player = exoPlayer
-            setControllerVisibilityListener { visibility ->
+
+        layout.playerView.apply {
+            player = this@EpisodePlayerActivity.player
+            subtitleView?.apply {
+                setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * 1.2f)
+            }
+        }
+        /*
+        setControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
                         View.VISIBLE -> animate().alpha(1F).duration = 400
@@ -193,13 +213,10 @@ class EpisodePlayerActivity : AppCompatActivity() {
                     }
                 }
             }
-            subtitleView?.apply {
-                setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * 1.2f)
-            }
-        }
+         */
 
         if (playerContent.currentPosition != 0) {
-            exoPlayer.seekTo(playerContent.currentPosition.toLong())
+            player.seekTo(playerContent.currentPosition.toLong())
         }
 
         collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
@@ -208,31 +225,29 @@ class EpisodePlayerActivity : AppCompatActivity() {
 
                 }
                 PlayerStatus.PREPARE -> {
-                    exoPlayer.apply {
-                        prepare()
-                        layout.exoPlayer.findViewById<ImageView>(R.id.player_action).setOnClickListener {
-                            when (isPlaying) {
-                                true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
-                                else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
-                            }
+                    player.prepare()
+                    layout.playerView.findViewById<ImageView>(R.id.player_action).setOnClickListener {
+                        when (player.isPlaying) {
+                            true -> playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
+                            else -> playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                         }
                     }
                     playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                 }
                 PlayerStatus.PLAY -> {
-                    exoPlayer.apply {
+                    player.apply {
                         playWhenReady = true
                         play()
                     }
                 }
                 PlayerStatus.PAUSE -> {
-                    exoPlayer.apply {
+                    player.apply {
                         playWhenReady = false
                         pause()
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                    layout.playerView.findViewById<ImageView>(R.id.player_action).apply {
                         setImageResource(R.drawable.icon_retry)
                         setOnClickListener {
                             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
@@ -240,7 +255,7 @@ class EpisodePlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RELEASE -> {
-                    exoPlayer.apply {
+                    player.apply {
                         stop()
                         removeListener(playerListener)
                         clearMediaItems()
@@ -250,35 +265,32 @@ class EpisodePlayerActivity : AppCompatActivity() {
             }
         }
 
-        layout.exoPlayer.findViewById<ImageView>(R.id.replay).setOnClickListener {
-            exoPlayer.seekBack()
+        layout.playerView.findViewById<ImageView>(R.id.replay).setOnClickListener {
+            player.seekBack()
         }
 
-        layout.exoPlayer.findViewById<ImageView>(R.id.forward).setOnClickListener {
-            exoPlayer.seekForward()
+        layout.playerView.findViewById<ImageView>(R.id.forward).setOnClickListener {
+            player.seekForward()
         }
 
-        layout.exoPlayer.apply {
-            findViewById<ImageView>(R.id.fullscreen_mode).apply {
-                setOnClickListener {
-                    resizeMode = when (resizeMode) {
-                        AspectRatioFrameLayout.RESIZE_MODE_FIT -> {
-                            setImageResource(R.drawable.icon_fit_to_width_filled)
-                            AspectRatioFrameLayout.RESIZE_MODE_FILL
-                        }
-                        AspectRatioFrameLayout.RESIZE_MODE_FILL -> {
-                            setImageResource(R.drawable.icon_fullscreen_filled)
-                            AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        }
-                        else -> resizeMode
+        layout.playerView.findViewById<ImageView>(R.id.fullscreen_mode).apply {
+            setOnClickListener {
+                layout.playerView.resizeMode = when (layout.playerView.resizeMode) {
+                    AspectRatioFrameLayout.RESIZE_MODE_FIT -> {
+                        setImageResource(R.drawable.icon_fit_to_width_filled)
+                        AspectRatioFrameLayout.RESIZE_MODE_FILL
                     }
+                    AspectRatioFrameLayout.RESIZE_MODE_FILL -> {
+                        setImageResource(R.drawable.icon_fullscreen_filled)
+                        AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    }
+                    else -> layout.playerView.resizeMode
                 }
             }
-            findViewById<ImageView>(R.id.tracks).apply {
-                setOnClickListener {
-                    showTracksDialog()
-                }
-            }
+        }
+
+        layout.playerView.findViewById<ImageView>(R.id.tracks).setOnClickListener {
+            showTracksDialog()
         }
     }
 
@@ -286,11 +298,11 @@ class EpisodePlayerActivity : AppCompatActivity() {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                layout.playerView.findViewById<ImageView>(R.id.player_action).apply {
                     setImageResource(R.drawable.icon_pause_filled)
                 }
             } else {
-                layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                layout.playerView.findViewById<ImageView>(R.id.player_action).apply {
                     setImageResource(R.drawable.icon_play_filled)
                 }
             }
@@ -302,20 +314,21 @@ class EpisodePlayerActivity : AppCompatActivity() {
                     updateContinueWatching()
                 }
                 Player.STATE_BUFFERING -> {
-                    layout.exoPlayer.apply {
+                    layout.playerView.apply {
                         findViewById<ProgressBar>(R.id.player_progressbar).visibility = View.VISIBLE
                         findViewById<ImageView>(R.id.player_action).visibility = View.INVISIBLE
                     }
                 }
                 else -> {
-                    layout.exoPlayer.apply {
+                    layout.playerView.apply {
                         findViewById<ProgressBar>(R.id.player_progressbar).visibility = View.INVISIBLE
                         findViewById<ImageView>(R.id.player_action).visibility = View.VISIBLE
                     }
                 }
             }
         }
-        override fun onPlayerErrorChanged(error: PlaybackException?) {
+
+        override fun onPlayerError(error: PlaybackException) {
             super.onPlayerErrorChanged(error)
             playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
         }
@@ -325,12 +338,14 @@ class EpisodePlayerActivity : AppCompatActivity() {
         if (title.isNotEmpty()) {
             layout.playerTitle.text = episode.title
         }
-        exoPlayer.apply {
+        player.apply {
             stop()
             clearMediaItems()
         }
-        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(episode.url)))
-        exoPlayer.apply {
+        val mediaSource = ProgressiveMediaSource.Factory(cacheDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.parse(episode.url))
+        )
+        player.apply {
             setMediaSource(mediaSource)
             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
         }
@@ -343,8 +358,8 @@ class EpisodePlayerActivity : AppCompatActivity() {
                 title = episode.title,
                 url = episode.url,
                 thumbnail = episode.thumbnail,
-                duration = exoPlayer.duration.toInt(),
-                currentPosition = exoPlayer.currentPosition.toInt(),
+                duration = player.duration.toInt(),
+                currentPosition = player.currentPosition.toInt(),
                 series = 1)
         }
     }
@@ -368,8 +383,8 @@ class EpisodePlayerActivity : AppCompatActivity() {
         val audioTracksGroup = mutableListOf<TracksGroup.Track>()
         val subtitleTracksGroup = mutableListOf<TracksGroup.Track>()
 
-        for (i in 0 until exoPlayer.currentTracks.groups.size) {
-            val format = exoPlayer.currentTracks.groups[i].getTrackFormat(0)
+        for (i in 0 until player.currentTracks.groups.size) {
+            val format = player.currentTracks.groups[i].getTrackFormat(0)
             when {
                 format.sampleMimeType?.startsWith("audio/") == true && format.language != null -> {
                     audioTracks.add(format.language!!)
@@ -395,11 +410,11 @@ class EpisodePlayerActivity : AppCompatActivity() {
 
         val audioTracksAdapter = TracksAdapter(listener = object : TracksAdapter.OnTrackClickListener {
             override fun onItemClick(track: TracksGroup.Track) {
-                val parameters = exoPlayer.trackSelectionParameters
+                val parameters = player.trackSelectionParameters
                     .buildUpon()
                     .setPreferredAudioLanguage(track.code)
                     .build()
-                exoPlayer.trackSelectionParameters = parameters
+                player.trackSelectionParameters = parameters
 
                 dialog.dismiss()
             }
@@ -413,17 +428,17 @@ class EpisodePlayerActivity : AppCompatActivity() {
         val subtitlesTracksAdapter = TracksAdapter(listener = object : TracksAdapter.OnTrackClickListener {
             override fun onItemClick(track: TracksGroup.Track) {
                 if (track.code.isNotEmpty()) {
-                    val parameters = exoPlayer.trackSelectionParameters
+                    val parameters = player.trackSelectionParameters
                         .buildUpon()
                         .setPreferredTextLanguage(track.code)
                         .build()
-                    exoPlayer.trackSelectionParameters = parameters
+                    player.trackSelectionParameters = parameters
                 } else {
-                    val parameters = exoPlayer.trackSelectionParameters
+                    val parameters = player.trackSelectionParameters
                         .buildUpon()
                         .setPreferredTextLanguage(null)
                         .build()
-                    exoPlayer.trackSelectionParameters = parameters
+                    player.trackSelectionParameters = parameters
                 }
 
                 dialog.dismiss()
