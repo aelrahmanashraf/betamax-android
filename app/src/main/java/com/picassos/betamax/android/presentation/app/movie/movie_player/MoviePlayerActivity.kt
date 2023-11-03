@@ -95,7 +95,7 @@ class MoviePlayerActivity : AppCompatActivity() {
         }
 
         layout.goBack.setOnClickListener {
-            updateContinueWatching()
+            updateContinueWatching(movie = playerContent.movie)
         }
 
         getSerializable(this@MoviePlayerActivity, "playerContent", MoviePlayerContent::class.java).also { playerContent ->
@@ -121,7 +121,7 @@ class MoviePlayerActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                updateContinueWatching()
+                updateContinueWatching(movie = playerContent.movie)
             }
         })
     }
@@ -231,12 +231,7 @@ class MoviePlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RELEASE -> {
-                    player.apply {
-                        stop()
-                        removeListener(playerListener)
-                        clearMediaItems()
-                        release()
-                    }
+                    releasePlayer()
                 }
             }
         }
@@ -287,7 +282,7 @@ class MoviePlayerActivity : AppCompatActivity() {
             super.onPlaybackStateChanged(playbackState)
             when (playbackState) {
                 Player.STATE_ENDED -> {
-                    updateContinueWatching()
+                    updateContinueWatching(movie = playerContent.movie)
                 }
                 Player.STATE_BUFFERING -> {
                     layout.playerView.apply {
@@ -310,8 +305,15 @@ class MoviePlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateContinueWatching() {
-        val movie = playerContent.movie
+    private fun releasePlayer() {
+        player.apply {
+            removeListener(playerListener)
+            clearMediaItems()
+            release()
+        }
+    }
+
+    private fun updateContinueWatching(movie: Movies.Movie) {
         continueWatchingViewModel.requestUpdateContinueWatching(
             contentId = movie.id,
             title = movie.title,
@@ -445,7 +447,7 @@ class MoviePlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
+        releasePlayer()
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             if (Config.BUILD_TYPE == "release") {

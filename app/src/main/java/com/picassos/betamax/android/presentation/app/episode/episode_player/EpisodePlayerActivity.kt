@@ -255,12 +255,7 @@ class EpisodePlayerActivity : AppCompatActivity() {
                     }
                 }
                 PlayerStatus.RELEASE -> {
-                    player.apply {
-                        stop()
-                        removeListener(playerListener)
-                        clearMediaItems()
-                        release()
-                    }
+                    releasePlayer()
                 }
             }
         }
@@ -348,6 +343,14 @@ class EpisodePlayerActivity : AppCompatActivity() {
         player.apply {
             setMediaSource(mediaSource)
             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+        }
+    }
+
+    private fun releasePlayer() {
+        player.apply {
+            removeListener(playerListener)
+            clearMediaItems()
+            release()
         }
     }
 
@@ -486,7 +489,7 @@ class EpisodePlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
+        releasePlayer()
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             if (Config.BUILD_TYPE == "release") {

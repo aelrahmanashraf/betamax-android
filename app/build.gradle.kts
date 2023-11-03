@@ -12,8 +12,8 @@ android {
     defaultConfig {
         applicationId = "app.betamax.android"
         minSdk = 24
-        compileSdk = 33
-        targetSdk = 33
+        compileSdk = 34
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
