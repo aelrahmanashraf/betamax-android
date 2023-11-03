@@ -196,12 +196,7 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
                     playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                 }
                 PlayerStatus.RELEASE -> {
-                    player.apply {
-                        stop()
-                        removeListener(playerListener)
-                        clearMediaItems()
-                        release()
-                    }
+                    releasePlayer()
                 }
             }
         }
@@ -263,6 +258,14 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
         player.apply {
             setMediaSource(mediaSource)
             playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+        }
+    }
+
+    private fun releasePlayer() {
+        player.apply {
+            removeListener(playerListener)
+            clearMediaItems()
+            release()
         }
     }
 
@@ -437,7 +440,7 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
+        releasePlayer()
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }

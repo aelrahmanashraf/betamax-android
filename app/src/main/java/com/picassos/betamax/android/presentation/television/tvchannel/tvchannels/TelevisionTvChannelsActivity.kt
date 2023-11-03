@@ -273,12 +273,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
                     playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                 }
                 PlayerStatus.RELEASE -> {
-                    player?.apply {
-                        stop()
-                        removeListener(playerListener)
-                        clearMediaItems()
-                        release()
-                    }
+                    releasePlayer()
                 }
             }
         }
@@ -315,6 +310,14 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         )
         player?.setMediaSource(mediaSource)
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
+    }
+
+    private fun releasePlayer() {
+        player?.apply {
+            removeListener(playerListener)
+            clearMediaItems()
+            release()
+        }
     }
 
     fun getTvChannelUrl(selectedVideoQuality: Int, tvChannel: TvChannels.TvChannel): String {
@@ -428,7 +431,7 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        playerViewModel.setPlayerStatus(PlayerStatus.RELEASE)
+        releasePlayer()
         window.apply {
             clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
