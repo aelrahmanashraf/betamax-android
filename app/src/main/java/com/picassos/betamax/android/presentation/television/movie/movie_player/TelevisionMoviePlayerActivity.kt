@@ -14,13 +14,18 @@ import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.picassos.betamax.android.R
 import com.picassos.betamax.android.core.configuration.Config
 import com.picassos.betamax.android.core.utilities.Coroutines.collectLatestOnLifecycleStarted
@@ -38,6 +43,7 @@ import com.picassos.betamax.android.presentation.app.track.tracks.TracksAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
 class TelevisionMoviePlayerActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionMoviePlayerBinding
@@ -45,7 +51,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
-    private lateinit var exoPlayer: ExoPlayer
+    private lateinit var player: ExoPlayer
 
     private lateinit var playerContent: MoviePlayerContent
 
@@ -102,9 +108,11 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             .build()
         val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
 
-        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.parse(movie.url)))
+        val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.parse(movie.url))
+        )
 
-        exoPlayer = ExoPlayer.Builder(this@TelevisionMoviePlayerActivity)
+        player = ExoPlayer.Builder(this@TelevisionMoviePlayerActivity)
             .setTrackSelector(trackSelector)
             .setMediaSourceFactory(DefaultMediaSourceFactory(httpDataSource))
             .setRenderersFactory(renderersFactory)
@@ -114,16 +122,19 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
-        exoPlayer.trackSelectionParameters = parameters
+        player.trackSelectionParameters = parameters
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
         layout.playerTitle.apply {
             text = movie.title
         }
-        layout.exoPlayer.apply {
-            player = exoPlayer
-            setControllerVisibilityListener { visibility ->
+
+        layout.playerView.apply {
+            player = this@TelevisionMoviePlayerActivity.player
+        }
+        /*
+        setControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
                         View.VISIBLE -> animate().alpha(1F).duration = 400
@@ -131,10 +142,10 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+         */
 
         if (playerContent.currentPosition != 0) {
-            exoPlayer.seekTo(playerContent.currentPosition.toLong())
+            player.seekTo(playerContent.currentPosition.toLong())
         }
 
         collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
@@ -143,32 +154,30 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
                 }
                 PlayerStatus.PREPARE -> {
-                    exoPlayer.apply {
-                        prepare()
-                    }
+                    player.prepare()
                     playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                 }
                 PlayerStatus.PLAY -> {
-                    exoPlayer.apply {
+                    player.apply {
                         playWhenReady = true
                         play()
                     }
                 }
                 PlayerStatus.PAUSE -> {
-                    exoPlayer.apply {
+                    player.apply {
                         playWhenReady = false
                         pause()
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    exoPlayer.apply {
+                    player.apply {
                         val lastPlayBackPosition = currentPosition
                         seekTo(lastPlayBackPosition)
                     }
                     playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                 }
                 PlayerStatus.RELEASE -> {
-                    exoPlayer.apply {
+                    player.apply {
                         stop()
                         removeListener(playerListener)
                         clearMediaItems()
@@ -183,11 +192,11 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             super.onIsPlayingChanged(isPlaying)
             if (isPlaying) {
-                layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                layout.playerView.findViewById<ImageView>(R.id.player_action).apply {
                     setImageResource(R.drawable.icon_pause_filled)
                 }
             } else {
-                layout.exoPlayer.findViewById<ImageView>(R.id.player_action).apply {
+                layout.playerView.findViewById<ImageView>(R.id.player_action).apply {
                     setImageResource(R.drawable.icon_play_filled)
                 }
             }
@@ -199,24 +208,23 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                     updateContinueWatching()
                 }
                 Player.STATE_BUFFERING -> {
-                    layout.exoPlayer.apply {
+                    layout.playerView.apply {
                         findViewById<ProgressBar>(R.id.player_progressbar).visibility = View.VISIBLE
                         findViewById<ImageView>(R.id.player_action).visibility = View.INVISIBLE
                     }
                 }
                 else -> {
-                    layout.exoPlayer.apply {
+                    layout.playerView.apply {
                         findViewById<ProgressBar>(R.id.player_progressbar).visibility = View.INVISIBLE
                         findViewById<ImageView>(R.id.player_action).visibility = View.VISIBLE
                     }
                 }
             }
         }
-        override fun onPlayerErrorChanged(error: PlaybackException?) {
+
+        override fun onPlayerError(error: PlaybackException) {
             super.onPlayerErrorChanged(error)
-            if (error != null) {
-                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
-            }
+            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
         }
     }
 
@@ -227,8 +235,8 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             title = movie.title,
             url = movie.url,
             thumbnail = movie.thumbnail,
-            duration = exoPlayer.duration.toInt(),
-            currentPosition = exoPlayer.currentPosition.toInt(),
+            duration = player.duration.toInt(),
+            currentPosition = player.currentPosition.toInt(),
             series = 0)
     }
 
@@ -247,8 +255,8 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         val audioTracksGroup = mutableListOf<TracksGroup.Track>()
         val subtitleTracksGroup = mutableListOf<TracksGroup.Track>()
 
-        for (i in 0 until exoPlayer.currentTracks.groups.size) {
-            val format = exoPlayer.currentTracks.groups[i].getTrackFormat(0)
+        for (i in 0 until player.currentTracks.groups.size) {
+            val format = player.currentTracks.groups[i].getTrackFormat(0)
             when {
                 format.sampleMimeType?.startsWith("audio/") == true && format.language != null -> {
                     audioTracks.add(format.language!!)
@@ -274,11 +282,11 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
         val audioTracksAdapter = TracksAdapter(listener = object : TracksAdapter.OnTrackClickListener {
             override fun onItemClick(track: TracksGroup.Track) {
-                val parameters = exoPlayer.trackSelectionParameters
+                val parameters = player.trackSelectionParameters
                     .buildUpon()
                     .setPreferredAudioLanguage(track.code)
                     .build()
-                exoPlayer.trackSelectionParameters = parameters
+                player.trackSelectionParameters = parameters
 
                 dialog.dismiss()
             }
@@ -292,17 +300,17 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         val subtitlesTracksAdapter = TracksAdapter(listener = object : TracksAdapter.OnTrackClickListener {
             override fun onItemClick(track: TracksGroup.Track) {
                 if (track.code.isNotEmpty()) {
-                    val parameters = exoPlayer.trackSelectionParameters
+                    val parameters = player.trackSelectionParameters
                         .buildUpon()
                         .setPreferredTextLanguage(track.code)
                         .build()
-                    exoPlayer.trackSelectionParameters = parameters
+                    player.trackSelectionParameters = parameters
                 } else {
-                    val parameters = exoPlayer.trackSelectionParameters
+                    val parameters = player.trackSelectionParameters
                         .buildUpon()
                         .setPreferredTextLanguage(null)
                         .build()
-                    exoPlayer.trackSelectionParameters = parameters
+                    player.trackSelectionParameters = parameters
                 }
 
                 dialog.dismiss()
@@ -334,7 +342,7 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                     return true
                 }
                 KeyEvent.KEYCODE_DPAD_CENTER -> {
-                    if (!exoPlayer.isPlaying) {
+                    if (!player.isPlaying) {
                         playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                     } else {
                         playerViewModel.setPlayerStatus(PlayerStatus.PAUSE)
@@ -342,11 +350,11 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                     return true
                 }
                 KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                    exoPlayer.seekForward()
+                    player.seekForward()
                     return true
                 }
                 KeyEvent.KEYCODE_DPAD_LEFT -> {
-                    exoPlayer.seekBack()
+                    player.seekBack()
                     return true
                 }
                 KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_BACK -> {
