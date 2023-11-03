@@ -9,16 +9,23 @@ import android.view.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.LoadControl
+import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.trackselection.ExoTrackSelection
+import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.ExoTrackSelection
-import com.google.android.exoplayer2.upstream.DefaultAllocator
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.util.Util
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import com.picassos.betamax.android.R
@@ -40,13 +47,14 @@ import com.picassos.betamax.android.presentation.television.genre.tvchannels_gen
 import com.picassos.betamax.android.presentation.app.quality.QualityAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @AndroidEntryPoint
 class TelevisionTvChannelsActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionTvchannelsBinding
     private val televisionTvChannelsViewModel: TelevisionTvChannelsViewModel by viewModels()
     private val playerViewModel: PlayerViewModel by viewModels()
 
-    private var exoPlayer: ExoPlayer? = null
+    private var player: ExoPlayer? = null
     private lateinit var httpDataSource: DefaultHttpDataSource.Factory
 
     private var tvChannel: TvChannels.TvChannel? = null
@@ -193,25 +201,37 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
     }
 
     private fun initializePlayer() {
-        exoPlayer?.apply {
+        player?.apply {
             playWhenReady = false
             pause()
             clearMediaItems()
         }
         val loadControl: LoadControl = DefaultLoadControl.Builder()
             .setAllocator(DefaultAllocator(true, 16))
-            .setBufferDurationsMs(Config.MIN_BUFFER_DURATION, Config.MAX_BUFFER_DURATION, Config.MIN_PLAYBACK_START_BUFFER, Config.MIN_PLAYBACK_RESUME_BUFFER)
+            .setBufferDurationsMs(
+                Config.MIN_BUFFER_DURATION,
+                Config.MAX_BUFFER_DURATION,
+                Config.MIN_PLAYBACK_START_BUFFER,
+                Config.MIN_PLAYBACK_RESUME_BUFFER
+            )
             .setTargetBufferBytes(-1)
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
-        val trackSelector = DefaultTrackSelector(this@TelevisionTvChannelsActivity, AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory)
+        val trackSelector = DefaultTrackSelector(
+            this@TelevisionTvChannelsActivity,
+            AdaptiveTrackSelection.Factory() as ExoTrackSelection.Factory
+        )
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
-        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(Util.getUserAgent(this@TelevisionTvChannelsActivity, tvChannel?.userAgent ?: ""))
-        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(MediaItem.fromUri(Uri.EMPTY))
+        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(
+            Util.getUserAgent(this@TelevisionTvChannelsActivity, tvChannel?.userAgent ?: "")
+        )
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.EMPTY)
+        )
 
-        exoPlayer = ExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
+        player = ExoPlayer.Builder(this@TelevisionTvChannelsActivity, renderersFactory)
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .build().apply {
@@ -220,8 +240,8 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
             }
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
-        layout.exoPlayer.apply {
-            player = exoPlayer
+        layout.playerView.apply {
+            player = this@TelevisionTvChannelsActivity.player
         }
 
         collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
@@ -230,30 +250,30 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
 
                 }
                 PlayerStatus.PREPARE -> {
-                    exoPlayer?.prepare()
+                    player?.prepare()
                     playerViewModel.setPlayerStatus(PlayerStatus.PLAY)
                 }
                 PlayerStatus.PLAY -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         playWhenReady = true
                         play()
                     }
                 }
                 PlayerStatus.PAUSE -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         playWhenReady = false
                         pause()
                     }
                 }
                 PlayerStatus.RETRY -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         val lastPlayBackPosition = currentPosition
                         seekTo(lastPlayBackPosition)
                     }
                     playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
                 }
                 PlayerStatus.RELEASE -> {
-                    exoPlayer?.apply {
+                    player?.apply {
                         stop()
                         removeListener(playerListener)
                         clearMediaItems()
@@ -286,13 +306,14 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         if (title.isNotEmpty()) {
             layout.playerTitle.text = title
         }
-        exoPlayer?.apply {
+        player?.apply {
             stop()
             clearMediaItems()
         }
-        val mediaSource = HlsMediaSource.Factory(httpDataSource)
-            .createMediaSource(MediaItem.fromUri(Uri.parse(url)))
-        exoPlayer?.setMediaSource(mediaSource)
+        val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(
+            MediaItem.fromUri(Uri.parse(url))
+        )
+        player?.setMediaSource(mediaSource)
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
     }
 
