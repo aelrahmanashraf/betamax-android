@@ -31,6 +31,7 @@ import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection
 import androidx.media3.exoplayer.upstream.DefaultAllocator
+import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.chip.Chip
 import com.picassos.betamax.android.R
@@ -227,19 +228,15 @@ class ViewTvChannelActivity : AppCompatActivity() {
 
         layout.playerView.apply {
             player = this@ViewTvChannelActivity.player
-
-        }
-
-        /*
-        setControllerVisibilityListener { visibility ->
+            setControllerVisibilityListener(PlayerView.ControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
-                        View.VISIBLE -> fadeVisibility(View.VISIBLE, 400)
-                        View.GONE -> fadeVisibility(View.GONE, 400)
+                        View.VISIBLE -> animate().alpha(1F).duration = 400
+                        View.GONE -> animate().alpha(0F).duration = 400
                     }
                 }
-            }
-         */
+            })
+        }
 
         collectLatestOnLifecycleStarted(playerViewModel.playerStatus) { status ->
             when (status) {
@@ -329,9 +326,11 @@ class ViewTvChannelActivity : AppCompatActivity() {
             }
         }
 
-        override fun onPlayerError(error: PlaybackException) {
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
             super.onPlayerErrorChanged(error)
-            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
         }
     }
 

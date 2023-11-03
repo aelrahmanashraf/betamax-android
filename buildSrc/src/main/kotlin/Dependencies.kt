@@ -28,8 +28,6 @@ object Libraries {
         "com.google.code.gson:gson:${Versions.gson}",
         "androidx.work:work-runtime-ktx:${Versions.work}",
         "com.onesignal:OneSignal:${Versions.onesignal}",
-        "com.google.android.exoplayer:exoplayer:${Versions.exoplayer}",
-        "com.google.android.exoplayer:exoplayer-ui:${Versions.exoplayer}",
         "androidx.media3:media3-exoplayer:${Versions.media3}",
         "androidx.media3:media3-ui:${Versions.media3}",
         "androidx.media3:media3-exoplayer-hls:${Versions.media3}",

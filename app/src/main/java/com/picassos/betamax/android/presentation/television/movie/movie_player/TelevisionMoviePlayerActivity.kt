@@ -24,6 +24,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.picassos.betamax.android.R
@@ -132,17 +133,15 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
 
         layout.playerView.apply {
             player = this@TelevisionMoviePlayerActivity.player
-        }
-        /*
-        setControllerVisibilityListener { visibility ->
+            setControllerVisibilityListener(PlayerView.ControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
                         View.VISIBLE -> animate().alpha(1F).duration = 400
                         View.GONE -> animate().alpha(0F).duration = 400
                     }
                 }
-            }
-         */
+            })
+        }
 
         if (playerContent.currentPosition != 0) {
             player.seekTo(playerContent.currentPosition.toLong())
@@ -222,9 +221,11 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
             }
         }
 
-        override fun onPlayerError(error: PlaybackException) {
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
             super.onPlayerErrorChanged(error)
-            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
         }
     }
 

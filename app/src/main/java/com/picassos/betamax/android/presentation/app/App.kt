@@ -1,12 +1,12 @@
 package com.picassos.betamax.android.presentation.app
 
 import android.app.Application
+import androidx.media3.database.StandaloneDatabaseProvider
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
 import com.facebook.cache.disk.DiskCacheConfig
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.core.ImagePipelineConfig
-import com.google.android.exoplayer2.database.StandaloneDatabaseProvider
-import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.firebase.FirebaseApp
 import com.onesignal.OneSignal
 import com.picassos.betamax.android.BuildConfig
@@ -20,8 +20,7 @@ class App : Application() {
     companion object {
         @get:Synchronized
         lateinit var instance: App
-        lateinit var cache1: androidx.media3.datasource.cache.SimpleCache
-        lateinit var cache: SimpleCache
+        lateinit var playerCache: SimpleCache
 
         const val ONESIGNAL_APP_ID = BuildConfig.ONESIGNAL_APP_ID
         const val MAX_DISK_CACHE_SIZE = 100 * 1024 * 1024
@@ -32,10 +31,8 @@ class App : Application() {
     }
 
     private val cacheSize: Long = 90 * 1024 * 1024
-    private lateinit var cacheEvictor1: androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
-    private lateinit var playerDatabaseProvider1: androidx.media3.database.StandaloneDatabaseProvider
-    private lateinit var cacheEvictor: LeastRecentlyUsedCacheEvictor
-    private lateinit var exoplayerDatabaseProvider: StandaloneDatabaseProvider
+    private lateinit var cacheEvictor: androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+    private lateinit var playerDatabaseProvider: androidx.media3.database.StandaloneDatabaseProvider
 
     @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     override fun onCreate() {
@@ -64,11 +61,7 @@ class App : Application() {
         OneSignal.setAppId(ONESIGNAL_APP_ID)
 
         cacheEvictor = LeastRecentlyUsedCacheEvictor(cacheSize)
-        exoplayerDatabaseProvider = StandaloneDatabaseProvider(this)
-        cache = SimpleCache(cacheDir, cacheEvictor, exoplayerDatabaseProvider)
-
-        cacheEvictor1 = androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor(cacheSize)
-        playerDatabaseProvider1 = androidx.media3.database.StandaloneDatabaseProvider(this)
-        cache1 = androidx.media3.datasource.cache.SimpleCache(cacheDir, cacheEvictor1, playerDatabaseProvider1)
+        playerDatabaseProvider = StandaloneDatabaseProvider(this)
+        playerCache = SimpleCache(cacheDir, cacheEvictor, playerDatabaseProvider)
     }
 }

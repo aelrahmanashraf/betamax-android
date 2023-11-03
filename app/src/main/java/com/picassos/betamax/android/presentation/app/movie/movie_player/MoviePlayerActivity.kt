@@ -34,6 +34,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 import androidx.media3.ui.SubtitleView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -65,7 +66,7 @@ class MoviePlayerActivity : AppCompatActivity() {
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
     private lateinit var player: ExoPlayer
-    private val cache: SimpleCache = App.cache1
+    private val cache: SimpleCache = App.playerCache
 
     private lateinit var playerContent: MoviePlayerContent
 
@@ -176,20 +177,18 @@ class MoviePlayerActivity : AppCompatActivity() {
 
         layout.playerView.apply {
             player = this@MoviePlayerActivity.player
-            subtitleView?.apply {
-                setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * 1.2f)
-            }
-        }
-        /*
-        setControllerVisibilityListener { visibility ->
+            setControllerVisibilityListener(PlayerView.ControllerVisibilityListener { visibility ->
                 layout.controllerContainer.apply {
                     when (visibility) {
                         View.VISIBLE -> animate().alpha(1F).duration = 400
                         View.GONE -> animate().alpha(0F).duration = 400
                     }
                 }
+            })
+            subtitleView?.apply {
+                setFractionalTextSize(SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * 1.2f)
             }
-         */
+        }
 
         if (playerContent.currentPosition != 0) {
             player.seekTo(playerContent.currentPosition.toLong())
@@ -299,9 +298,11 @@ class MoviePlayerActivity : AppCompatActivity() {
             }
         }
 
-        override fun onPlayerError(error: PlaybackException) {
+        override fun onPlayerErrorChanged(error: PlaybackException?) {
             super.onPlayerErrorChanged(error)
-            playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            if (error != null) {
+                playerViewModel.setPlayerStatus(PlayerStatus.RETRY)
+            }
         }
     }
 

@@ -2,24 +2,26 @@ package com.picassos.betamax.android.domain.worker
 
 import android.content.Context
 import android.net.Uri
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.HttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.CacheWriter
+import androidx.media3.datasource.cache.SimpleCache
 import androidx.work.*
-import com.google.android.exoplayer2.upstream.DataSpec
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.upstream.HttpDataSource
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.upstream.cache.CacheWriter
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.picassos.betamax.android.presentation.app.App
 import kotlinx.coroutines.*
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @DelicateCoroutinesApi
 class VideoPreloadWorker(private val context: Context, workerParameters: WorkerParameters): Worker(context, workerParameters) {
     private var videoCachingJob: Job? = null
     private lateinit var mHttpDataSourceFactory: HttpDataSource.Factory
-    private lateinit var mDefaultDataSourceFactory: DefaultDataSourceFactory
+    private lateinit var mDefaultDataSourceFactory: DefaultDataSource.Factory
     private lateinit var mCacheDataSource: CacheDataSource
-    private val cache: SimpleCache = App.cache
+    private val cache: SimpleCache = App.playerCache
 
     companion object {
         const val VIDEO_URL = "video_url"
@@ -37,7 +39,7 @@ class VideoPreloadWorker(private val context: Context, workerParameters: WorkerP
             val videoUrl: String? = inputData.getString(VIDEO_URL)
 
             mHttpDataSourceFactory = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
-            mDefaultDataSourceFactory = DefaultDataSourceFactory(context, mHttpDataSourceFactory)
+            mDefaultDataSourceFactory = DefaultDataSource.Factory(context, mHttpDataSourceFactory)
             mCacheDataSource = CacheDataSource.Factory()
                 .setCache(cache)
                 .setUpstreamDataSourceFactory(mHttpDataSourceFactory)
