@@ -144,9 +144,6 @@ class MoviePlayerActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@MoviePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
-        val parameters = trackSelector.buildUponParameters()
-            .setPreferredAudioLanguage("spa")
-            .build()
         val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
         val cacheDataSource = CacheDataSource.Factory()
             .setCache(cache)
@@ -167,7 +164,6 @@ class MoviePlayerActivity : AppCompatActivity() {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
-        player.trackSelectionParameters = parameters
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 

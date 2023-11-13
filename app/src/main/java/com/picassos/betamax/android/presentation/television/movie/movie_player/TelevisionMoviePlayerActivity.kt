@@ -104,9 +104,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@TelevisionMoviePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val parameters = trackSelector.buildUponParameters()
-            .setPreferredAudioLanguage("spa")
-            .build()
         val httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
 
         val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(
@@ -123,7 +120,6 @@ class TelevisionMoviePlayerActivity : AppCompatActivity() {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
-        player.trackSelectionParameters = parameters
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 

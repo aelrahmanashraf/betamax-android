@@ -52,6 +52,8 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
+    private lateinit var requestDialog: RequestDialog
+
     private lateinit var player: ExoPlayer
     private lateinit var httpDataSource: DefaultHttpDataSource.Factory
 
@@ -60,13 +62,14 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
     private var currentEpisode: Episodes.Episode? = null
     private var currentEpisodePosition = 0
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setTheme(R.style.PlayerTheme)
 
-        val requestDialog = RequestDialog(
+        requestDialog = RequestDialog(
             context = this@TelevisionEpisodePlayerActivity,
             isFullscreen = true)
 
@@ -86,31 +89,6 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
             }
             initializePlayer(episode = playerContent.episode)
         }
-
-        collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.responseCode != null) {
-                requestDialog.dismiss()
-                if (state.responseCode == 200) {
-                    playerContent.episodes?.let { episodes ->
-                        try {
-                            episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
-                                currentEpisode = episode
-                                currentEpisodePosition += 1
-                                playNewUrl(episode = episode)
-                            } ?: run { finishActivityWithResult() }
-                        } catch (e: Exception) {
-                            finishActivityWithResult()
-                        }
-                    } ?: run { finishActivityWithResult() }
-                }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
-            }
-        }
     }
 
     @SuppressLint("SwitchIntDef", "SetTextI18n")
@@ -119,9 +97,6 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@TelevisionEpisodePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
         }
-        val parameters = trackSelector.buildUponParameters()
-            .setPreferredAudioLanguage("spa")
-            .build()
         httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
 
         val mediaSource = ProgressiveMediaSource.Factory(httpDataSource).createMediaSource(
@@ -138,7 +113,6 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
-        player.trackSelectionParameters = parameters
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
@@ -220,6 +194,29 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
             when (playbackState) {
                 Player.STATE_ENDED -> {
                     updateContinueWatching()
+                    collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
+                        if (state.isLoading) {
+                            requestDialog.show()
+                        }
+                        if (state.responseCode != null) {
+                            requestDialog.dismiss()
+
+                            playerContent.episodes?.let { episodes ->
+                                try {
+                                    episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
+                                        currentEpisode = episode
+                                        currentEpisodePosition += 1
+                                        playNewUrl(episode = episode)
+                                    } ?: run { finishActivityWithResult() }
+                                } catch (e: Exception) {
+                                    finishActivityWithResult()
+                                }
+                            } ?: run { finishActivityWithResult() }
+                        }
+                        if (state.error != null) {
+                            requestDialog.dismiss()
+                        }
+                    }
                 }
                 Player.STATE_BUFFERING -> {
                     layout.playerView.apply {
@@ -409,6 +406,20 @@ class TelevisionEpisodePlayerActivity : AppCompatActivity() {
                 }
                 KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_BACK -> {
                     updateContinueWatching()
+                    collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
+                        if (state.isLoading) {
+                            requestDialog.show()
+                        }
+                        if (state.responseCode != null) {
+                            requestDialog.dismiss()
+                            if (state.responseCode == 200) {
+                                finishActivityWithResult()
+                            }
+                        }
+                        if (state.error != null) {
+                            requestDialog.dismiss()
+                        }
+                    }
                     return true
                 }
             }

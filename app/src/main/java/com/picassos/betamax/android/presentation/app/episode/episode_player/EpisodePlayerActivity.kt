@@ -66,6 +66,8 @@ class EpisodePlayerActivity : AppCompatActivity() {
     private val playerViewModel: PlayerViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
+    private lateinit var requestDialog: RequestDialog
+
     private lateinit var player: ExoPlayer
     private lateinit var httpDataSource: DefaultHttpDataSource.Factory
     private lateinit var cacheDataSource: CacheDataSource.Factory
@@ -82,7 +84,7 @@ class EpisodePlayerActivity : AppCompatActivity() {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setTheme(R.style.PlayerTheme)
 
-        val requestDialog = RequestDialog(
+        requestDialog = RequestDialog(
             context = this@EpisodePlayerActivity,
             isFullscreen = true)
 
@@ -103,6 +105,21 @@ class EpisodePlayerActivity : AppCompatActivity() {
 
         layout.goBack.setOnClickListener {
             updateContinueWatching()
+            collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
+                if (state.isLoading) {
+                    requestDialog.show()
+                }
+                if (state.responseCode != null) {
+                    requestDialog.dismiss()
+                    if (state.responseCode == 200) {
+                        finish()
+                    }
+                }
+                if (state.error != null) {
+                    requestDialog.dismiss()
+                }
+            }
+
         }
 
         getSerializable(this@EpisodePlayerActivity, "playerContent", EpisodePlayerContent::class.java).also { playerContent ->
@@ -116,33 +133,23 @@ class EpisodePlayerActivity : AppCompatActivity() {
             initializePlayer(episode = playerContent.episode)
         }
 
-        collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
-            if (state.isLoading) {
-                requestDialog.show()
-            }
-            if (state.responseCode != null) {
-                requestDialog.dismiss()
-
-                playerContent.episodes?.let { episodes ->
-                    try {
-                        episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
-                            currentEpisode = episode
-                            currentEpisodePosition += 1
-                            playNewUrl(episode = episode)
-                        } ?: run { finish() }
-                    } catch (e: Exception) {
-                        finish()
-                    }
-                } ?: run { finish() }
-            }
-            if (state.error != null) {
-                requestDialog.dismiss()
-            }
-        }
-
         onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 updateContinueWatching()
+                collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
+                    if (state.isLoading) {
+                        requestDialog.show()
+                    }
+                    if (state.responseCode != null) {
+                        requestDialog.dismiss()
+                        if (state.responseCode == 200) {
+                            finish()
+                        }
+                    }
+                    if (state.error != null) {
+                        requestDialog.dismiss()
+                    }
+                }
             }
         })
     }
@@ -164,9 +171,6 @@ class EpisodePlayerActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@EpisodePlayerActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
-        val parameters = trackSelector.buildUponParameters()
-            .setPreferredAudioLanguage("spa")
-            .build()
         httpDataSource = DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true)
         cacheDataSource = CacheDataSource.Factory()
             .setCache(cache)
@@ -187,7 +191,6 @@ class EpisodePlayerActivity : AppCompatActivity() {
                 addListener(playerListener)
                 setMediaSource(mediaSource, true)
             }
-        player.trackSelectionParameters = parameters
 
         playerViewModel.setPlayerStatus(PlayerStatus.PREPARE)
 
@@ -307,6 +310,29 @@ class EpisodePlayerActivity : AppCompatActivity() {
             when (playbackState) {
                 Player.STATE_ENDED -> {
                     updateContinueWatching()
+                    collectLatestOnLifecycleStarted(continueWatchingViewModel.updateContinueWatching) { state ->
+                        if (state.isLoading) {
+                            requestDialog.show()
+                        }
+                        if (state.responseCode != null) {
+                            requestDialog.dismiss()
+
+                            playerContent.episodes?.let { episodes ->
+                                try {
+                                    episodes.rendered.getOrNull(currentEpisodePosition + 1)?.let { episode ->
+                                        currentEpisode = episode
+                                        currentEpisodePosition += 1
+                                        playNewUrl(episode = episode)
+                                    } ?: run { finish() }
+                                } catch (e: Exception) {
+                                    finish()
+                                }
+                            } ?: run { finish() }
+                        }
+                        if (state.error != null) {
+                            requestDialog.dismiss()
+                        }
+                    }
                 }
                 Player.STATE_BUFFERING -> {
                     layout.playerView.apply {
