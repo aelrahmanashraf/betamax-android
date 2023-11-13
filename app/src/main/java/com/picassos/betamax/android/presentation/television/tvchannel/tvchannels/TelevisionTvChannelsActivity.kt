@@ -224,9 +224,9 @@ class TelevisionTvChannelsActivity : AppCompatActivity() {
         val renderersFactory = DefaultRenderersFactory(this@TelevisionTvChannelsActivity).apply {
             setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
         }
-        httpDataSource = DefaultHttpDataSource.Factory().setUserAgent(
-            Util.getUserAgent(this@TelevisionTvChannelsActivity, tvChannel?.userAgent ?: "")
-        )
+        httpDataSource = DefaultHttpDataSource.Factory()
+            .setUserAgent(Util.getUserAgent(this@TelevisionTvChannelsActivity, tvChannel?.userAgent ?: ""))
+            .setAllowCrossProtocolRedirects(true)
         val mediaSource = HlsMediaSource.Factory(httpDataSource).createMediaSource(
             MediaItem.fromUri(Uri.EMPTY)
         )
