@@ -8,6 +8,4 @@ import javax.inject.Inject
 data class ViewMovieUseCases @Inject constructor(
     val getLocalAccountUseCase: GetLocalAccountUseCase,
     val getMovieUseCase: GetMovieUseCase,
-    val saveMovieUseCase: SaveMovieUseCase,
-    val getEpisodesUseCase: GetEpisodesUseCase,
-    val getSeasonsUseCase: GetSeasonsUseCase)
+    val saveMovieUseCase: SaveMovieUseCase)

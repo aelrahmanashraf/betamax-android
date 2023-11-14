@@ -51,56 +51,6 @@ class TelevisionViewMovieViewModel @Inject constructor(app: Application, private
         }
     }
 
-    private val _seasons = MutableStateFlow(SeasonsState())
-    val seasons = _seasons.asStateFlow()
-
-    fun requestSeasons(movieId: Int) {
-        viewModelScope.launch {
-            viewMovieUseCases.getSeasonsUseCase(movieId).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        _seasons.emit(SeasonsState(
-                            isLoading = result.isLoading))
-                    }
-                    is Resource.Success -> {
-                        _seasons.emit(SeasonsState(
-                            response = result.data))
-                    }
-                    is Resource.Error -> {
-                        _seasons.emit(SeasonsState(
-                            error = result.message))
-                    }
-                }
-            }
-        }
-    }
-
-    private val _episodes = MutableStateFlow(EpisodesState())
-    val episodes = _episodes.asStateFlow()
-
-    fun requestEpisodes(movieId: Int, seasonLevel: Int) {
-        viewModelScope.launch {
-            viewMovieUseCases.getLocalAccountUseCase.invoke().collect { account ->
-                viewMovieUseCases.getEpisodesUseCase(account.token, movieId, seasonLevel).collect { result ->
-                    when (result) {
-                        is Resource.Loading -> {
-                            _episodes.emit(EpisodesState(
-                                isLoading = result.isLoading))
-                        }
-                        is Resource.Success -> {
-                            _episodes.emit(EpisodesState(
-                                response = result.data))
-                        }
-                        is Resource.Error -> {
-                            _episodes.emit(EpisodesState(
-                                error = result.message))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private val _saveMovie = MutableStateFlow(SaveMovieState())
     val saveMovie = _saveMovie.asStateFlow()
 

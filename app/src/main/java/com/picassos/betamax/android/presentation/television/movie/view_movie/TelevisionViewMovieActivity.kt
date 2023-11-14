@@ -28,6 +28,8 @@ import com.picassos.betamax.android.domain.listener.OnMovieClickListener
 import com.picassos.betamax.android.domain.listener.OnMovieFocusListener
 import com.picassos.betamax.android.domain.listener.OnSeasonClickListener
 import com.picassos.betamax.android.domain.model.*
+import com.picassos.betamax.android.presentation.app.episode.episodes.EpisodesViewModel
+import com.picassos.betamax.android.presentation.app.season.seasons.SeasonsViewModel
 import com.picassos.betamax.android.presentation.television.episode.episode_player.TelevisionEpisodePlayerActivity
 import com.picassos.betamax.android.presentation.television.episode.episodes.TelevisionEpisodesAdapter
 import com.picassos.betamax.android.presentation.television.movie.movie_player.TelevisionMoviePlayerActivity
@@ -41,6 +43,8 @@ import kotlinx.coroutines.launch
 class TelevisionViewMovieActivity : AppCompatActivity() {
     private lateinit var layout: ActivityTelevisionViewMovieBinding
     private val televisionViewMovieViewModel: TelevisionViewMovieViewModel by viewModels()
+    private val seasonsViewModel: SeasonsViewModel by viewModels()
+    private val episodesViewModel: EpisodesViewModel by viewModels()
 
     private lateinit var movie: Movies.Movie
 
@@ -190,23 +194,20 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
                 } else {
                     val seasonsAdapter = TelevisionSeasonsAdapter(onClickListener = object: OnSeasonClickListener {
                         override fun onItemClick(season: Seasons.Season) {
-                            televisionViewMovieViewModel.requestEpisodes(
-                                movieId = movie.id,
-                                seasonLevel = season.level)
+                            seasonsViewModel.setSelectedSeason(season)
                         }
                     })
                     layout.recyclerSeasons.apply {
                         layoutManager = LinearLayoutManager(this@TelevisionViewMovieActivity, LinearLayoutManager.HORIZONTAL, false)
                         adapter = seasonsAdapter
                     }
-                    televisionViewMovieViewModel.requestSeasons(movieDetails.id)
-                    collectLatestOnLifecycleStarted(televisionViewMovieViewModel.seasons) { seasonsState ->
+                    seasonsViewModel.requestSeasons(movieDetails.id)
+                    collectLatestOnLifecycleStarted(seasonsViewModel.seasons) { seasonsState ->
                         if (seasonsState.response != null) {
                             val seasons = seasonsState.response.seasons
                             seasonsAdapter.differ.submitList(seasons)
                         }
                     }
-
                     val episodes = state.response.movieEpisodes
                     this@TelevisionViewMovieActivity.episodes = episodes
                     episodesAdapter.differ.submitList(episodes.rendered)
@@ -246,7 +247,17 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
             }
         }
 
-        collectLatestOnLifecycleStarted(televisionViewMovieViewModel.episodes) { state ->
+        collectLatestOnLifecycleStarted(seasonsViewModel.selectedSeason) { isSafe ->
+            isSafe?.let { season ->
+                selectedSeason = season
+                episodesViewModel.requestEpisodes(
+                    movieId = movie.id,
+                    seasonLevel = season.level
+                )
+            }
+        }
+
+        collectLatestOnLifecycleStarted(episodesViewModel.episodes) { state ->
             if (state.response != null) {
                 val episodes = state.response
                 this@TelevisionViewMovieActivity.episodes = episodes
@@ -259,9 +270,10 @@ class TelevisionViewMovieActivity : AppCompatActivity() {
         if (result != null && result.resultCode == RESULT_OK) {
             result.data?.let { data ->
                 if (data.getBooleanExtra("refreshContent", false)) {
-                    televisionViewMovieViewModel.requestEpisodes(
+                    episodesViewModel.requestEpisodes(
                         movieId = movie.id,
-                        seasonLevel = selectedSeason.level)
+                        seasonLevel = selectedSeason.level
+                    )
                 }
             }
         }
