@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
@@ -13,7 +12,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Lifecycle
@@ -62,7 +60,6 @@ class TelevisionMainActivity : AppCompatActivity() {
     private val televisionMainViewModel: TelevisionMainViewModel by viewModels()
     private val continueWatchingViewModel: ContinueWatchingViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_television_main)
@@ -350,7 +347,14 @@ class TelevisionMainActivity : AppCompatActivity() {
             movieTitle.text = movie.title
             movieDescription.text = movie.description
             movieDate.text = Helper.getFormattedDateString(movie.date, "yyyy")
-            movie.duration?.let { movieDuration.text = Helper.formatDuration(it) }
+            if (movie.series != 1) {
+                movieDuration.visibility = View.VISIBLE
+                movie.duration?.let {
+                    movieDuration.text = Helper.formatDuration(it)
+                }
+            } else {
+                movieDuration.visibility = View.GONE
+            }
             movieRating.text = "${getString(R.string.rating)}: ${movie.rating} / 10"
             movieBanner.controller = Fresco.newDraweeControllerBuilder()
                 .setTapToRetryEnabled(true)
